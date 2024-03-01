@@ -16,9 +16,11 @@ export default function BasicGrid() {
 
   useEffect(() => {
     // TODO:  Fetch user data
+    if (userInfo !== null) return;
+
     const userInfoTest: UserInfo = { userId: "test_user", userName: "user1" };
     setUserInfo(userInfoTest);
-  });
+  }, [userInfo]);
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
