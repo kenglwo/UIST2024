@@ -18,7 +18,7 @@ export default function Header() {
       >
         U
       </Avatar>
-      <h4>UISZT 2024</h4>
+      <h4>UIST 2024</h4>
     </Box>
   );
 }
