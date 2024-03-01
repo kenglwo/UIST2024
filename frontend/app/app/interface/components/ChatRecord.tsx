@@ -1,5 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
+import TextField from '@mui/material/TextField';
 import { UserInfo } from "../types";
 
 import styles from "../styles.module.css";
@@ -9,5 +10,9 @@ interface Props {
 }
 
 export default function ChatRecord(props: Props) {
-  return <Box>ChatRecord</Box>;
+  return (
+      <Box>
+        <TextField id="outlined-basic" label="Outlined" variant="outlined" />
+      </Box>
+ )
 }
