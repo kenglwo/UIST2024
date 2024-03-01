@@ -1,0 +1,13 @@
+.border_solid {
+  border: 1px solid black;
+  background-color: lightblue;
+}
+
+.logo {
+  /* width: 500px; */
+  /* height: 50px; */
+}
+
+.text_center {
+    text-align: center;
+}
