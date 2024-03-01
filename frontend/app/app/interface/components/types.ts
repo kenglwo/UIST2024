@@ -1,8 +1,8 @@
-export Interface UserInfo {
+export interface UserInfo {
   userId: string;
   userName: string;
 }
-export Interface UserInfo {
+export interface UserInfo {
   userId: string;
   userName: string;
 }

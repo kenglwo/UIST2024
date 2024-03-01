@@ -11,3 +11,13 @@
 .text_center {
   text-align: center;
 }
+
+.chatbox_user {
+  /* display: flex; */
+  /* flex-direction: row-reverse; */
+}
+
+.chatbox_llm {
+  /* display: flex; */
+  /* flex-direction: row; */
+}

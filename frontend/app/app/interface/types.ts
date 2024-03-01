@@ -4,6 +4,7 @@ export interface UserInfo {
 }
 
 export interface ConversationData {
+  userId: string;
   role: string;
   content: string;
 }
