@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user_id: MyString
+  experiment_starttime: 2024-03-05 07:49:53
+  experiment_endtime: 2024-03-05 07:49:53
+
+two:
+  user_id: MyString
+  experiment_starttime: 2024-03-05 07:49:53
+  experiment_endtime: 2024-03-05 07:49:53
