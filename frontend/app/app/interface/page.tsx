@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import Header from "./components/Header";
+import Header from "../components/Header";
 import ChatRecord from "./components/ChatRecord";
 import TreeMap from "./components/TreeMap";
 import ConceptNetwork from "./components/ConceptNetwork";

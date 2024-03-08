@@ -2,7 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 
 import Avatar from "@mui/material/Avatar";
-import styles from "../styles.module.css";
+// import styles from "../styles.module.css";
 
 export default function Header() {
   return (
@@ -13,7 +13,7 @@ export default function Header() {
         alt="Logo"
         // src="/next.svg"
         // variant="square"
-        className={styles.logo}
+        // className={styles.logo}
         sx={{ float: "left", mr: 3 }}
       >
         U
