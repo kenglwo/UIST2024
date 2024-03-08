@@ -4,7 +4,7 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { UserInfo, ConversationData } from "../types";
+import { UserInfo, ConversationData } from "../../types";
 import { generateResponse } from "./chatgpt_api";
 
 import styles from "../styles.module.css";
@@ -66,7 +66,6 @@ export default function ChatRecord(props: Props) {
             newConversationDataUser,
             newConversationDataLLM,
           ]);
-
         },
         (error) => {
           console.log("========== API error ==========");

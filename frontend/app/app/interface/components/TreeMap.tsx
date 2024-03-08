@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
 import Box from "@mui/material/Box";
-import { UserInfo } from "../types";
+import { UserInfo } from "../../types";
 
 import styles from "../styles.module.css";
 interface Props {
@@ -52,7 +52,7 @@ export default function TreeMap(props: Props) {
 
     // SVGの設定
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove()
+    svg.selectAll("*").remove();
 
     svg
       .attr("width", width)

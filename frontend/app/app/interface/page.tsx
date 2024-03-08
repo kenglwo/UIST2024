@@ -6,9 +6,7 @@ import Header from "./components/Header";
 import ChatRecord from "./components/ChatRecord";
 import TreeMap from "./components/TreeMap";
 import ConceptNetwork from "./components/ConceptNetwork";
-import { UserInfo } from "./types";
-
-import styles from "./styles.module.css";
+import { UserInfo } from "../types";
 
 export default function BasicGrid() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
