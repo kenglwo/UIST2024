@@ -13,6 +13,42 @@ import styles from "./styles.module.css";
 
 export default function BasicGrid() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userId, setUserId] = useState<string>("");
+
+  const onChangeTextField = (inputText: string) => {
+    setUserId(inputText);
+  };
+
+  const onClickSubmitButton = () => {
+    const newUserInfo: UserInfo = {
+      userId: userId,
+      userName: "",
+    };
+
+    // POST userInfo
+    const url: string = `${process.env.NEXT_PUBLIC_API_URL}/save_user_info`;
+    const data = {
+      user_info: newUserInfo,
+    };
+    const header = {
+      method: "POST",
+      "Access-Control-Allow-Origin": "*",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+
+    fetch(url, header)
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          // Go to self-learning page
+        },
+        (error) => {
+          console.log("========== API error ==========");
+          console.log(error);
+        },
+      );
+  };
 
   useEffect(() => {
     // TODO:  Fetch user data
@@ -41,11 +77,15 @@ export default function BasicGrid() {
               id="user_id"
               label="User ID"
               variant="outlined"
-              sx={{ maxWidth: "200px", marginTop: "20px"}}
+              sx={{ maxWidth: "200px", marginTop: "20px" }}
+              onChange={(e) => {
+                onChangeTextField(e.target.value);
+              }}
             />
             <Button
               variant="contained"
               sx={{ maxWidth: "100px", marginTop: "20px" }}
+              onClick={onClickSubmitButton}
             >
               Submit
             </Button>
