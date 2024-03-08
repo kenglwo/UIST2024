@@ -1,0 +1,2 @@
+class ExperimentDatum < ApplicationRecord
+end
