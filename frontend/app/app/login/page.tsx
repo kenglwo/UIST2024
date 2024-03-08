@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Header from "../components/Header";
 import { UserInfo } from "../types";
@@ -29,12 +30,18 @@ export default function BasicGrid() {
         <Grid item xs={4} />
         <Grid item xs={4}>
           <Stack>
-            <h1>Login Page</h1>
+            <Typography variant="h3" gutterBottom>
+              Login Page
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              Plase input User ID. Then, click Submit button to go to the
+              self-learning page.
+            </Typography>
             <TextField
               id="user_id"
               label="User ID"
               variant="outlined"
-              sx={{ maxWidth: "200px" }}
+              sx={{ maxWidth: "200px", marginTop: "20px"}}
             />
             <Button
               variant="contained"
