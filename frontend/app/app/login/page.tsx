@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
@@ -14,6 +15,8 @@ import styles from "./styles.module.css";
 export default function BasicGrid() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [userId, setUserId] = useState<string>("");
+
+  const router = useRouter();
 
   const onChangeTextField = (inputText: string) => {
     setUserId(inputText);
@@ -42,6 +45,8 @@ export default function BasicGrid() {
       .then(
         (result) => {
           // Go to self-learning page
+          const url: string = `/interface?user_id=${userId}`;
+          router.push(url);
         },
         (error) => {
           console.log("========== API error ==========");
