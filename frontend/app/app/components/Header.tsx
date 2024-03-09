@@ -12,9 +12,6 @@ export default function Header() {
         m: 0,
         p: 1,
         pl: 2,
-        // display: "flex",
-        // flexDirection: "row",
-        // alignItems: "center",
         backgroundColor: "#565656",
       }}
     >
