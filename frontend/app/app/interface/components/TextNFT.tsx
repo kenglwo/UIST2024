@@ -1,10 +1,12 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
 export default function TextNFT() {
   return (
     <Box>
-      <h1>NFTs Explained: A Must-Read Guide to Everything Non-Fungible</h1>
+      <Typography variant="h4">
+        NFTs Explained: A Must-Read Guide to Everything Non-Fungible
+      </Typography>
       <p id="author">BY JOLENE CREIGHTON • JANUARY 12, 2023</p>
       <p>
         At this point, it’s almost impossible to ignore non-fungible tokens
@@ -25,7 +27,7 @@ export default function TextNFT() {
         woes. Here, we explain what NFTs are, dive into their pros and cons, and
         cover all the latest developments and innovations.
       </p>
-      <h2>Table of Contents</h2>
+      <Typography variant="h5">Table of Contents</Typography>
       <ol className="menu"></ol>
 
       <h3>What’s an NFT?</h3>
