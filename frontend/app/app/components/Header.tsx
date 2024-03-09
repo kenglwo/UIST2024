@@ -1,24 +1,23 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
-import Avatar from "@mui/material/Avatar";
-// import styles from "../styles.module.css";
+// import Avatar from "@mui/material/Avatar";
+// import styles from "../globals.css";
 
 export default function Header() {
   return (
     <Box
-      sx={{ m: 2, display: "flex", flexDirection: "row", alignItems: "center" }}
+      sx={{
+        m: 0,
+        p: 1,
+        pl: 2,
+        backgroundColor: "#565656",
+      }}
     >
-      <Avatar
-        alt="Logo"
-        // src="/next.svg"
-        // variant="square"
-        // className={styles.logo}
-        sx={{ float: "left", mr: 3 }}
-      >
-        U
-      </Avatar>
-      <h4>UIST 2024</h4>
+      <Typography variant="h4" gutterBottom sx={{ color: "white" }}>
+        System Name
+      </Typography>
     </Box>
   );
 }

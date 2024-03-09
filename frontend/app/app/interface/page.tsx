@@ -3,10 +3,12 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
 import Header from "../components/Header";
 import ChatRecord from "./components/ChatRecord";
 import TreeMap from "./components/TreeMap";
 import ConceptNetwork from "./components/ConceptNetwork";
+import EmbeddedContent from "./components/EmbeddedContent";
 import { UserInfo } from "../types";
 
 export default function BasicGrid() {
@@ -31,9 +33,10 @@ export default function BasicGrid() {
           <Header />
         </Grid>
         <Grid item xs={6}>
-          <div>
+          <Stack>
+            <EmbeddedContent textName={"NFT"} />
             <ChatRecord userInfo={userInfo} />
-          </div>
+          </Stack>
         </Grid>
         <Grid item xs={6}>
           <div>
