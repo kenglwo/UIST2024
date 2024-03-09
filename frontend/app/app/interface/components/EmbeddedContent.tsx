@@ -4,6 +4,7 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
+import AncherTemporaryDrawer from "./AncherTemporaryDrawer";
 import TextNFT from "./TextNFT";
 
 import styles from "../styles.module.css";
@@ -42,8 +43,10 @@ export default function EmbeddedContent(props: Props) {
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
-        <Box>Side bar</Box>
-        <TextNFT />
+        <AncherTemporaryDrawer />
+        <Box sx={{ml: 3}}>
+          <TextNFT />
+        </Box>
       </Stack>
     </Box>
   );

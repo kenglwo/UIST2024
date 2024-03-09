@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 export default function TextNFT() {
   return (
-    <Box>
+    <Box sx={{ maxHeight: "350px", overflowY: "auto" }}>
       <Typography variant="h4">
         NFTs Explained: A Must-Read Guide to Everything Non-Fungible
       </Typography>
