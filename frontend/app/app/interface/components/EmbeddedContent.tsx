@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import AncherTemporaryDrawer from "./AncherTemporaryDrawer";
 import TextNFT from "./TextNFT";
 
 import styles from "../styles.module.css";
@@ -15,6 +15,14 @@ interface Props {
 
 export default function EmbeddedContent(props: Props) {
   const [text, setText] = useState<string>("");
+  const [navigationItems, setNavigationItem] = useState<string[]>([
+    "Introduction",
+    "Related Works",
+    "Method",
+    "Evaluation",
+    "Discussions",
+    "Contributions",
+  ]);
 
   useEffect(() => {
     if (props.textName === "NFT") {
@@ -42,9 +50,20 @@ export default function EmbeddedContent(props: Props) {
         <Typography variant="h5">Embedded Content</Typography>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
-      <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
-        <AncherTemporaryDrawer />
-        <Box sx={{ml: 3}}>
+      <Stack direction="row">
+        <Stack >
+          <Typography variant="h6">Navigation</Typography>
+          {navigationItems.map((d, i) => (
+            <Button
+              key={i}
+              variant={d === "Method" ? "contained" : "outlined"}
+              sx={{ mt: 1 }}
+            >
+              {d}
+            </Button>
+          ))}
+        </Stack>
+        <Box sx={{ ml: 3 }}>
           <TextNFT />
         </Box>
       </Stack>
