@@ -113,13 +113,18 @@ export default function ChatRecord(props: Props) {
               <Stack
                 direction="row"
                 spacing={2}
-                sx={{ display: "flex", alignItems: "center", justifyContent: conversation.role === "user" ? "flex-start" : "flex-end"}}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent:
+                    conversation.role === "user" ? "flex-start" : "flex-end",
+                }}
               >
                 <Avatar
                   alt={conversation.role === "user" ? "U" : "C"}
-                  // src={`/images/${
-                  //   conversation.role === "user" ? "user.png" : "student.jpeg"
-                  // }`}
+                  src={`/images/${
+                    conversation.role === "user" ? "user.png" : "bot.png"
+                  }`}
                 />
                 <h3>
                   {conversation.role === "user"
