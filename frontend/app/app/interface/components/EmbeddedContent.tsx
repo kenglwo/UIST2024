@@ -30,16 +30,7 @@ export default function EmbeddedContent(props: Props) {
   }, [props]);
 
   return (
-    <Box
-      sx={{
-        m: 3,
-        p: 3,
-        backgroundColor: "white",
-        borderRadius: "16px",
-        maxHeight: "50vh",
-        overflowY: "auto",
-      }}
-    >
+    <Box className={styles.interface_component}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Embedded Content Sharp"
@@ -51,7 +42,7 @@ export default function EmbeddedContent(props: Props) {
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Stack direction="row">
-        <Stack >
+        <Stack>
           <Typography variant="h6">Navigation</Typography>
           {navigationItems.map((d, i) => (
             <Button
