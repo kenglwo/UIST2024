@@ -13,13 +13,14 @@
 }
 
 .chatbox_user {
+  margin-top: 10px;
   /* display: flex; */
   /* flex-direction: row-reverse; */
 }
 
 .chatbox_llm {
-  /* display: flex; */
-  /* flex-direction: row; */
+  display: flex;
+  justify-content: flex-end;
 }
 
 .tree_map {

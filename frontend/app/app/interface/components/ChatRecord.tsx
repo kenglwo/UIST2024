@@ -108,29 +108,28 @@ export default function ChatRecord(props: Props) {
                 ? styles.chatbox_user
                 : styles.chatbox_llm
             }`}
-            sx={{ mt: 4, whiteSpace: "pre-wrap" }}
           >
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ display: "flex", alignItems: "center" }}
-            >
-              <Avatar
-                alt={conversation.role === "user" ? "U" : "C"}
-                // src={`/images/${
-                //   conversation.role === "user" ? "user.png" : "student.jpeg"
-                // }`}
-              />
-              <h3>
-                {conversation.role === "user"
-                  ? props.userInfo?.userId
-                  : "ChatGPT"}
-              </h3>
-            </Stack>
-            <Box
-              className={styles.chat_text_box}
-            >
-              <p>{conversation.content}</p>
+            <Box>
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ display: "flex", alignItems: "center", justifyContent: conversation.role === "user" ? "flex-start" : "flex-end"}}
+              >
+                <Avatar
+                  alt={conversation.role === "user" ? "U" : "C"}
+                  // src={`/images/${
+                  //   conversation.role === "user" ? "user.png" : "student.jpeg"
+                  // }`}
+                />
+                <h3>
+                  {conversation.role === "user"
+                    ? props.userInfo?.userId
+                    : "ChatGPT"}
+                </h3>
+              </Stack>
+              <Box className={styles.chat_text_box}>
+                <p>{conversation.content}</p>
+              </Box>
             </Box>
           </Box>
         ))}
