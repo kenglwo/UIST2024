@@ -4,6 +4,7 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { UserInfo, ConversationData } from "../../types";
@@ -22,6 +23,8 @@ export default function ChatRecord(props: Props) {
     [],
   );
   const [textFieldValue, setTextFieldValue] = useState<string>("");
+  const [isLoadingLLMResponse, setIsLoadingLLMResponse] =
+    useState<boolean>(false);
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -38,6 +41,8 @@ export default function ChatRecord(props: Props) {
       role: "user",
       content: userInputPrompt,
     };
+    const conversationDataPrev: ConversationData[] = [...conversationData, newConversationDataUser];
+    setConversationData([...conversationData, newConversationDataUser]);
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
@@ -50,24 +55,24 @@ export default function ChatRecord(props: Props) {
       body: JSON.stringify(data),
     };
 
+    // set true to show loading icon
+    setIsLoadingLLMResponse(true);
+
+    // get LLM response
     fetch(url, header)
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log(result);
-          // setStudentData(data);
-          // TODO: set response by LLM
           const newConversationDataLLM: ConversationData = {
             userId: props.userInfo.userId,
             role: "system",
             content: result["content"],
           };
 
-          setConversationData([
-            ...conversationData,
-            newConversationDataUser,
-            newConversationDataLLM,
-          ]);
+          setConversationData([...conversationDataPrev, newConversationDataLLM]);
+
+          // set false to hide loading icon
+          setIsLoadingLLMResponse(false);
         },
         (error) => {
           console.log("========== API error ==========");
@@ -81,7 +86,7 @@ export default function ChatRecord(props: Props) {
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Embedded Content Sharp"
-          src="/images/embedded_content.png"
+          src="/images/q_a.png"
           variant="square"
           sx={{ mr: 2 }}
         />
@@ -117,6 +122,7 @@ export default function ChatRecord(props: Props) {
             </Box>
           </Box>
         ))}
+        {isLoadingLLMResponse && <CircularProgress />}
       </Box>
       <Box
         sx={{
