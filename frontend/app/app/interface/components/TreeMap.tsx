@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 import { UserInfo } from "../../types";
 
 import styles from "../styles.module.css";
@@ -115,8 +119,47 @@ export default function TreeMap(props: Props) {
     });
   }, [props.userInfo]); // データが変わったら再描画
 
+  const categories = ["Material", "Formal", "Efficient", "Final"].map(
+    (category, i) => {
+      let backgroundColor: string = "";
+
+      if (category === "Material") {
+        backgroundColor = "#DDA0A1";
+      } else if (category === "Formal") {
+        backgroundColor = "#A4CCE3";
+      } else if (category === "Efficient") {
+        backgroundColor = "#EFCAAC";
+      } else if (category === "Final") {
+        backgroundColor = "#A5CB93";
+      }
+      return (
+        <Stack direction="row" spacing={1} sx={{ mr: 3 }}>
+          <Box
+            key={i}
+            className={styles.tree_map_category}
+            sx={{ backgroundColor: backgroundColor }}
+          />
+          <Typography variant="button">{category}</Typography>
+        </Stack>
+      );
+    },
+  );
+
   return (
-    <Box className={styles.tree_map}>
+    <Box className={styles.interface_component}>
+      <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
+        <Avatar
+          alt="Embedded Content Sharp"
+          src="/images/tree_map.png"
+          variant="square"
+          sx={{ mr: 2 }}
+        />
+        <Typography variant="h5" sx={{ mr: 3 }}>
+          Tree Map
+        </Typography>
+        {categories}
+      </Stack>
+      <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <svg ref={svgRef}></svg>
     </Box>
   );
