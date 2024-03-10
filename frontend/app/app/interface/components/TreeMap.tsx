@@ -152,7 +152,7 @@ export default function TreeMap(props: Props) {
           alt="Embedded Content Sharp"
           src="/images/tree_map.png"
           variant="square"
-          sx={{ mr: 2 }}
+          sx={{ mt: 0, mb: 1, mr: 2 }}
         />
         <Typography variant="h5" sx={{ mr: 3 }}>
           Tree Map
