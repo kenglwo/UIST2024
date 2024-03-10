@@ -25,3 +25,12 @@
 .tree_map {
   height: 400px;
 }
+
+.interface_component {
+  margin: 10px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 16px;
+  max-height: 50vh;
+  overflow-y: auto;
+}

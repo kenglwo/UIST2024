@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { UserInfo, ConversationData } from "../../types";
@@ -75,8 +77,18 @@ export default function ChatRecord(props: Props) {
   };
 
   return (
-    <Box sx={{ m: 3 }}>
-      <Box className={styles.border_solid}>
+    <Box className={styles.interface_component}>
+      <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
+        <Avatar
+          alt="Embedded Content Sharp"
+          src="/images/embedded_content.png"
+          variant="square"
+          sx={{ mr: 2 }}
+        />
+        <Typography variant="h5">Q&A Conversation</Typography>
+      </Stack>
+      <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
+      <Box>
         {conversationData.map((conversation, i) => (
           <Box
             key={i}
