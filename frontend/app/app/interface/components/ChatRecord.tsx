@@ -41,7 +41,10 @@ export default function ChatRecord(props: Props) {
       role: "user",
       content: userInputPrompt,
     };
-    const conversationDataPrev: ConversationData[] = [...conversationData, newConversationDataUser];
+    const conversationDataPrev: ConversationData[] = [
+      ...conversationData,
+      newConversationDataUser,
+    ];
     setConversationData([...conversationData, newConversationDataUser]);
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
@@ -69,7 +72,10 @@ export default function ChatRecord(props: Props) {
             content: result["content"],
           };
 
-          setConversationData([...conversationDataPrev, newConversationDataLLM]);
+          setConversationData([
+            ...conversationDataPrev,
+            newConversationDataLLM,
+          ]);
 
           // set false to hide loading icon
           setIsLoadingLLMResponse(false);
@@ -115,9 +121,15 @@ export default function ChatRecord(props: Props) {
                 //   conversation.role === "user" ? "user.png" : "student.jpeg"
                 // }`}
               />
-              <h3>{conversation.role === "user" ? "You" : "ChatGPT"}</h3>
+              <h3>
+                {conversation.role === "user"
+                  ? props.userInfo?.userId
+                  : "ChatGPT"}
+              </h3>
             </Stack>
-            <Box sx={{ m: 2, textAlign: "left", whiteSpace: "pre-wrap" }}>
+            <Box
+              className={styles.chat_text_box}
+            >
               <p>{conversation.content}</p>
             </Box>
           </Box>
