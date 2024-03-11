@@ -18,7 +18,7 @@ export default function TreeMap(props: Props) {
 
   useEffect(() => {
     const data = {
-      name: "flare",
+      name: "root",
       children: [
         {
           name: "question 1",
@@ -41,6 +41,7 @@ export default function TreeMap(props: Props) {
     const marginRight = 10;
     const marginBottom = 10;
     const marginLeft = 40;
+    const offsetLeft = -250;
     const dx = 10;
     const dy = (width - marginRight - marginLeft) / (1 + root.height);
     const tree = d3.tree().nodeSize([dx, dy]);
@@ -75,20 +76,28 @@ export default function TreeMap(props: Props) {
       .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5);
     const links = root.links();
-    gLink.selectAll("path").data(links).join("path").attr("d", diagonal);
+      // @ts-ignore
+    gLink
+      .selectAll("path").data(links).join("path").attr("d", diagonal)
+      // @ts-ignore
+      .style("display", d => (d.source.data.name === "root" ? "none" : "block"))
+      .attr("transform", `translate(${offsetLeft}, 0)`);
 
     // ノードの描画
     const gNode = svg
       .append("g")
       .attr("cursor", "pointer")
       .attr("pointer-events", "all");
+
     const nodes = root.descendants();
     const node = gNode
       .selectAll("g")
       .data(nodes)
       .join("g")
       // @ts-ignore
-      .attr("transform", (d) => `translate(${d.y},${d.x})`);
+      .style("display", (d) => d.data.name === "root" ? "none" : "block")
+      // @ts-ignore 
+      .attr("transform", (d) => `translate(${d.y },${d.x})`)
 
     node
       .append("circle")
@@ -111,6 +120,9 @@ export default function TreeMap(props: Props) {
       .attr("stroke-width", 3)
       .attr("stroke", "white");
 
+
+    gNode
+      .attr("transform", `translate(${offsetLeft}, 0)`);
     // 初期状態の設定
     // @ts-ignore
     root.eachBefore((d) => {
@@ -133,9 +145,8 @@ export default function TreeMap(props: Props) {
         backgroundColor = "#A5CB93";
       }
       return (
-        <Stack direction="row" spacing={1} sx={{ mr: 3 }}>
+        <Stack direction="row" spacing={1} sx={{ mr: 3 }} key={i}>
           <Box
-            key={i}
             className={styles.tree_map_category}
             sx={{ backgroundColor: backgroundColor }}
           />
