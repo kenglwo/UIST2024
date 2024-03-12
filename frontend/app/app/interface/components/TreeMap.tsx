@@ -21,17 +21,20 @@ export default function TreeMap(props: Props) {
       name: "root",
       children: [
         {
-          name: "question 1",
+          name: "What is NFT?",
           children: [
-            { name: "question1_1" },
-            { name: "question1_2" },
-            { name: "question1_3" },
-            { name: "question1_4" },
+            { name: "Who are the stakeholders of NFT?" },
+            { name: "When is the best to buy NFT?" },
+            { name: "Where is a good place to buy NFT?" },
+            { name: "How to sell NFT?" },
           ],
         },
         {
-          name: "question 2",
-          children: [{ name: "question2_1" }, { name: "question2_2" }],
+          name: "What is blockchain?",
+          children: [
+            { name: "Who uses the technology?" },
+            { name: "How to learn the technology?" },
+          ],
         },
       ],
     };
@@ -41,7 +44,7 @@ export default function TreeMap(props: Props) {
     const marginRight = 10;
     const marginBottom = 10;
     const marginLeft = 40;
-    const offsetLeft = -250;
+    const offsetLeft = -200;
     const dx = 10;
     const dy = (width - marginRight - marginLeft) / (1 + root.height);
     const tree = d3.tree().nodeSize([dx, dy]);
@@ -76,11 +79,16 @@ export default function TreeMap(props: Props) {
       .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5);
     const links = root.links();
-      // @ts-ignore
+    // @ts-ignore
     gLink
-      .selectAll("path").data(links).join("path").attr("d", diagonal)
+      .selectAll("path")
+      .data(links)
+      .join("path")
+      .attr("d", diagonal)
       // @ts-ignore
-      .style("display", d => (d.source.data.name === "root" ? "none" : "block"))
+      .style("display", (d) =>
+        d.source.data.name === "root" ? "none" : "block",
+      )
       .attr("transform", `translate(${offsetLeft}, 0)`);
 
     // ノードの描画
@@ -95,9 +103,9 @@ export default function TreeMap(props: Props) {
       .data(nodes)
       .join("g")
       // @ts-ignore
-      .style("display", (d) => d.data.name === "root" ? "none" : "block")
-      // @ts-ignore 
-      .attr("transform", (d) => `translate(${d.y },${d.x})`)
+      .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
+      // @ts-ignore
+      .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
     node
       .append("circle")
@@ -120,9 +128,7 @@ export default function TreeMap(props: Props) {
       .attr("stroke-width", 3)
       .attr("stroke", "white");
 
-
-    gNode
-      .attr("transform", `translate(${offsetLeft}, 0)`);
+    gNode.attr("transform", `translate(${offsetLeft}, 0)`);
     // 初期状態の設定
     // @ts-ignore
     root.eachBefore((d) => {
