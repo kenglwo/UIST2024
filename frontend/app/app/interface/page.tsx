@@ -40,8 +40,8 @@ export default function BasicGrid() {
         </Grid>
         <Grid item xs={6}>
           <div>
-            <TreeMap userInfo={userInfo} />
             <ConceptNetwork userInfo={userInfo} />
+            <TreeMap userInfo={userInfo} />
           </div>
         </Grid>
       </Grid>
