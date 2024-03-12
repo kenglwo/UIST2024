@@ -16,18 +16,20 @@ const data = {
   children: [
     {
       name: "What is NFT?",
+      category: "question",
       children: [
-        { name: "Who are the stakeholders of NFT?" },
-        { name: "When is the best to buy NFT?" },
-        { name: "Where is a good place to buy NFT?" },
-        { name: "How to sell NFT?" },
+        { name: "Who are the stakeholders of NFT?", category: "material" },
+        { name: "When is the best to buy NFT?", category: "formal" },
+        { name: "Where is a good place to buy NFT?", category: "efficient" },
+        { name: "How to sell NFT?", category: "final" },
       ],
     },
     {
       name: "What is blockchain?",
+      category: "question",
       children: [
-        { name: "Who uses the technology?" },
-        { name: "How to learn the technology?" },
+        { name: "Who uses the technology?", category: "material" },
+        { name: "How to learn the technology?", category: "efficient" },
       ],
     },
   ],
@@ -40,13 +42,14 @@ export default function TreeMap(props: Props) {
 
   const renderTreeMap = () => {
     const root = d3.hierarchy(questionData);
-    const width = 928;
+    const width = 1128;
+    const height = 300;
     const marginTop = 10;
     const marginRight = 10;
     const marginBottom = 10;
     const marginLeft = 40;
-    const offsetLeft = -200;
-    const dx = 10;
+    const offsetLeft = 0;
+    const dx = 40;
     const dy = (width - marginRight - marginLeft) / (1 + root.height);
     const tree = d3.tree().nodeSize([dx, dy]);
     const diagonal = d3
@@ -65,7 +68,7 @@ export default function TreeMap(props: Props) {
 
     svg
       .attr("width", width)
-      .attr("height", "100px")
+      .attr("height", height)
       .attr("viewBox", [-marginLeft, -marginTop, width, dx])
       .attr(
         "style",
@@ -119,6 +122,10 @@ export default function TreeMap(props: Props) {
       .attr("id", (d, i) => `text_${i}`)
       .attr("text-anchor", (d) => (d.children ? "end" : "start"))
       .text((d, i) => `Q${i}: ${d.data.name}`)
+      .attr("font-size", (d) =>
+        d.data.category === "question" ? "24px" : "18px",
+      )
+      .attr("stroke", "black")
       .attr("stroke-linejoin", "round")
       .attr("stroke-width", 1)
       .attr("stroke", "black");
@@ -135,7 +142,21 @@ export default function TreeMap(props: Props) {
         .attr("y", bbox.y - padding / 2)
         .attr("width", bbox.width + padding)
         .attr("height", bbox.height + padding)
-        .attr("fill", "none")
+        .attr("rx", 6)
+        .attr("ry", 6)
+        .attr("fill", (d) => {
+          console.log(d);
+          if (d.data.category === "material") {
+            return "#DDA0A1";
+          } else if (d.data.category === "formal") {
+            return "#A4CCE3";
+          } else if (d.data.category === "efficient") {
+            return "#EFCAAC";
+          } else if (d.data.category === "final") {
+            return "#A5CB93";
+          }
+          return "none";
+        })
         .attr("stroke", "black")
         .style("padding", "5px");
     });
@@ -187,7 +208,9 @@ export default function TreeMap(props: Props) {
         {categories}
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
-      <svg ref={svgRef}></svg>
+      <Box sx={{ overflowX: "auto" }}>
+        <svg ref={svgRef}></svg>
+      </Box>
     </Box>
   );
 }
