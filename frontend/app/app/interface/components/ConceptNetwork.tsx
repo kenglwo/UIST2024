@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
 import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 import { UserInfo } from "../../types";
 
 import styles from "../styles.module.css";
@@ -182,7 +186,19 @@ export default function ConceptNetwork(props: Props) {
   }, [data]);
 
   return (
-    <Box className={styles.tree_map}>
+    <Box className={styles.interface_component}>
+      <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
+        <Avatar
+          alt="Concept Graph"
+          src="/images/concept_graph.png"
+          variant="square"
+          sx={{ mt: 0, mb: 1, mr: 2 }}
+        />
+        <Typography variant="h5" sx={{ mr: 3 }}>
+          Concept Graph
+        </Typography>
+      </Stack>
+      <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <svg ref={svgRef}></svg>
     </Box>
   );
