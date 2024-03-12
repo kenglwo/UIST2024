@@ -11,34 +11,35 @@ import styles from "../styles.module.css";
 interface Props {
   userInfo: UserInfo | null;
 }
+const data = {
+  name: "root",
+  children: [
+    {
+      name: "What is NFT?",
+      children: [
+        { name: "Who are the stakeholders of NFT?" },
+        { name: "When is the best to buy NFT?" },
+        { name: "Where is a good place to buy NFT?" },
+        { name: "How to sell NFT?" },
+      ],
+    },
+    {
+      name: "What is blockchain?",
+      children: [
+        { name: "Who uses the technology?" },
+        { name: "How to learn the technology?" },
+      ],
+    },
+  ],
+};
 
 export default function TreeMap(props: Props) {
-  const [questionData, setQuestionData] = useState();
+  const [questionData, setQuestionData] = useState(data);
+  const [counter, setCounter] = useState<number>(0);
   const svgRef = useRef();
 
-  useEffect(() => {
-    const data = {
-      name: "root",
-      children: [
-        {
-          name: "What is NFT?",
-          children: [
-            { name: "Who are the stakeholders of NFT?" },
-            { name: "When is the best to buy NFT?" },
-            { name: "Where is a good place to buy NFT?" },
-            { name: "How to sell NFT?" },
-          ],
-        },
-        {
-          name: "What is blockchain?",
-          children: [
-            { name: "Who uses the technology?" },
-            { name: "How to learn the technology?" },
-          ],
-        },
-      ],
-    };
-    const root = d3.hierarchy(data);
+  const renderTreeMap = () => {
+    const root = d3.hierarchy(questionData);
     const width = 928;
     const marginTop = 10;
     const marginRight = 10;
@@ -78,8 +79,9 @@ export default function TreeMap(props: Props) {
       .attr("stroke", "#555")
       .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5);
+
     const links = root.links();
-    // @ts-ignore
+
     gLink
       .selectAll("path")
       .data(links)
@@ -91,7 +93,6 @@ export default function TreeMap(props: Props) {
       )
       .attr("transform", `translate(${offsetLeft}, 0)`);
 
-    // ノードの描画
     const gNode = svg
       .append("g")
       .attr("cursor", "pointer")
@@ -102,40 +103,49 @@ export default function TreeMap(props: Props) {
       .selectAll("g")
       .data(nodes)
       .join("g")
-      // @ts-ignore
       .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
-      // @ts-ignore
       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
     node
       .append("circle")
-      // @ts-ignore
       .attr("fill", (d) => (d.children ? "#555" : "#999"))
       .attr("r", 2.5);
 
-    node
+    // First, add text elements
+    const texts = node
       .append("text")
       .attr("dy", "0.31em")
-      // @ts-ignore
       .attr("x", (d) => (d.children ? -6 : 6))
-      // @ts-ignore
+      .attr("id", (d, i) => `text_${i}`)
       .attr("text-anchor", (d) => (d.children ? "end" : "start"))
-      // @ts-ignore
-      .text((d) => d.data.name)
-      .clone(true)
-      .lower()
+      .text((d, i) => `Q${i}: ${d.data.name}`)
       .attr("stroke-linejoin", "round")
-      .attr("stroke-width", 3)
-      .attr("stroke", "white");
+      .attr("stroke-width", 1)
+      .attr("stroke", "black");
+
+    // Then, for each text, add a rect behind it based on its dimensions
+    texts.each(function (d, i) {
+      const bbox = this.getBBox();
+      const padding = 10; // Adjust padding as needed
+
+      // Insert rect behind the text by selecting the parent and inserting before this text element
+      d3.select(this.parentNode)
+        .insert("rect", `#text_${i}`)
+        .attr("x", bbox.x - padding / 2)
+        .attr("y", bbox.y - padding / 2)
+        .attr("width", bbox.width + padding)
+        .attr("height", bbox.height + padding)
+        .attr("fill", "none")
+        .attr("stroke", "black")
+        .style("padding", "5px");
+    });
 
     gNode.attr("transform", `translate(${offsetLeft}, 0)`);
-    // 初期状態の設定
-    // @ts-ignore
-    root.eachBefore((d) => {
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
-  }, [props.userInfo]); // データが変わったら再描画
+  };
+
+  useEffect(() => {
+    renderTreeMap();
+  }, [questionData]); // データが変わったら再描画
 
   const categories = ["Material", "Formal", "Efficient", "Final"].map(
     (category, i) => {
