@@ -7,9 +7,13 @@ import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Switch from "@mui/material/Switch";
+import Tooltip from "@mui/material/Tooltip";
+
 import { UserInfo, ConversationData } from "../../types";
 import { generateResponse } from "./chatgpt_api";
 
+import { lightGreen } from "@mui/material/colors";
 import styles from "../styles.module.css";
 import { clear } from "console";
 
@@ -87,16 +91,44 @@ export default function ChatRecord(props: Props) {
       );
   };
 
+  const onChangeSwitch = (isSwitchOn: boolean) => {
+    console.log(isSwitchOn);
+  };
+
   return (
     <Box className={styles.interface_component}>
-      <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
-        <Avatar
-          alt="Embedded Content Sharp"
-          src="/images/q_a.png"
-          variant="square"
-          sx={{ mr: 2 }}
-        />
-        <Typography variant="h5">Q&A Conversation</Typography>
+      <Stack
+        direction="row"
+        sx={{ display: "flex", justifyContent: "space-between" }}
+      >
+        <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
+          <Avatar
+            alt="Embedded Content Sharp"
+            src="/images/q_a.png"
+            variant="square"
+            sx={{ mr: 2 }}
+          />
+          <Typography variant="h5">Q&A Conversation</Typography>
+        </Stack>
+        <Stack
+          direction="row"
+          sx={{
+            displaY: "flex",
+            alignItems: "center",
+            mr: 4,
+          }}
+        >
+          <Tooltip title="Controlled Version" arrow placement="top">
+            <Typography variant="button">C</Typography>
+          </Tooltip>
+          <Switch
+            defaultChecked
+            onChange={(e) => onChangeSwitch(e.target.checked)}
+          />
+          <Tooltip title="Epistemology Version" arrow placement="top">
+            <Typography variant="button">E</Typography>
+          </Tooltip>
+        </Stack>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box>
