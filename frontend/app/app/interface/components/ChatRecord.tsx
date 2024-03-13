@@ -7,9 +7,14 @@ import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+
 import { UserInfo, ConversationData } from "../../types";
 import { generateResponse } from "./chatgpt_api";
 
+import { lightGreen } from "@mui/material/colors";
 import styles from "../styles.module.css";
 import { clear } from "console";
 
@@ -87,16 +92,40 @@ export default function ChatRecord(props: Props) {
       );
   };
 
+  const onChangeSwitch = (isSwitchOn: boolean) => {
+    console.log(isSwitchOn);
+  };
+
   return (
     <Box className={styles.interface_component}>
-      <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
-        <Avatar
-          alt="Embedded Content Sharp"
-          src="/images/q_a.png"
-          variant="square"
-          sx={{ mr: 2 }}
-        />
-        <Typography variant="h5">Q&A Conversation</Typography>
+      <Stack
+        direction="row"
+        sx={{ display: "flex", justifyContent: "space-between" }}
+      >
+        <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
+          <Avatar
+            alt="Embedded Content Sharp"
+            src="/images/q_a.png"
+            variant="square"
+            sx={{ mr: 2 }}
+          />
+          <Typography variant="h5">Q&A Conversation</Typography>
+        </Stack>
+        <Stack
+          direction="row"
+          sx={{
+            displaY: "flex",
+            alignItems: "center",
+            mr: 4,
+          }}
+        >
+          <Typography variant="button">C</Typography>
+          <Switch
+            defaultChecked
+            onChange={(e) => onChangeSwitch(e.target.checked)}
+          />
+          <Typography variant="button">E</Typography>
+        </Stack>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box>
