@@ -7,9 +7,8 @@ import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
+import Tooltip from "@mui/material/Tooltip";
 
 import { UserInfo, ConversationData } from "../../types";
 import { generateResponse } from "./chatgpt_api";
@@ -119,12 +118,16 @@ export default function ChatRecord(props: Props) {
             mr: 4,
           }}
         >
-          <Typography variant="button">C</Typography>
+          <Tooltip title="Controlled Version" arrow placement="top">
+            <Typography variant="button">C</Typography>
+          </Tooltip>
           <Switch
             defaultChecked
             onChange={(e) => onChangeSwitch(e.target.checked)}
           />
-          <Typography variant="button">E</Typography>
+          <Tooltip title="Epistemology Version" arrow placement="top">
+            <Typography variant="button">E</Typography>
+          </Tooltip>
         </Stack>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
