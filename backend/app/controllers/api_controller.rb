@@ -5,6 +5,9 @@ require 'json'
 class ApiController < ApplicationController
   def get_chatgpt_answer
      user_input_prompt = params['user_input_prompt']
+     followup_question_mode = params['followup_question_mode']
+     followup_question_prompt = followup_question_mode == 'epistemology' ? 'Could you provide some related questions, using the four causes idea originating from Aristotle\'s philosophy?' : 'Could you provide some related questions?'
+
 
      uri = URI(ENV['CHATGPT_API_ENDPOINT'])
      header = {
@@ -12,7 +15,7 @@ class ApiController < ApplicationController
        'api-key': ENV['CHATGPT_API_KEY']
      }
      body = {
-        "messages": [{"role": "user", "content": user_input_prompt}],
+        "messages": [{"role": "user", "content": user_input_prompt}, {"role": "user", "content": followup_question_prompt}],
         "temperature": 0.7
       }
      #
@@ -30,6 +33,10 @@ class ApiController < ApplicationController
       when Net::HTTPSuccess, Net::HTTPRedirection
         # Success logic here
         answer = JSON.parse(response.body)
+
+        logger.debug "================="
+        logger.debug answer
+
         answer_content = answer["choices"][0]["message"]["content"]
         output = {"content": answer_content}
         render json: output

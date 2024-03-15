@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Message } from "../types";
+import { Message } from "../../types";
 
 // Define the endpoint URL
 const apiUrl: string = process.env.NEXT_PUBLIC_CHATGPT_API_ENDPOINT;

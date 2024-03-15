@@ -11,11 +11,10 @@ import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 
 import { UserInfo, ConversationData } from "../../types";
-import { generateResponse } from "./chatgpt_api";
+// import { generateResponse } from "./chatgpt_api";
 
-import { lightGreen } from "@mui/material/colors";
+// import { lightGreen } from "@mui/material/colors";
 import styles from "../styles.module.css";
-import { clear } from "console";
 
 interface Props {
   userInfo: UserInfo | null;
@@ -29,6 +28,9 @@ export default function ChatRecord(props: Props) {
   const [textFieldValue, setTextFieldValue] = useState<string>("");
   const [isLoadingLLMResponse, setIsLoadingLLMResponse] =
     useState<boolean>(false);
+  const [followupQuestionMode, setFollowupQuestionMode] = useState<
+    "controlled" | "epistemology"
+  >("epistemology");
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -54,6 +56,7 @@ export default function ChatRecord(props: Props) {
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
       user_input_prompt: userInputPrompt,
+      followup_question_mode: followupQuestionMode,
     };
     const header = {
       method: "POST",
@@ -93,6 +96,8 @@ export default function ChatRecord(props: Props) {
 
   const onChangeSwitch = (isSwitchOn: boolean) => {
     console.log(isSwitchOn);
+    const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
+    setFollowupQuestionMode(newFollowupQuestionMode);
   };
 
   return (
