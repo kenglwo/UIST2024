@@ -34,7 +34,16 @@
   width: fit-content;
   margin: 5px;
   padding: 10px;
-  background-color: lightpink ;
+  border: 3px solid pink;
+  border-radius: 10px;
+}
+
+.followup_question_box:hover {
+  width: fit-content;
+  margin: 5px;
+  padding: 10px;
+  background-color: pink;
+  /* border: 3px solid pink; */
   border-radius: 10px;
 }
 
