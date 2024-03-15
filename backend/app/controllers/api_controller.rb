@@ -5,14 +5,29 @@ require 'json'
 class ApiController < ApplicationController
   def get_chatgpt_answer
      user_input_prompt = params['user_input_prompt']
+     followup_question_mode = params['followup_question_mode']
+     followup_question_prompt = followup_question_mode == 'epistemology' ? 
+      'Regarding the previous question, could you provide some follow-up questions, using the four causes idea originating from Aristotle\'s philosophy?' :
+      'Could you provide some follow-up questions?'
 
+     answer_question = getResponseByLLM(user_input_prompt)
+     answer_followup_question = getResponseByLLM(followup_question_prompt)
+     output = {
+      answer_question: answer_question,
+      answer_followup_question: answer_followup_question
+     }
+
+     render json: output
+  end
+
+  def getResponseByLLM(input_prompt)
      uri = URI(ENV['CHATGPT_API_ENDPOINT'])
      header = {
        'Content-Type': 'application/json',
        'api-key': ENV['CHATGPT_API_KEY']
      }
      body = {
-        "messages": [{"role": "user", "content": user_input_prompt}],
+        "messages": [{"role": "user", "content": input_prompt}],
         "temperature": 0.7
       }
      #
@@ -31,11 +46,11 @@ class ApiController < ApplicationController
         # Success logic here
         answer = JSON.parse(response.body)
         answer_content = answer["choices"][0]["message"]["content"]
-        output = {"content": answer_content}
-        render json: output
+        return answer_content
       else
         # Error handling logic here
         puts "Something went wrong: #{response.value}"
+        return "API_ERROR"
       end
   end
 

@@ -145,7 +145,6 @@ export default function TreeMap(props: Props) {
         .attr("rx", 6)
         .attr("ry", 6)
         .attr("fill", (d) => {
-          console.log(d);
           if (d.data.category === "material") {
             return "#DDA0A1";
           } else if (d.data.category === "formal") {

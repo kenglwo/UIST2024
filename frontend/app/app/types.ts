@@ -15,4 +15,5 @@ export interface ConversationData {
   userId: string;
   role: string;
   content: string;
+  isFollowupQuestion: boolean;
 }

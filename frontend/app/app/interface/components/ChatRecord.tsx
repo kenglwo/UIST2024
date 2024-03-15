@@ -11,11 +11,10 @@ import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 
 import { UserInfo, ConversationData } from "../../types";
-import { generateResponse } from "./chatgpt_api";
+// import { generateResponse } from "./chatgpt_api";
 
-import { lightGreen } from "@mui/material/colors";
+// import { lightGreen } from "@mui/material/colors";
 import styles from "../styles.module.css";
-import { clear } from "console";
 
 interface Props {
   userInfo: UserInfo | null;
@@ -29,6 +28,9 @@ export default function ChatRecord(props: Props) {
   const [textFieldValue, setTextFieldValue] = useState<string>("");
   const [isLoadingLLMResponse, setIsLoadingLLMResponse] =
     useState<boolean>(false);
+  const [followupQuestionMode, setFollowupQuestionMode] = useState<
+    "controlled" | "epistemology"
+  >("epistemology");
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -44,6 +46,7 @@ export default function ChatRecord(props: Props) {
       userId: props.userInfo.userId,
       role: "user",
       content: userInputPrompt,
+      isFollowupQuestion: false
     };
     const conversationDataPrev: ConversationData[] = [
       ...conversationData,
@@ -54,6 +57,7 @@ export default function ChatRecord(props: Props) {
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
       user_input_prompt: userInputPrompt,
+      followup_question_mode: followupQuestionMode,
     };
     const header = {
       method: "POST",
@@ -70,15 +74,27 @@ export default function ChatRecord(props: Props) {
       .then((res) => res.json())
       .then(
         (result) => {
-          const newConversationDataLLM: ConversationData = {
-            userId: props.userInfo.userId,
-            role: "system",
-            content: result["content"],
-          };
+          console.log(result)
+          const newConversationDataLLM: ConversationData[] = [
+            {
+              userId: props.userInfo.userId,
+              role: "system",
+              content: result["answer_question"],
+              isFollowupQuestion: false
+            },
+            {
+              userId: props.userInfo.userId,
+              role: "system",
+              content: result["answer_followup_question"],
+              isFollowupQuestion: true
+            },
+        ];
+
+        console.log(newConversationDataLLM)
 
           setConversationData([
             ...conversationDataPrev,
-            newConversationDataLLM,
+            ...newConversationDataLLM,
           ]);
 
           // set false to hide loading icon
@@ -93,7 +109,69 @@ export default function ChatRecord(props: Props) {
 
   const onChangeSwitch = (isSwitchOn: boolean) => {
     console.log(isSwitchOn);
+    const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
+    setFollowupQuestionMode(newFollowupQuestionMode);
   };
+
+  const conversationBox = (conversation: ConversationData, i:number) => {
+    return (
+          <Box
+            key={i}
+            className={`${
+              conversation.role === "user"
+                ? styles.chatbox_user
+                : styles.chatbox_llm
+            }`}
+          >
+            <Box>
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent:
+                    conversation.role === "user" ? "flex-start" : "flex-end",
+                }}
+              >
+                <Avatar
+                  alt={conversation.role === "user" ? "U" : "C"}
+                  src={`/images/${
+                    conversation.role === "user" ? "user.png" : "bot.png"
+                  }`}
+                />
+                <h3>
+                  {conversation.role === "user"
+                    ? props.userInfo?.userId
+                    : "ChatGPT"}
+                </h3>
+              </Stack>
+              <Box className={styles.chat_text_box}>
+                <p>{conversation.content}</p>
+              </Box>
+            </Box>
+          </Box>
+    )
+  }
+
+  const followupQuestionBox = (conversation: ConversationData, i:number) => {
+    return (
+      <Box
+      key={i}
+        className={styles.followup_question_container}
+      >
+        {conversation.content.split('\n').map((d,i) => (
+          <Box
+            key={i}
+            className={styles.followup_question_box}
+          >
+              <Typography variant="body1">{d}</Typography>
+          </Box>
+          )
+        )}
+      </Box>
+    )
+  }
 
   return (
     <Box className={styles.interface_component}>
@@ -132,44 +210,13 @@ export default function ChatRecord(props: Props) {
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box>
-        {conversationData.map((conversation, i) => (
-          <Box
-            key={i}
-            className={`${
-              conversation.role === "user"
-                ? styles.chatbox_user
-                : styles.chatbox_llm
-            }`}
-          >
-            <Box>
-              <Stack
-                direction="row"
-                spacing={2}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent:
-                    conversation.role === "user" ? "flex-start" : "flex-end",
-                }}
-              >
-                <Avatar
-                  alt={conversation.role === "user" ? "U" : "C"}
-                  src={`/images/${
-                    conversation.role === "user" ? "user.png" : "bot.png"
-                  }`}
-                />
-                <h3>
-                  {conversation.role === "user"
-                    ? props.userInfo?.userId
-                    : "ChatGPT"}
-                </h3>
-              </Stack>
-              <Box className={styles.chat_text_box}>
-                <p>{conversation.content}</p>
-              </Box>
-            </Box>
-          </Box>
-        ))}
+        {conversationData.map((conversation, i) => {
+          if (!conversation.isFollowupQuestion) {
+            return conversationBox(conversation, i)
+          } else {
+            return followupQuestionBox(conversation, i)
+          }
+        })}
         {isLoadingLLMResponse && <CircularProgress />}
       </Box>
       <Box
