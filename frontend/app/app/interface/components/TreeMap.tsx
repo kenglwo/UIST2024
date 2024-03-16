@@ -65,24 +65,55 @@ export default function TreeMap(props: Props) {
     const treemapDataNew: TreemapData = treemapData;
 
     const newChildren: TreemapData[] = [...treemapData.children!, ...d];
-    // TODO: remove duplicated eleemnts
     const newChildrenUnique = removeDuplicatesByName(newChildren);
     treemapDataNew["children"] = newChildrenUnique;
     setTreemapData(treemapDataNew);
 
-    console.log("!!! treemapDataNew !!!");
-    console.log(treemapDataNew);
     renderTreeMap();
   }, [props.conversationData]);
 
   useEffect(() => {
-    console.log("=== treemap update followup quesitons ===");
-    console.log(props.followupQuestions)
+    const questionNodes = treemapData.children!
+    const questionNodesUpdated = questionNodes.map(question => {
+      const followupQuestionsForThisQuestion: TreemapData[] = props.followupQuestions
+        .filter(d => d.conversationId === question.conversationId!)
+        .map((d, i) => {
+          let category = ''
+          switch (i) {
+            case 0:
+              category = 'followup_material'
+              break;
+            case 1:
+              category = 'followup_formal'
+              break;
+            case 2:
+              category = 'followup_efficient'
+              break;
+            case 3:
+              category = 'followup_final'
+              break;
+            default:
+              break;
+          }
+
+          return {
+            name: d.content,
+            category: category, 
+          }
+        })
+
+      question.children = followupQuestionsForThisQuestion
+      return question
+    });
+
+    let treemapDataNew = treemapData
+    treemapDataNew.children = questionNodesUpdated
+    setTreemapData(treemapDataNew)
+
+    renderTreeMap();
   }, [props.followupQuestions]);
 
   const renderTreeMap = () => {
-    console.log("== rendering tree map===")
-    console.log(treemapData)
     const root = d3.hierarchy(treemapData);
     const width = 1128;
     const height = 300;
@@ -149,10 +180,7 @@ export default function TreeMap(props: Props) {
       .data(nodes)
       .join("g")
       // .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
-      .style("display", (d) => {
-        console.log(d)
-        return (d.data.name === "root" ? "none" : "block")
-      })
+      .style("display", (d) => d.data.name === "root" ? "none" : "block")
       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
     node
@@ -191,13 +219,13 @@ export default function TreeMap(props: Props) {
         .attr("rx", 6)
         .attr("ry", 6)
         .attr("fill", (d) => {
-          if (d.data.category === "material") {
+          if (d.data.category === "followup_material") {
             return "#DDA0A1";
-          } else if (d.data.category === "formal") {
+          } else if (d.data.category === "followup_formal") {
             return "#A4CCE3";
-          } else if (d.data.category === "efficient") {
+          } else if (d.data.category === "followup_efficient") {
             return "#EFCAAC";
-          } else if (d.data.category === "final") {
+          } else if (d.data.category === "followup_final") {
             return "#A5CB93";
           }
           return "none";
