@@ -5,13 +5,23 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import { UserInfo } from "../../types";
+import {
+  UserInfo,
+  ConversationData,
+  FollowupQuestion,
+  TreemapData,
+} from "../../types";
 
 import styles from "../styles.module.css";
 interface Props {
   userInfo: UserInfo | null;
+  conversationData: ConversationData[];
+  followupQuestions: FollowupQuestion[];
 }
-const data = {
+
+const treemapDataInitial: TreemapData = { name: "root", children: [] };
+
+const data: TreemapData = {
   name: "root",
   children: [
     {
@@ -38,7 +48,60 @@ const data = {
 export default function TreeMap(props: Props) {
   const [questionData, setQuestionData] = useState(data);
   const [counter, setCounter] = useState<number>(0);
+  const [treemapData, setTreemapData] =
+    useState<TreemapData>(treemapDataInitial);
   const svgRef = useRef();
+
+  function removeDuplicatesByName(array) {
+    const unique = array.reduce(
+      (acc, current) => {
+        if (!acc.namesFound.includes(current.name)) {
+          acc.namesFound.push(current.name);
+          acc.newArray.push(current);
+        }
+        return acc;
+      },
+      { namesFound: [], newArray: [] },
+    ).newArray;
+
+    return unique;
+  }
+
+  useEffect(() => {
+    console.log("=== treemap update conversation data ===");
+    const d: TreemapData[] = props.conversationData
+      .filter((d) => d.role === "user")
+      .map((d) => {
+        const question =
+          d.content.split(" ").length > 5
+            ? d.content.split(" ").slice(0, 5).join(" ")
+            : d.content;
+
+        const newTreemapData: TreemapData = {
+          name: question,
+          category: "question",
+          conversationId: d.conversationId,
+          children: [],
+        };
+
+        return newTreemapData;
+      });
+
+    const treemapDataNew: TreemapData = treemapData;
+
+    const newChildren: TreemapData[] = [...treemapData.children!, ...d];
+    // TODO: remove duplicated eleemnts
+    const newChildrenUnique = removeDuplicatesByName(newChildren);
+    treemapDataNew["children"] = newChildrenUnique;
+    setTreemapData(treemapDataNew);
+
+    console.log("!!! treemapDataNew !!!");
+    console.log(treemapDataNew);
+  }, [props.conversationData]);
+
+  useEffect(() => {
+    console.log("=== treemap update followup quesitons ===");
+  }, [props.followupQuestions]);
 
   const renderTreeMap = () => {
     const root = d3.hierarchy(questionData);

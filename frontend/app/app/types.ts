@@ -21,5 +21,11 @@ export interface ConversationData {
 export interface FollowupQuestion {
   conversationId: number;
   followupQuestionIndex: number;
-  content: string
+  content: string;
+}
+
+export interface TreemapData {
+  name: string;
+  category?: string;
+  children?: TreemapData[];
 }

@@ -74,7 +74,11 @@ export default function BasicGrid() {
         <Grid item xs={6}>
           <div>
             <ConceptNetwork userInfo={userInfo} />
-            <TreeMap userInfo={userInfo} />
+            <TreeMap
+              userInfo={userInfo}
+              conversationData={conversationData}
+              followupQuestions={followupQuestions}
+            />
           </div>
         </Grid>
       </Grid>
