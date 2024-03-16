@@ -21,32 +21,8 @@ interface Props {
 
 const treemapDataInitial: TreemapData = { name: "root", children: [] };
 
-const data: TreemapData = {
-  name: "root",
-  children: [
-    {
-      name: "What is NFT?",
-      category: "question",
-      children: [
-        { name: "Who are the stakeholders of NFT?", category: "material" },
-        { name: "When is the best to buy NFT?", category: "formal" },
-        { name: "Where is a good place to buy NFT?", category: "efficient" },
-        { name: "How to sell NFT?", category: "final" },
-      ],
-    },
-    {
-      name: "What is blockchain?",
-      category: "question",
-      children: [
-        { name: "Who uses the technology?", category: "material" },
-        { name: "How to learn the technology?", category: "efficient" },
-      ],
-    },
-  ],
-};
-
 export default function TreeMap(props: Props) {
-  const [questionData, setQuestionData] = useState(data);
+  const [questionData, setQuestionData] = useState(treemapDataInitial);
   const [counter, setCounter] = useState<number>(0);
   const [treemapData, setTreemapData] =
     useState<TreemapData>(treemapDataInitial);
@@ -68,7 +44,6 @@ export default function TreeMap(props: Props) {
   }
 
   useEffect(() => {
-    console.log("=== treemap update conversation data ===");
     const d: TreemapData[] = props.conversationData
       .filter((d) => d.role === "user")
       .map((d) => {
@@ -80,8 +55,8 @@ export default function TreeMap(props: Props) {
         const newTreemapData: TreemapData = {
           name: question,
           category: "question",
-          conversationId: d.conversationId,
           children: [],
+          conversationId: d.conversationId,
         };
 
         return newTreemapData;
@@ -97,14 +72,18 @@ export default function TreeMap(props: Props) {
 
     console.log("!!! treemapDataNew !!!");
     console.log(treemapDataNew);
+    renderTreeMap();
   }, [props.conversationData]);
 
   useEffect(() => {
     console.log("=== treemap update followup quesitons ===");
+    console.log(props.followupQuestions)
   }, [props.followupQuestions]);
 
   const renderTreeMap = () => {
-    const root = d3.hierarchy(questionData);
+    console.log("== rendering tree map===")
+    console.log(treemapData)
+    const root = d3.hierarchy(treemapData);
     const width = 1128;
     const height = 300;
     const marginTop = 10;
@@ -169,7 +148,11 @@ export default function TreeMap(props: Props) {
       .selectAll("g")
       .data(nodes)
       .join("g")
-      .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
+      // .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
+      .style("display", (d) => {
+        console.log(d)
+        return (d.data.name === "root" ? "none" : "block")
+      })
       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
     node
@@ -225,10 +208,6 @@ export default function TreeMap(props: Props) {
 
     gNode.attr("transform", `translate(${offsetLeft}, 0)`);
   };
-
-  useEffect(() => {
-    renderTreeMap();
-  }, [questionData]); // データが変わったら再描画
 
   const categories = ["Material", "Formal", "Efficient", "Final"].map(
     (category, i) => {
