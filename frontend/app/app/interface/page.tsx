@@ -9,11 +9,40 @@ import ChatRecord from "./components/ChatRecord";
 import TreeMap from "./components/TreeMap";
 import ConceptNetwork from "./components/ConceptNetwork";
 import EmbeddedContent from "./components/EmbeddedContent";
-import { UserInfo } from "../types";
+import { UserInfo, ConversationData, FollowupQuestion } from "../types";
 
 export default function BasicGrid() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [conversationData, setConversationData] = useState<ConversationData[]>(
+    [],
+  );
+  const [followupQuestions, setFollowupQuestions] = useState<
+    FollowupQuestion[]
+  >([]);
+
   const searchParams = useSearchParams();
+
+  const passConversationData = (
+    conversationDataInChildComponent: ConversationData[],
+  ) => {
+    setConversationData(conversationDataInChildComponent);
+  };
+
+  const passFollowupQuestions = (
+    followupQuestionsInChildComponent: FollowupQuestion[],
+  ) => {
+    setFollowupQuestions(followupQuestionsInChildComponent);
+  };
+
+  useEffect(() => {
+    console.log("=== update conversation data ===");
+    console.log(conversationData);
+  }, [conversationData]);
+
+  useEffect(() => {
+    console.log("=== update followup questions ===");
+    console.log(followupQuestions);
+  }, [followupQuestions]);
 
   useEffect(() => {
     if (userInfo !== null) return;
@@ -35,7 +64,11 @@ export default function BasicGrid() {
         <Grid item xs={6}>
           <Stack>
             <EmbeddedContent textName={"NFT"} />
-            <ChatRecord userInfo={userInfo} />
+            <ChatRecord
+              userInfo={userInfo}
+              passConversationData={passConversationData}
+              passFollowupQuestions={passFollowupQuestions}
+            />
           </Stack>
         </Grid>
         <Grid item xs={6}>
