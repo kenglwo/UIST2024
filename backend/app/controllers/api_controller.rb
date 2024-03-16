@@ -7,13 +7,16 @@ class ApiController < ApplicationController
      user_input_prompt = params['user_input_prompt']
      followup_question_mode = params['followup_question_mode']
      followup_question_prompt = followup_question_mode == 'epistemology' ? 
-      'Regarding the previous question, could you provide some follow-up questions,' \
+      'Regarding the previous question: "###", could you provide some follow-up questions,' \
       'using the four causes idea originating from Aristotle\'s philosophy?' \
-      'Output just follow-up questions, concatenating by ";" instead of "\n" in one line' :
+      'Output just the corresponding 4 follow-up questions without the description of which type of cause, ' \
+      'in the order of material, formal, efficient and final cause.' \
+      'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line' \
+      :
       'Could you provide some follow-up questions? Output just follow-up questions'
 
      answer_question = getResponseByLLM(user_input_prompt)
-     followup_questions = getResponseByLLM(followup_question_prompt)
+     followup_questions = getResponseByLLM(followup_question_prompt, user_input_prompt)
      followup_questions_array = followup_questions.split(';')
 
      output = {
@@ -23,7 +26,11 @@ class ApiController < ApplicationController
      render json: output
   end
 
-  def getResponseByLLM(input_prompt)
+  def getResponseByLLM(input_prompt, question = nil)
+    input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
+    logger.debug (input_prompt)
+
+
      uri = URI(ENV['CHATGPT_API_ENDPOINT'])
      header = {
        'Content-Type': 'application/json',
@@ -33,28 +40,28 @@ class ApiController < ApplicationController
         "messages": [{"role": "user", "content": input_prompt}],
         "temperature": 0.7
       }
-     #
-      # Create the HTTP objects
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if uri.scheme == 'https' # Enable SSL/TLS when needed
-      request = Net::HTTP::Post.new(uri.request_uri, header)
-      request.body = body.to_json
+     
+    # Create the HTTP objects
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true if uri.scheme == 'https' # Enable SSL/TLS when needed
+    request = Net::HTTP::Post.new(uri.request_uri, header)
+    request.body = body.to_json
 
-      # Send the request
-      response = http.request(request)
+    # Send the request
+    response = http.request(request)
 
-      # Handle the response
-      case response
-      when Net::HTTPSuccess, Net::HTTPRedirection
-        # Success logic here
-        answer = JSON.parse(response.body)
-        answer_content = answer["choices"][0]["message"]["content"]
-        return answer_content
-      else
-        # Error handling logic here
-        puts "Something went wrong: #{response.value}"
-        return "API_ERROR"
-      end
+    # Handle the response
+    case response
+    when Net::HTTPSuccess, Net::HTTPRedirection
+      # Success logic here
+      answer = JSON.parse(response.body)
+      answer_content = answer["choices"][0]["message"]["content"]
+      return answer_content
+    else
+      # Error handling logic here
+      puts "Something went wrong: #{response.value}"
+      return "API_ERROR"
+    end
   end
 
   def save_user_info
