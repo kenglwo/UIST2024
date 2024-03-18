@@ -6,7 +6,7 @@ class ApiController < ApplicationController
   def get_chatgpt_answer
      user_input_prompt = params['user_input_prompt']
      followup_question_mode = params['followup_question_mode']
-     followup_question_prompt = followup_question_mode == 'epistemology' ? 
+     followup_question_prompt = followup_question_mode == 'epistemology' ?
       'Regarding the previous question: "###", could you provide some follow-up questions,' \
       'using the four causes idea originating from Aristotle\'s philosophy?' \
       'Output just the corresponding 4 follow-up questions without the description of which type of cause, ' \
@@ -40,7 +40,7 @@ class ApiController < ApplicationController
         "messages": [{"role": "user", "content": input_prompt}],
         "temperature": 0.7
       }
-     
+
     # Create the HTTP objects
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true if uri.scheme == 'https' # Enable SSL/TLS when needed
@@ -73,4 +73,9 @@ class ApiController < ApplicationController
 
     render json: {"status": api_status}
   end
+
+  def test
+    render json: {"status": "Success"}
+  end
+
 end
