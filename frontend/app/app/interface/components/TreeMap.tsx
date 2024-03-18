@@ -73,82 +73,203 @@ export default function TreeMap(props: Props) {
   }, [props.conversationData]);
 
   useEffect(() => {
-    const questionNodes = treemapData.children!
-    const questionNodesUpdated = questionNodes.map(question => {
-      const followupQuestionsForThisQuestion: TreemapData[] = props.followupQuestions
-        .filter(d => d.conversationId === question.conversationId!)
-        .map((d, i) => {
-          let category = ''
-          switch (i) {
-            case 0:
-              category = 'followup_material'
-              break;
-            case 1:
-              category = 'followup_formal'
-              break;
-            case 2:
-              category = 'followup_efficient'
-              break;
-            case 3:
-              category = 'followup_final'
-              break;
-            default:
-              break;
-          }
+    const questionNodes = treemapData.children!;
+    const questionNodesUpdated = questionNodes.map((question) => {
+      const followupQuestionsForThisQuestion: TreemapData[] =
+        props.followupQuestions
+          .filter((d) => d.conversationId === question.conversationId!)
+          .map((d, i) => {
+            let category = "";
+            switch (i) {
+              case 0:
+                category = "followup_material";
+                break;
+              case 1:
+                category = "followup_formal";
+                break;
+              case 2:
+                category = "followup_efficient";
+                break;
+              case 3:
+                category = "followup_final";
+                break;
+              default:
+                break;
+            }
 
-          return {
-            name: d.content,
-            category: category, 
-          }
-        })
+            return {
+              name: d.content,
+              category: category,
+            };
+          });
 
-      question.children = followupQuestionsForThisQuestion
-      return question
+      question.children = followupQuestionsForThisQuestion;
+      return question;
     });
 
-    let treemapDataNew = treemapData
-    treemapDataNew.children = questionNodesUpdated
-    setTreemapData(treemapDataNew)
+    let treemapDataNew = treemapData;
+    treemapDataNew.children = questionNodesUpdated;
+    setTreemapData(treemapDataNew);
 
     renderTreeMap();
   }, [props.followupQuestions]);
 
   const renderTreeMap = () => {
-    const root = d3.hierarchy(treemapData);
+    // const root = d3.hierarchy(treemapData);
+    // const width = 1128;
+    // const height = 300;
+    // const marginTop = 10;
+    // const marginRight = 10;
+    // const marginBottom = 10;
+    // const marginLeft = 40;
+    // const offsetLeft = 0;
+    // const dx = 40;
+    // const dy = (width - marginRight - marginLeft) / (1 + root.height);
+    // const tree = d3.tree().nodeSize([dx, dy]);
+    // const diagonal = d3
+    //   .linkHorizontal()
+    //   // @ts-ignore
+    //   .x((d) => d.y)
+    //   // @ts-ignore
+    //   .y((d) => d.x);
+    //
+    // // ツリーレイアウトの更新
+    // tree(root);
+    //
+    // // SVGの設定
+    // const svg = d3.select(svgRef.current);
+    // svg.selectAll("*").remove();
+    //
+    // svg
+    //   .attr("width", width)
+    //   .attr("height", height)
+    //   .attr("viewBox", [-marginLeft, -marginTop, width, dx])
+    //   .attr(
+    //     "style",
+    //     "max-width: 100%; height: ; font: 10px sans-serif; user-select: none;",
+    //   );
+    //
+    // // リンクの描画
+    // const gLink = svg
+    //   .append("g")
+    //   .attr("fill", "none")
+    //   .attr("stroke", "#555")
+    //   .attr("stroke-opacity", 0.4)
+    //   .attr("stroke-width", 1.5);
+    //
+    // const links = root.links();
+    //
+    // gLink
+    //   .selectAll("path")
+    //   .data(links)
+    //   .join("path")
+    //   .attr("d", diagonal)
+    //   // @ts-ignore
+    //   .style("display", (d) =>
+    //     d.source.data.name === "root" ? "none" : "block",
+    //   )
+    //   .attr("transform", `translate(${offsetLeft}, 0)`);
+    //
+    // const gNode = svg
+    //   .append("g")
+    //   .attr("cursor", "pointer")
+    //   .attr("pointer-events", "all");
+    //
+    // const nodes = root.descendants();
+    // const node = gNode
+    //   .selectAll("g")
+    //   .data(nodes)
+    //   .join("g")
+    //   // .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
+    //   .style("display", (d) => d.data.name === "root" ? "none" : "block")
+    //   .attr("transform", (d) => `translate(${d.y},${d.x})`);
+    //
+    // node
+    //   .append("circle")
+    //   .attr("fill", (d) => (d.children ? "#555" : "#999"))
+    //   .attr("r", 2.5);
+    //
+    // // First, add text elements
+    // const texts = node
+    //   .append("text")
+    //   .attr("dy", "0.31em")
+    //   .attr("x", (d) => (d.children ? -6 : 6))
+    //   .attr("id", (d, i) => `text_${i}`)
+    //   .attr("text-anchor", (d) => (d.children ? "end" : "start"))
+    //   .text((d, i) => `Q${i}: ${d.data.name}`)
+    //   .attr("font-size", (d) =>
+    //     d.data.category === "question" ? "24px" : "18px",
+    //   )
+    //   .attr("stroke", "black")
+    //   .attr("stroke-linejoin", "round")
+    //   .attr("stroke-width", 1)
+    //   .attr("stroke", "black");
+    //
+    // // Then, for each text, add a rect behind it based on its dimensions
+    // texts.each(function (d, i) {
+    //   const bbox = this.getBBox();
+    //   const padding = 10; // Adjust padding as needed
+    //
+    //   // Insert rect behind the text by selecting the parent and inserting before this text element
+    //   d3.select(this.parentNode)
+    //     .insert("rect", `#text_${i}`)
+    //     .attr("x", bbox.x - padding / 2)
+    //     .attr("y", bbox.y - padding / 2)
+    //     .attr("width", bbox.width + padding)
+    //     .attr("height", bbox.height + padding)
+    //     .attr("rx", 6)
+    //     .attr("ry", 6)
+    //     .attr("fill", (d) => {
+    //       if (d.data.category === "followup_material") {
+    //         return "#DDA0A1";
+    //       } else if (d.data.category === "followup_formal") {
+    //         return "#A4CCE3";
+    //       } else if (d.data.category === "followup_efficient") {
+    //         return "#EFCAAC";
+    //       } else if (d.data.category === "followup_final") {
+    //         return "#A5CB93";
+    //       }
+    //       return "none";
+    //     })
+    //     .attr("stroke", "black")
+    //     .style("padding", "5px");
+    // });
+    //
+    // gNode.attr("transform", `translate(${offsetLeft}, 0)`);
+
+    // Define main variables and the tree layout
+    let root = d3.hierarchy(treemapData);
     const width = 1128;
     const height = 300;
     const marginTop = 10;
     const marginRight = 10;
     const marginBottom = 10;
     const marginLeft = 40;
-    const offsetLeft = 0;
     const dx = 40;
     const dy = (width - marginRight - marginLeft) / (1 + root.height);
     const tree = d3.tree().nodeSize([dx, dy]);
     const diagonal = d3
       .linkHorizontal()
-      // @ts-ignore
       .x((d) => d.y)
-      // @ts-ignore
       .y((d) => d.x);
 
-    // ツリーレイアウトの更新
-    tree(root);
+    root.x0 = height / 2;
+    root.y0 = 0;
 
-    // SVGの設定
+    // Define the SVG
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
     svg
       .attr("width", width)
-      .attr("height", height)
-      .attr("viewBox", [-marginLeft, -marginTop, width, dx])
+      .attr("height", 240)
+      .attr("viewBox", [-marginLeft, -marginTop, width, 140])
       .attr(
         "style",
-        "max-width: 100%; height: ; font: 10px sans-serif; user-select: none;",
+        "max-width: 100%; height: 240px; font: 10px sans-serif; user-select: none;",
       );
 
-    // リンクの描画
+    // Add groups for links and nodes
     const gLink = svg
       .append("g")
       .attr("fill", "none")
@@ -156,85 +277,179 @@ export default function TreeMap(props: Props) {
       .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5);
 
-    const links = root.links();
-
-    gLink
-      .selectAll("path")
-      .data(links)
-      .join("path")
-      .attr("d", diagonal)
-      // @ts-ignore
-      .style("display", (d) =>
-        d.source.data.name === "root" ? "none" : "block",
-      )
-      .attr("transform", `translate(${offsetLeft}, 0)`);
-
     const gNode = svg
       .append("g")
       .attr("cursor", "pointer")
       .attr("pointer-events", "all");
+    // Define the update function
+    function update(source) {
+      const offsetLeft = -90;
+      const duration = 250; // Duration of the animations
+      const nodes = root.descendants().reverse();
+      const links = root.links();
 
-    const nodes = root.descendants();
-    const node = gNode
-      .selectAll("g")
-      .data(nodes)
-      .join("g")
-      // .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
-      .style("display", (d) => d.data.name === "root" ? "none" : "block")
-      .attr("transform", (d) => `translate(${d.y},${d.x})`);
+      // Compute the new height
+      tree(root); // Compute the new tree layout
+      let left = root;
+      let right = root;
+      root.eachBefore((node) => {
+        if (node.x < left.x) left = node;
+        if (node.x > right.x) right = node;
+      });
+      const height = right.x - left.x + marginTop + marginBottom;
 
-    node
-      .append("circle")
-      .attr("fill", (d) => (d.children ? "#555" : "#999"))
-      .attr("r", 2.5);
+      // Transition the svg and gLink
+      const transition = svg
+        .transition()
+        .duration(duration)
+        .attr("height", height)
+        .attr("viewBox", [50, left.x - marginTop, width, height]);
+      // .tween(
+      //   "resize",
+      //   window.ResizeObserver ? null : () => () => svg.dispatch("toggle"),
+      // );
 
-    // First, add text elements
-    const texts = node
-      .append("text")
-      .attr("dy", "0.31em")
-      .attr("x", (d) => (d.children ? -6 : 6))
-      .attr("id", (d, i) => `text_${i}`)
-      .attr("text-anchor", (d) => (d.children ? "end" : "start"))
-      .text((d, i) => `Q${i}: ${d.data.name}`)
-      .attr("font-size", (d) =>
-        d.data.category === "question" ? "24px" : "18px",
-      )
-      .attr("stroke", "black")
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-width", 1)
-      .attr("stroke", "black");
+      // Update the nodes
+      const node = gNode.selectAll("g").data(nodes, (d) => d.id);
 
-    // Then, for each text, add a rect behind it based on its dimensions
-    texts.each(function (d, i) {
-      const bbox = this.getBBox();
-      const padding = 10; // Adjust padding as needed
+      const nodeEnter = node
+        .enter()
+        .append("g")
+        .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
+        .attr("fill-opacity", 0)
+        .attr("stroke-opacity", 0)
+        .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
+        .on("click", (event, d) => {
+          d.children = d.children ? null : d._children;
+          // d._children = d.children ? null : d._children;
+          update(d);
+        });
 
-      // Insert rect behind the text by selecting the parent and inserting before this text element
-      d3.select(this.parentNode)
-        .insert("rect", `#text_${i}`)
-        .attr("x", bbox.x - padding / 2)
-        .attr("y", bbox.y - padding / 2)
-        .attr("width", bbox.width + padding)
-        .attr("height", bbox.height + padding)
-        .attr("rx", 6)
-        .attr("ry", 6)
-        .attr("fill", (d) => {
-          if (d.data.category === "followup_material") {
-            return "#DDA0A1";
-          } else if (d.data.category === "followup_formal") {
-            return "#A4CCE3";
-          } else if (d.data.category === "followup_efficient") {
-            return "#EFCAAC";
-          } else if (d.data.category === "followup_final") {
-            return "#A5CB93";
-          }
-          return "none";
-        })
+      nodeEnter
+        .append("circle")
+        .attr("r", 2.5)
+        .attr("fill", (d) => (d._children ? "#555" : "#999"))
+        .attr("stroke-width", 10)
+        .style("display", (d) => (d.data.name === "root" ? "none" : "block"));
+
+      const texts = nodeEnter
+        .append("text")
+        .attr("id", (d, i) => `text_${i}`)
+        .attr("dy", "0.31em")
+        .attr("x", (d) => (d._children ? -6 : 6))
+        .attr("text-anchor", (d) => (d._children ? "end" : "start"))
+        .text((d, i) =>
+          d.category === "question" ? `Q${i + 1}: ${d.data.name}` : d.data.name,
+        )
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-width", 1)
         .attr("stroke", "black")
-        .style("padding", "5px");
+        .attr("paint-order", "stroke")
+        .attr("font-size", (d) =>
+          d.data.category === "question" ? "24px" : "18px",
+        );
+
+      texts.each(function (d, i) {
+        const bbox = this.getBBox();
+        const padding = 10; // Adjust padding as needed
+
+        // Insert rect behind the text by selecting the parent and inserting before this text element
+        d3.select(this.parentNode)
+          .insert("rect", `#text_${i}`)
+          .attr("x", bbox.x - padding / 2)
+          .attr("y", bbox.y - padding / 2)
+          .attr("width", bbox.width + padding)
+          .attr("height", bbox.height + padding)
+          .attr("rx", 6)
+          .attr("ry", 6)
+          .attr("fill", (d) => {
+            if (d.data.category === "followup_material") {
+              return "#DDA0A1";
+            } else if (d.data.category === "followup_formal") {
+              return "#A4CCE3";
+            } else if (d.data.category === "followup_efficient") {
+              return "#EFCAAC";
+            } else if (d.data.category === "followup_final") {
+              return "#A5CB93";
+            }
+            return "none";
+          })
+          .attr("stroke", "black")
+          .style("padding", "5px");
+      });
+
+      // Transition nodes to their new position
+      const nodeUpdate = node
+        .merge(nodeEnter)
+        .transition(transition)
+        .attr("transform", (d) => `translate(${d.y},${d.x})`)
+        .attr("fill-opacity", 1)
+        .attr("stroke-opacity", 1);
+
+      // Transition exiting nodes to the parent's new position
+      const nodeExit = node
+        .exit()
+        .transition(transition)
+        .remove()
+        .attr("transform", (d) => `translate(${source.y},${source.x})`)
+        .attr("fill-opacity", 0)
+        .attr("stroke-opacity", 0);
+
+      // Update the links
+      const link = gLink
+        .selectAll("path")
+        .data(links, (d) => d.target.id)
+        .style("display", (d) =>
+          d.source.data.name === "root" ? "none" : "block",
+        );
+      // Enter any new links
+      const linkEnter = link
+        .enter()
+        .append("path")
+        .attr("d", (d) => {
+          const o = { x: source.x0, y: source.y0 };
+          return diagonal({ source: o, target: o });
+        })
+        .style("display", (d) =>
+          d.source.data.name === "root" ? "none" : "block",
+        );
+      // Transition links to their new position.
+      link
+        .merge(linkEnter)
+        .transition(transition)
+        .attr("d", diagonal)
+        .style("display", (d) =>
+          d.source.data.name === "root" ? "none" : "block",
+        );
+
+      // Transition exiting links to the parent's new position.
+      link
+        .exit()
+        .transition(transition)
+        .remove()
+        .attr("d", (d) => {
+          const o = { x: source.x, y: source.y };
+          return diagonal({ source: o, target: o });
+        })
+        .style("display", (d) =>
+          d.source.data.name === "root" ? "none" : "block",
+        );
+
+      // Stash the old positions for transition.
+      nodes.forEach((d) => {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+    }
+
+    // Initially display the tree with nodes collapsed, except for the root.
+    root.descendants().forEach((d, i) => {
+      d.id = i;
+      d._children = d.children;
+      if (d.depth > 0) d.children = null; // Collapse all nodes except the root
     });
 
-    gNode.attr("transform", `translate(${offsetLeft}, 0)`);
+    update(root); // Call update to render the initial layout
   };
 
   const categories = ["Material", "Formal", "Efficient", "Final"].map(
@@ -277,7 +492,12 @@ export default function TreeMap(props: Props) {
         {categories}
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
-      <Box sx={{ overflowX: "auto" }}>
+      <Box
+        sx={{
+          overflowX: "auto",
+          overflowY: "auto",
+        }}
+      >
         <svg ref={svgRef}></svg>
       </Box>
     </Box>

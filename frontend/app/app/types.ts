@@ -27,6 +27,6 @@ export interface FollowupQuestion {
 export interface TreemapData {
   name: string;
   category?: string;
+  conversationId: number;
   children?: TreemapData[];
-  conversationId?: number;
 }
