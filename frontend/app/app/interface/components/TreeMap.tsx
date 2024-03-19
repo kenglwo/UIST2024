@@ -68,7 +68,7 @@ export default function TreeMap(props: Props) {
 
     const newChildren: TreemapData[] = [...treemapData.children!, ...d];
     const newChildrenUnique = removeDuplicatesByName(newChildren);
-    treemapDataNew["children"] = newChildrenUnique;
+    treemapDataNew["children"] = newChildrenUnique.sort((a, b) => a.conversationId - b.conversationId);
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
@@ -102,6 +102,7 @@ export default function TreeMap(props: Props) {
             return {
               name: d.content,
               category: category,
+              conversationId: d.conversationId
             };
           });
 
@@ -119,6 +120,26 @@ export default function TreeMap(props: Props) {
   useEffect(() => {
     setHoveredFollowupQuestion(props.hoveredFollowupQuestion)
     console.log(props.hoveredFollowupQuestion)
+
+    // emit click action on the quesiton node if not expanded
+    const nodeId = `question_${props.hoveredFollowupQuestion?.conversationId}`
+    const classId =  `conversationId_${props.hoveredFollowupQuestion?.conversationId}`
+    const targetNode = document.querySelector(`#${nodeId}`);
+    if(targetNode) {
+      const clickEvent = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true
+      });
+
+      // check if expanded
+      const nodes = d3.selectAll(`.${classId}`).nodes()
+      if(nodes.length > 1){ // already expanded
+
+      } else { // expand follow-up quesitons
+        targetNode.dispatchEvent(clickEvent);
+      }
+    }
   }, [props.hoveredFollowupQuestion])
 
   const renderTreeMap = () => {
@@ -200,6 +221,17 @@ export default function TreeMap(props: Props) {
       const nodeEnter = node
         .enter()
         .append("g")
+        .attr("id", ((d, i) => {
+          if (d.data.category === 'question'){
+            return `question_${d.data.conversationId}`
+          } else {
+            return ''
+          }
+        }))
+        .attr("class", (d => {
+          console.log(d.data)
+         return  `conversationId_${d.data.conversationId}`
+        }))
         .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
         .attr("fill-opacity", 0)
         .attr("stroke-opacity", 0)
