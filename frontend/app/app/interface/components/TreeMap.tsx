@@ -102,7 +102,8 @@ export default function TreeMap(props: Props) {
             return {
               name: d.content,
               category: category,
-              conversationId: d.conversationId
+              conversationId: d.conversationId,
+              followupQuestionIndex: d.followupQuestionIndex
             };
           });
 
@@ -119,7 +120,6 @@ export default function TreeMap(props: Props) {
 
   useEffect(() => {
     setHoveredFollowupQuestion(props.hoveredFollowupQuestion)
-    console.log(props.hoveredFollowupQuestion)
 
     // emit click action on the quesiton node if not expanded
     const nodeId = `question_${props.hoveredFollowupQuestion?.conversationId}`
@@ -132,13 +132,24 @@ export default function TreeMap(props: Props) {
       cancelable: true
       });
 
-      // check if expanded
-      const nodes = d3.selectAll(`.${classId}`).nodes()
+      const nodes = document.querySelectorAll(`.${classId}`)
+      const rectIdToHighlight = `rect#conversationId_${props.hoveredFollowupQuestion.conversationId}_followupQuestionIndex_${props.hoveredFollowupQuestion.followupQuestionIndex}`
+      // highlight the hovered follow-up question in treemap
       if(nodes.length > 1){ // already expanded
-
+        const rectToHighlight = document.querySelector(rectIdToHighlight)
+        rectToHighlight?.setAttribute('fill', 'yellow')
+        // reset rect fill of other follow-up questions
+        nodes.forEach((d)=> {
+          const rect = d.querySelector('rect')
+          if(rect !== rectToHighlight){
+            rect?.setAttribute("fill", "white")
+          }
+        })
       } else { // expand follow-up quesitons
         targetNode.dispatchEvent(clickEvent);
-        // close other follow-up quesitons if expanded
+        const rectToHighlight = document.querySelector(rectIdToHighlight)
+        rectToHighlight?.setAttribute('fill', 'yellow')
+        //TODO: close other follow-up quesitons if expanded
       }
     }
   }, [props.hoveredFollowupQuestion])
@@ -281,6 +292,14 @@ export default function TreeMap(props: Props) {
           .attr("height", bbox.height + padding)
           .attr("rx", 6)
           .attr("ry", 6)
+          .attr("id", d => {
+            if (d.data.category !== 'question'){
+              console.log(d.data)
+              return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`
+            } else {
+              return ""
+            }
+          })
           .attr("fill", (d) => {
             return "white"
           //   if (d.data.category === "followup_material") {

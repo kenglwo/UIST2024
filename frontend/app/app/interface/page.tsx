@@ -40,16 +40,6 @@ export default function BasicGrid() {
   }
 
   useEffect(() => {
-    console.log("=== update conversation data ===");
-    console.log(conversationData);
-  }, [conversationData]);
-
-  useEffect(() => {
-    console.log("=== update followup questions ===");
-    console.log(followupQuestions);
-  }, [followupQuestions]);
-
-  useEffect(() => {
     if (userInfo !== null) return;
 
     // @ts-ignore
