@@ -138,6 +138,7 @@ export default function TreeMap(props: Props) {
 
       } else { // expand follow-up quesitons
         targetNode.dispatchEvent(clickEvent);
+        // close other follow-up quesitons if expanded
       }
     }
   }, [props.hoveredFollowupQuestion])
@@ -187,6 +188,7 @@ export default function TreeMap(props: Props) {
       .append("g")
       .attr("cursor", "pointer")
       .attr("pointer-events", "all");
+
     // Define the update function
     function update(source) {
       const offsetLeft = -90;
@@ -280,16 +282,17 @@ export default function TreeMap(props: Props) {
           .attr("rx", 6)
           .attr("ry", 6)
           .attr("fill", (d) => {
-            if (d.data.category === "followup_material") {
-              return "#DDA0A1";
-            } else if (d.data.category === "followup_formal") {
-              return "#A4CCE3";
-            } else if (d.data.category === "followup_efficient") {
-              return "#EFCAAC";
-            } else if (d.data.category === "followup_final") {
-              return "#A5CB93";
-            }
-            return "none";
+            return "white"
+          //   if (d.data.category === "followup_material") {
+          //     return "#DDA0A1";
+          //   } else if (d.data.category === "followup_formal") {
+          //     return "#A4CCE3";
+          //   } else if (d.data.category === "followup_efficient") {
+          //     return "#EFCAAC";
+          //   } else if (d.data.category === "followup_final") {
+          //     return "#A5CB93";
+          //   }
+          //   return "none";
           })
           .attr("stroke", "black")
           .style("padding", "5px");
@@ -406,7 +409,7 @@ export default function TreeMap(props: Props) {
         <Typography variant="h5" sx={{ mr: 3 }}>
           Tree Map
         </Typography>
-        {categories}
+        {/* {categories} */}
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box
