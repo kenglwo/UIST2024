@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 export default function TextNFT() {
   return (
     <Box sx={{ maxHeight: "350px", overflowY: "auto" }}>
-      <Typography variant="h4">
+      {/*<Typography variant="h4">
         NFTs Explained: A Must-Read Guide to Everything Non-Fungible
       </Typography>
       <p id="author">BY JOLENE CREIGHTON • JANUARY 12, 2023</p>
@@ -789,6 +789,7 @@ export default function TextNFT() {
         If you do decide to get into the NFT ecosystem, we hope you enjoy the
         ride – we know that we certainly have.
       </p>
+      */}
     </Box>
   );
 }

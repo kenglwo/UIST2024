@@ -5,7 +5,7 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import TextNFT from "./TextNFT";
+import TextNFT2 from "./TextNFT2";
 
 import styles from "../styles.module.css";
 
@@ -55,7 +55,7 @@ export default function EmbeddedContent(props: Props) {
           ))}
         </Stack>
         <Box sx={{ ml: 3 }}>
-          <TextNFT />
+          <TextNFT2 />
         </Box>
       </Stack>
     </Box>

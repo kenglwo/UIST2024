@@ -19,6 +19,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@material-ui/core": "^4.12.4",
     "@types/axios": "^0.14.0",
     "@types/d3": "^7.4.3",
     "@types/node": "^20",
