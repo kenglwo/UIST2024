@@ -17,6 +17,7 @@ interface Props {
   userInfo: UserInfo | null;
   conversationData: ConversationData[];
   followupQuestions: FollowupQuestion[];
+  hoveredFollowupQuestion: FollowupQuestion | undefined;
 }
 
 const treemapDataInitial: TreemapData = { name: "root", children: [] };
@@ -27,6 +28,7 @@ export default function TreeMap(props: Props) {
   const [treemapData, setTreemapData] =
     useState<TreemapData>(treemapDataInitial);
   const svgRef = useRef();
+  const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion>()
 
   function removeDuplicatesByName(array) {
     const unique = array.reduce(
@@ -114,129 +116,12 @@ export default function TreeMap(props: Props) {
     renderTreeMap();
   }, [props.followupQuestions]);
 
-  const renderTreeMap = () => {
-    // const root = d3.hierarchy(treemapData);
-    // const width = 1128;
-    // const height = 300;
-    // const marginTop = 10;
-    // const marginRight = 10;
-    // const marginBottom = 10;
-    // const marginLeft = 40;
-    // const offsetLeft = 0;
-    // const dx = 40;
-    // const dy = (width - marginRight - marginLeft) / (1 + root.height);
-    // const tree = d3.tree().nodeSize([dx, dy]);
-    // const diagonal = d3
-    //   .linkHorizontal()
-    //   // @ts-ignore
-    //   .x((d) => d.y)
-    //   // @ts-ignore
-    //   .y((d) => d.x);
-    //
-    // // ツリーレイアウトの更新
-    // tree(root);
-    //
-    // // SVGの設定
-    // const svg = d3.select(svgRef.current);
-    // svg.selectAll("*").remove();
-    //
-    // svg
-    //   .attr("width", width)
-    //   .attr("height", height)
-    //   .attr("viewBox", [-marginLeft, -marginTop, width, dx])
-    //   .attr(
-    //     "style",
-    //     "max-width: 100%; height: ; font: 10px sans-serif; user-select: none;",
-    //   );
-    //
-    // // リンクの描画
-    // const gLink = svg
-    //   .append("g")
-    //   .attr("fill", "none")
-    //   .attr("stroke", "#555")
-    //   .attr("stroke-opacity", 0.4)
-    //   .attr("stroke-width", 1.5);
-    //
-    // const links = root.links();
-    //
-    // gLink
-    //   .selectAll("path")
-    //   .data(links)
-    //   .join("path")
-    //   .attr("d", diagonal)
-    //   // @ts-ignore
-    //   .style("display", (d) =>
-    //     d.source.data.name === "root" ? "none" : "block",
-    //   )
-    //   .attr("transform", `translate(${offsetLeft}, 0)`);
-    //
-    // const gNode = svg
-    //   .append("g")
-    //   .attr("cursor", "pointer")
-    //   .attr("pointer-events", "all");
-    //
-    // const nodes = root.descendants();
-    // const node = gNode
-    //   .selectAll("g")
-    //   .data(nodes)
-    //   .join("g")
-    //   // .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
-    //   .style("display", (d) => d.data.name === "root" ? "none" : "block")
-    //   .attr("transform", (d) => `translate(${d.y},${d.x})`);
-    //
-    // node
-    //   .append("circle")
-    //   .attr("fill", (d) => (d.children ? "#555" : "#999"))
-    //   .attr("r", 2.5);
-    //
-    // // First, add text elements
-    // const texts = node
-    //   .append("text")
-    //   .attr("dy", "0.31em")
-    //   .attr("x", (d) => (d.children ? -6 : 6))
-    //   .attr("id", (d, i) => `text_${i}`)
-    //   .attr("text-anchor", (d) => (d.children ? "end" : "start"))
-    //   .text((d, i) => `Q${i}: ${d.data.name}`)
-    //   .attr("font-size", (d) =>
-    //     d.data.category === "question" ? "24px" : "18px",
-    //   )
-    //   .attr("stroke", "black")
-    //   .attr("stroke-linejoin", "round")
-    //   .attr("stroke-width", 1)
-    //   .attr("stroke", "black");
-    //
-    // // Then, for each text, add a rect behind it based on its dimensions
-    // texts.each(function (d, i) {
-    //   const bbox = this.getBBox();
-    //   const padding = 10; // Adjust padding as needed
-    //
-    //   // Insert rect behind the text by selecting the parent and inserting before this text element
-    //   d3.select(this.parentNode)
-    //     .insert("rect", `#text_${i}`)
-    //     .attr("x", bbox.x - padding / 2)
-    //     .attr("y", bbox.y - padding / 2)
-    //     .attr("width", bbox.width + padding)
-    //     .attr("height", bbox.height + padding)
-    //     .attr("rx", 6)
-    //     .attr("ry", 6)
-    //     .attr("fill", (d) => {
-    //       if (d.data.category === "followup_material") {
-    //         return "#DDA0A1";
-    //       } else if (d.data.category === "followup_formal") {
-    //         return "#A4CCE3";
-    //       } else if (d.data.category === "followup_efficient") {
-    //         return "#EFCAAC";
-    //       } else if (d.data.category === "followup_final") {
-    //         return "#A5CB93";
-    //       }
-    //       return "none";
-    //     })
-    //     .attr("stroke", "black")
-    //     .style("padding", "5px");
-    // });
-    //
-    // gNode.attr("transform", `translate(${offsetLeft}, 0)`);
+  useEffect(() => {
+    setHoveredFollowupQuestion(props.hoveredFollowupQuestion)
+    console.log(props.hoveredFollowupQuestion)
+  }, [props.hoveredFollowupQuestion])
 
+  const renderTreeMap = () => {
     // Define main variables and the tree layout
     let root = d3.hierarchy(treemapData);
     const width = 1128;

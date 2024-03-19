@@ -16,6 +16,7 @@ interface Props {
   userInfo: UserInfo | null;
   passConversationData: (ConversationData: ConversationData[]) => void;
   passFollowupQuestions: (followupQuestions: FollowupQuestion[]) => void;
+  passHoveredFollowupQuestionData: (hoveredFollowupQuestion: FollowupQuestion) => void;
 }
 
 export default function ChatRecord(props: Props) {
@@ -128,6 +129,10 @@ export default function ChatRecord(props: Props) {
     setFollowupQuestionMode(newFollowupQuestionMode);
   };
 
+  const onHoverFollowupQuestion = (d: FollowupQuestion) => {
+    props.passHoveredFollowupQuestionData(d)
+  }
+
   const conversationBox = (
     conversation: ConversationData,
     followupQuestions: FollowupQuestion[],
@@ -136,8 +141,8 @@ export default function ChatRecord(props: Props) {
     const _followupQuestions = followupQuestions.filter(
       (d) => d.conversationId === conversation.conversationId,
     );
-    const followupQuestionsContainer = _followupQuestions.map((d, i) => (
-      <Box key={i} className={styles.followup_question_box}>
+    const followupQuestionsContainer = _followupQuestions.map((d:FollowupQuestion, i:number) => (
+      <Box key={i} className={styles.followup_question_box} onMouseEnter={()=> onHoverFollowupQuestion(d)}>
         <Typography variant="body1">
           {i + 1}. {d.content}
         </Typography>

@@ -19,6 +19,7 @@ export default function BasicGrid() {
   const [followupQuestions, setFollowupQuestions] = useState<
     FollowupQuestion[]
   >([]);
+  const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion | undefined>()
 
   const searchParams = useSearchParams();
 
@@ -33,6 +34,10 @@ export default function BasicGrid() {
   ) => {
     setFollowupQuestions(followupQuestionsInChildComponent);
   };
+
+  const passHoveredFollowupQuestionData = (hoveredFollowupQuestion: FollowupQuestion) => {
+    setHoveredFollowupQuestion(hoveredFollowupQuestion)
+  }
 
   useEffect(() => {
     console.log("=== update conversation data ===");
@@ -68,6 +73,7 @@ export default function BasicGrid() {
               userInfo={userInfo}
               passConversationData={passConversationData}
               passFollowupQuestions={passFollowupQuestions}
+              passHoveredFollowupQuestionData={passHoveredFollowupQuestionData}
             />
           </Stack>
         </Grid>
@@ -78,6 +84,7 @@ export default function BasicGrid() {
               userInfo={userInfo}
               conversationData={conversationData}
               followupQuestions={followupQuestions}
+              hoveredFollowupQuestion={hoveredFollowupQuestion}
             />
           </div>
         </Grid>
