@@ -238,7 +238,8 @@ export default function TreeMap(props: Props) {
           if (d.data.category === 'question'){
             return `question_${d.data.conversationId}`
           } else {
-            return ''
+            return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}` 
+
           }
         }))
         .attr("class", (d => {
@@ -253,7 +254,18 @@ export default function TreeMap(props: Props) {
           d.children = d.children ? null : d._children;
           // d._children = d.children ? null : d._children;
           update(d);
-        });
+        })
+        .on("mouseenter", (event, d) => {
+          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}` 
+          d3.select(id).selectChild('rect').style("fill", "yellow")
+          // TODO: reset highlight other follow-up questions
+        })
+        .on("mouseleave", (event, d) => {
+          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}` 
+          d3.select(id).selectChild('rect').style("fill", "white")
+        })
+        ;
+        
 
       nodeEnter
         .append("circle")
@@ -294,10 +306,16 @@ export default function TreeMap(props: Props) {
           .attr("ry", 6)
           .attr("id", d => {
             if (d.data.category !== 'question'){
-              console.log(d.data)
               return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`
             } else {
               return ""
+            }
+          })
+          .attr("class", d => {
+            if (d.data.category !== 'question'){
+              return ""
+            } else {
+              return styles.followup_question_rect
             }
           })
           .attr("fill", (d) => {
