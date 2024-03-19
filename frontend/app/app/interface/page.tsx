@@ -9,11 +9,35 @@ import ChatRecord from "./components/ChatRecord";
 import TreeMap from "./components/TreeMap";
 import ConceptNetwork from "./components/ConceptNetwork";
 import EmbeddedContent from "./components/EmbeddedContent";
-import { UserInfo } from "../types";
+import { UserInfo, ConversationData, FollowupQuestion } from "../types";
 
 export default function BasicGrid() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [conversationData, setConversationData] = useState<ConversationData[]>(
+    [],
+  );
+  const [followupQuestions, setFollowupQuestions] = useState<
+    FollowupQuestion[]
+  >([]);
+  const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion | undefined>()
+
   const searchParams = useSearchParams();
+
+  const passConversationData = (
+    conversationDataInChildComponent: ConversationData[],
+  ) => {
+    setConversationData(conversationDataInChildComponent);
+  };
+
+  const passFollowupQuestions = (
+    followupQuestionsInChildComponent: FollowupQuestion[],
+  ) => {
+    setFollowupQuestions(followupQuestionsInChildComponent);
+  };
+
+  const passHoveredFollowupQuestionData = (hoveredFollowupQuestion: FollowupQuestion) => {
+    setHoveredFollowupQuestion(hoveredFollowupQuestion)
+  }
 
   useEffect(() => {
     if (userInfo !== null) return;
@@ -35,13 +59,23 @@ export default function BasicGrid() {
         <Grid item xs={6}>
           <Stack>
             <EmbeddedContent textName={"NFT"} />
-            <ChatRecord userInfo={userInfo} />
+            <ChatRecord
+              userInfo={userInfo}
+              passConversationData={passConversationData}
+              passFollowupQuestions={passFollowupQuestions}
+              passHoveredFollowupQuestionData={passHoveredFollowupQuestionData}
+            />
           </Stack>
         </Grid>
         <Grid item xs={6}>
           <div>
             <ConceptNetwork userInfo={userInfo} />
-            <TreeMap userInfo={userInfo} />
+            <TreeMap
+              userInfo={userInfo}
+              conversationData={conversationData}
+              followupQuestions={followupQuestions}
+              hoveredFollowupQuestion={hoveredFollowupQuestion}
+            />
           </div>
         </Grid>
       </Grid>

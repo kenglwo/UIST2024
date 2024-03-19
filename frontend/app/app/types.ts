@@ -15,5 +15,19 @@ export interface ConversationData {
   userId: string;
   role: string;
   content: string;
-  isFollowupQuestion: boolean;
+  conversationId: number;
+}
+
+export interface FollowupQuestion {
+  conversationId: number;
+  followupQuestionIndex: number;
+  content: string;
+}
+
+export interface TreemapData {
+  name: string;
+  category?: string;
+  conversationId?: number;
+  followupQuestionIndex?: number;
+  children?: TreemapData[];
 }

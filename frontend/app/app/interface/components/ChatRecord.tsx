@@ -9,15 +9,14 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
-
-import { UserInfo, ConversationData } from "../../types";
-// import { generateResponse } from "./chatgpt_api";
-
-// import { lightGreen } from "@mui/material/colors";
+import { UserInfo, ConversationData, FollowupQuestion } from "../../types";
 import styles from "../styles.module.css";
 
 interface Props {
   userInfo: UserInfo | null;
+  passConversationData: (ConversationData: ConversationData[]) => void;
+  passFollowupQuestions: (followupQuestions: FollowupQuestion[]) => void;
+  passHoveredFollowupQuestionData: (hoveredFollowupQuestion: FollowupQuestion) => void;
 }
 
 export default function ChatRecord(props: Props) {
@@ -25,12 +24,16 @@ export default function ChatRecord(props: Props) {
   const [conversationData, setConversationData] = useState<ConversationData[]>(
     [],
   );
+  const [followupQuestions, setFollowupQuestions] = useState<
+    FollowupQuestion[]
+  >([]);
   const [textFieldValue, setTextFieldValue] = useState<string>("");
   const [isLoadingLLMResponse, setIsLoadingLLMResponse] =
     useState<boolean>(false);
   const [followupQuestionMode, setFollowupQuestionMode] = useState<
     "controlled" | "epistemology"
   >("epistemology");
+  const [conversationId, setConversationId] = useState<number>(0);
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -42,17 +45,19 @@ export default function ChatRecord(props: Props) {
 
     // clear textfiled
     setTextFieldValue("");
+
     const newConversationDataUser: ConversationData = {
       userId: props.userInfo.userId,
       role: "user",
       content: userInputPrompt,
-      isFollowupQuestion: false
+      conversationId: conversationId,
     };
     const conversationDataPrev: ConversationData[] = [
       ...conversationData,
       newConversationDataUser,
     ];
     setConversationData([...conversationData, newConversationDataUser]);
+    props.passConversationData([...conversationData, newConversationDataUser]);
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
@@ -74,28 +79,39 @@ export default function ChatRecord(props: Props) {
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log(result)
-          const newConversationDataLLM: ConversationData[] = [
-            {
-              userId: props.userInfo.userId,
-              role: "system",
-              content: result["answer_question"],
-              isFollowupQuestion: false
-            },
-            {
-              userId: props.userInfo.userId,
-              role: "system",
-              content: result["answer_followup_question"],
-              isFollowupQuestion: true
-            },
-        ];
-
-        console.log(newConversationDataLLM)
+          console.log(result);
+          // add LLM response to conversation data
+          const newConversationDataLLM: ConversationData = {
+            userId: props.userInfo!.userId,
+            role: "system",
+            content: result["answer_question"],
+            conversationId: conversationId,
+          };
 
           setConversationData([
             ...conversationDataPrev,
-            ...newConversationDataLLM,
+            newConversationDataLLM,
           ]);
+          props.passConversationData([
+            ...conversationDataPrev,
+            newConversationDataLLM,
+          ]);
+
+          // @ts-ignore
+          const newFollowupQuestions: FollowupQuestion[] = result[
+            "followup_questions"
+          ].map((content: FollowupQuestion, i: number) => ({
+            conversationId: conversationId,
+            followupQuestionIndex: i,
+            content: content,
+          }));
+          console.log(newFollowupQuestions);
+          setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
+          props.passFollowupQuestions([
+            ...followupQuestions,
+            ...newFollowupQuestions,
+          ]);
+          setConversationId(conversationId + 1);
 
           // set false to hide loading icon
           setIsLoadingLLMResponse(false);
@@ -113,65 +129,82 @@ export default function ChatRecord(props: Props) {
     setFollowupQuestionMode(newFollowupQuestionMode);
   };
 
-  const conversationBox = (conversation: ConversationData, i:number) => {
-    return (
-          <Box
-            key={i}
-            className={`${
-              conversation.role === "user"
-                ? styles.chatbox_user
-                : styles.chatbox_llm
-            }`}
-          >
-            <Box>
-              <Stack
-                direction="row"
-                spacing={2}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent:
-                    conversation.role === "user" ? "flex-start" : "flex-end",
-                }}
-              >
-                <Avatar
-                  alt={conversation.role === "user" ? "U" : "C"}
-                  src={`/images/${
-                    conversation.role === "user" ? "user.png" : "bot.png"
-                  }`}
-                />
-                <h3>
-                  {conversation.role === "user"
-                    ? props.userInfo?.userId
-                    : "ChatGPT"}
-                </h3>
-              </Stack>
-              <Box className={styles.chat_text_box}>
-                <p>{conversation.content}</p>
-              </Box>
-            </Box>
-          </Box>
-    )
+  const onHoverFollowupQuestion = (d: FollowupQuestion) => {
+    props.passHoveredFollowupQuestionData(d)
   }
 
-  const followupQuestionBox = (conversation: ConversationData, i:number) => {
+  const conversationBox = (
+    conversation: ConversationData,
+    followupQuestions: FollowupQuestion[],
+    i: number,
+  ) => {
+    const _followupQuestions = followupQuestions.filter(
+      (d) => d.conversationId === conversation.conversationId,
+    );
+    const followupQuestionsContainer = _followupQuestions.map((d:FollowupQuestion, i:number) => (
+      <Box key={i} className={styles.followup_question_box} onMouseEnter={()=> onHoverFollowupQuestion(d)}>
+        <Typography variant="body1">
+          {i + 1}. {d.content}
+        </Typography>
+      </Box>
+    ));
+
     return (
       <Box
-      key={i}
-        className={styles.followup_question_container}
+        key={i}
+        className={`${
+          conversation.role === "user"
+            ? styles.chatbox_user
+            : styles.chatbox_llm
+        }`}
       >
-        {conversation.content.split('\n').map((d,i) => (
-          <Box
-            key={i}
-            className={styles.followup_question_box}
+        <Box>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent:
+                conversation.role === "user" ? "flex-start" : "flex-end",
+            }}
           >
-              <Typography variant="body1">{d}</Typography>
+            <Avatar
+              alt={conversation.role === "user" ? "U" : "C"}
+              src={`/images/${
+                conversation.role === "user" ? "user.png" : "bot.png"
+              }`}
+            />
+            <h3>
+              {conversation.role === "user"
+                ? props.userInfo?.userId
+                : "ChatGPT"}
+            </h3>
+          </Stack>
+          <Box className={styles.chat_text_box}>
+            <p>{conversation.content}</p>
           </Box>
-          )
-        )}
+          {conversation.role === "system" && (
+            <Box className={styles.followup_question_container}>
+              {followupQuestionsContainer}
+            </Box>
+          )}
+        </Box>
       </Box>
-    )
-  }
+    );
+  };
+
+  const followupQuestionBox = (conversation: ConversationData, i: number) => {
+    return (
+      <Box key={i} className={styles.followup_question_container}>
+        {conversation.content.split("\n").map((d, i) => (
+          <Box key={i} className={styles.followup_question_box}>
+            <Typography variant="body1">{d}</Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
 
   return (
     <Box className={styles.interface_component}>
@@ -211,12 +244,9 @@ export default function ChatRecord(props: Props) {
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box>
         {conversationData.map((conversation, i) => {
-          if (!conversation.isFollowupQuestion) {
-            return conversationBox(conversation, i)
-          } else {
-            return followupQuestionBox(conversation, i)
-          }
+          return conversationBox(conversation, followupQuestions, i);
         })}
+        {/* {conversationData[conversationData.length-1]["role"] === "system" && } */}
         {isLoadingLLMResponse && <CircularProgress />}
       </Box>
       <Box
