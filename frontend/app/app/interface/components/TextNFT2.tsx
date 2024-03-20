@@ -8,7 +8,7 @@ import styles from "../styles.module.css";
 
 export default function TextNFT() {
   return (
-    <Box sx={{ maxHeight: "350px", overflowY: "auto" }}>
+    <Box sx={{ overflowY: "auto" }}>
       <Typography variant="h4" id="content_sec0">
         What Is an NFT? Your Guide to Non-Fungible Tokens in 2024
       </Typography>

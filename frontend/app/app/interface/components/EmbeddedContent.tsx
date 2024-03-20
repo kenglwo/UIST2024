@@ -26,6 +26,8 @@ export default function EmbeddedContent(props: Props) {
   const [navigationDisplayValue, setNavigationDisplayValue] = useState<
     "flex" | "none"
   >("flex");
+  const [clickedNavigationButtonIndex, setClickedNavigationButtonIndex] =
+    useState<number | null>(null);
 
   useEffect(() => {
     if (props.textName === "NFT") {
@@ -53,13 +55,16 @@ export default function EmbeddedContent(props: Props) {
             {navigationItems.map((d, i) => (
               <Button
                 key={i}
-                variant={d === "Method" ? "contained" : "outlined"}
+                variant={
+                  clickedNavigationButtonIndex === i ? "contained" : "outlined"
+                }
                 sx={{ mt: 1, width: "100%" }}
                 onClick={() => {
                   const element = document.getElementById(`content_sec${i}`);
                   if (element) {
                     element.scrollIntoView({ behavior: "smooth" });
                   }
+                  setClickedNavigationButtonIndex(i);
                 }}
               >
                 {d}
@@ -73,7 +78,13 @@ export default function EmbeddedContent(props: Props) {
             marginLeft: "10px",
             backgroundColor: "darkgray",
             display: "flex",
-            alignItems: "center",
+            alignItems: "flex-start",
+          }}
+          className={styles.bar}
+          onClick={() => {
+            const newNavigationDisplayValue =
+              navigationDisplayValue === "flex" ? "none" : "flex";
+            setNavigationDisplayValue(newNavigationDisplayValue);
           }}
         >
           <Box
@@ -83,11 +94,12 @@ export default function EmbeddedContent(props: Props) {
                 navigationDisplayValue === "flex" ? "none" : "flex";
               setNavigationDisplayValue(newNavigationDisplayValue);
             }}
+            sx={{ marginTop: "230px" }}
           >
             {navigationDisplayValue === "flex" ? "<" : ">"}
           </Box>
         </Box>
-        <Box sx={{ ml: 3 }}>
+        <Box sx={{ ml: 3, height: "100%" }}>
           <TextNFT2 />
         </Box>
       </Stack>

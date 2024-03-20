@@ -99,3 +99,9 @@
   padding-bottom: 30px;
   cursor: pointer;
 }
+.bar {
+    cursor: default;
+}
+.bar:hover {
+    cursor: pointer;
+}
