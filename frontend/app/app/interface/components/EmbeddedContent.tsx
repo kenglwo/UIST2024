@@ -23,6 +23,9 @@ export default function EmbeddedContent(props: Props) {
     "Why do people buy NFTs?",
     "Key takeaways",
   ]);
+  const [navigationDisplayValue, setNavigationDisplayValue] = useState<
+    "flex" | "none"
+  >("flex");
 
   useEffect(() => {
     if (props.textName === "NFT") {
@@ -42,23 +45,27 @@ export default function EmbeddedContent(props: Props) {
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Stack direction="row">
-        <Stack>
+        <Stack
+          sx={{ display: navigationDisplayValue, flexDirection: "column" }}
+        >
           <Typography variant="h6">Navigation</Typography>
-          {navigationItems.map((d, i) => (
-            <Button
-              key={i}
-              variant={d === "Method" ? "contained" : "outlined"}
-              sx={{ mt: 1 }}
-              onClick={() => {
-                const element = document.getElementById(`content_sec${i}`);
-                if (element) {
-                  element.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-            >
-              {d}
-            </Button>
-          ))}
+          <Box>
+            {navigationItems.map((d, i) => (
+              <Button
+                key={i}
+                variant={d === "Method" ? "contained" : "outlined"}
+                sx={{ mt: 1, width: "100%" }}
+                onClick={() => {
+                  const element = document.getElementById(`content_sec${i}`);
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              >
+                {d}
+              </Button>
+            ))}
+          </Box>
         </Stack>
         <Box
           sx={{
@@ -70,12 +77,15 @@ export default function EmbeddedContent(props: Props) {
           }}
         >
           <Box
-            sx={{
-              paddingTop: "50px",
-              paddingBottom: "50px",
-              backgroundColor: "lightgray",
+            className={styles.navigation_bar}
+            onClick={() => {
+              const newNavigationDisplayValue =
+                navigationDisplayValue === "flex" ? "none" : "flex";
+              setNavigationDisplayValue(newNavigationDisplayValue);
             }}
-          >&lt;</Box>
+          >
+            {navigationDisplayValue === "flex" ? "<" : ">"}
+          </Box>
         </Box>
         <Box sx={{ ml: 3 }}>
           <TextNFT2 />

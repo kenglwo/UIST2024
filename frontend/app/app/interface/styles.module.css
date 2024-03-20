@@ -87,3 +87,15 @@
 .embedded_content_sub_section_title {
   margin-bottom: 10px;
 }
+
+.navigation_bar {
+  background-color: lightgray;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+.navigation_bar:hover {
+  background-color: gainsboro;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  cursor: pointer;
+}
