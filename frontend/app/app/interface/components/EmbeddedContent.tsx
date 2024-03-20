@@ -16,12 +16,12 @@ interface Props {
 export default function EmbeddedContent(props: Props) {
   const [text, setText] = useState<string>("");
   const [navigationItems, setNavigationItem] = useState<string[]>([
-    "Introduction",
-    "Related Works",
-    "Method",
-    "Evaluation",
-    "Discussions",
-    "Contributions",
+    "Title",
+    "What does NFT stand for?",
+    "What is an NFT?",
+    "Why are NFTs so expensive?",
+    "Why do people buy NFTs?",
+    "Key takeaways",
   ]);
 
   useEffect(() => {
@@ -49,11 +49,34 @@ export default function EmbeddedContent(props: Props) {
               key={i}
               variant={d === "Method" ? "contained" : "outlined"}
               sx={{ mt: 1 }}
+              onClick={() => {
+                const element = document.getElementById(`content_sec${i}`);
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
             >
               {d}
             </Button>
           ))}
         </Stack>
+        <Box
+          sx={{
+            width: "10px",
+            marginLeft: "10px",
+            backgroundColor: "darkgray",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Box
+            sx={{
+              paddingTop: "50px",
+              paddingBottom: "50px",
+              backgroundColor: "lightgray",
+            }}
+          >&lt;</Box>
+        </Box>
         <Box sx={{ ml: 3 }}>
           <TextNFT2 />
         </Box>

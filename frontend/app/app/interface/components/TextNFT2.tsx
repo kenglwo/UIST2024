@@ -9,7 +9,7 @@ import styles from "../styles.module.css";
 export default function TextNFT() {
   return (
     <Box sx={{ maxHeight: "350px", overflowY: "auto" }}>
-      <Typography variant="h4">
+      <Typography variant="h4" id="content_sec0">
         What Is an NFT? Your Guide to Non-Fungible Tokens in 2024
       </Typography>
       <Typography variant="subtitle1" id="author" sx={{ marginBottom: "10px" }}>
@@ -26,6 +26,7 @@ export default function TextNFT() {
         page.
       </Typography>
       <Typography
+        id="content_sec1"
         variant="h5"
         className={styles.embedded_content_section_title}
       >
@@ -82,6 +83,7 @@ export default function TextNFT() {
         digital and cannot be altered due to the nature of blockchains.{" "}
       </Typography>
       <Typography
+        id="content_sec2"
         variant="h5"
         className={styles.embedded_content_section_title}
       >
@@ -185,6 +187,7 @@ export default function TextNFT() {
         a random combination of each element for you.
       </Typography>
       <Typography
+        id="content_sec3"
         variant="h5"
         className={styles.embedded_content_section_title}
       >
@@ -201,6 +204,7 @@ export default function TextNFT() {
         <ListItem>&bull;&nbsp;The utility of the NFT</ListItem>
       </List>
       <Typography
+        id="content_sec4"
         variant="h5"
         className={styles.embedded_content_section_title}
       >
@@ -258,34 +262,69 @@ export default function TextNFT() {
       </Typography>
       <List>
         <ListItem>
-          &bull;&nbsp;Environmental impact.NFTs are traded with major cryptocurrencies like Bitcoin and Ether (ETH). These cryptocurrencies use a protocol called Proof of Work to validate transactions. In short, Proof of Work is like a mathematical puzzle that proves a certain amount of computational power has been expended, thus confirming the validity of a blockchain transaction. This process is often called mining. As the networks grow, the puzzles become more challenging and require more computational power for miners to solve. According to some environmental advocates and financial regulators, the energy it takes to uphold this digital economy is not sustainable [2]. In 2020 alone, mining consumed more energy than the entirety of Switzerland [3].
+          &bull;&nbsp;Environmental impact.NFTs are traded with major
+          cryptocurrencies like Bitcoin and Ether (ETH). These cryptocurrencies
+          use a protocol called Proof of Work to validate transactions. In
+          short, Proof of Work is like a mathematical puzzle that proves a
+          certain amount of computational power has been expended, thus
+          confirming the validity of a blockchain transaction. This process is
+          often called mining. As the networks grow, the puzzles become more
+          challenging and require more computational power for miners to solve.
+          According to some environmental advocates and financial regulators,
+          the energy it takes to uphold this digital economy is not sustainable
+          [2]. In 2020 alone, mining consumed more energy than the entirety of
+          Switzerland [3].
         </ListItem>
         <ListItem>
-          &bull;&nbsp;Community impact. Energy is expensive, leading miners to relocate their operations to areas with cheaper energy costs. These mining operations can drive up energy costs for locals and cause cities to exceed their hydropower quota. Depending on the extensiveness of the hardware, mining operations can also generate a constant, tangible vibration in the area [4].
+          &bull;&nbsp;Community impact. Energy is expensive, leading miners to
+          relocate their operations to areas with cheaper energy costs. These
+          mining operations can drive up energy costs for locals and cause
+          cities to exceed their hydropower quota. Depending on the
+          extensiveness of the hardware, mining operations can also generate a
+          constant, tangible vibration in the area [4].
         </ListItem>
         <ListItem>
-          &bull;&nbsp;Legal rights. When an NFT is purchased, the owner obtains the rights to the digital asset that lives on the blockchain. They do not receive legal rights to the underlying content. If another party trademarks the artwork or item that an NFT represents, that party retains control over the legal rights of the intellectual property (IP) regardless of who owns the NFT.
+          &bull;&nbsp;Legal rights. When an NFT is purchased, the owner obtains
+          the rights to the digital asset that lives on the blockchain. They do
+          not receive legal rights to the underlying content. If another party
+          trademarks the artwork or item that an NFT represents, that party
+          retains control over the legal rights of the intellectual property
+          (IP) regardless of who owns the NFT.
         </ListItem>
         <ListItem>
-          &bull;&nbsp;Value fluctuation. Since NFT value is not purely economic, it can fluctuate based on the current social climate. For example, Jack Dorsey, co-founder of Twitter, sold his first-ever tweet as an NFT last year for over $2.9 million. Today, Dorsey's NFT tweet is owned by crypto entrepreneur Sina Estavi. He listed the NFT for sale at $48 million and closed the auction with just seven total bids ranging between $5-$277.
+          &bull;&nbsp;Value fluctuation. Since NFT value is not purely economic,
+          it can fluctuate based on the current social climate. For example,
+          Jack Dorsey, co-founder of Twitter, sold his first-ever tweet as an
+          NFT last year for over $2.9 million. Today, Dorsey's NFT tweet is
+          owned by crypto entrepreneur Sina Estavi. He listed the NFT for sale
+          at $48 million and closed the auction with just seven total bids
+          ranging between $5-$277.
         </ListItem>
       </List>
       <Typography
+        id="content_sec5"
         variant="h5"
         className={styles.embedded_content_section_title}
-      >Key takeaways</Typography>
+      >
+        Key takeaways
+      </Typography>
       <List>
         <ListItem>
-          &bull;&nbsp;NFTs are digital assets that are stored on a blockchain. They act as certificates of ownership and authenticity over an object, tangible or intangible.
+          &bull;&nbsp;NFTs are digital assets that are stored on a blockchain.
+          They act as certificates of ownership and authenticity over an object,
+          tangible or intangible.
         </ListItem>
         <ListItem>
-          &bull;&nbsp;NFTs and cryptocurrency are not the same. NFTs are traded using cryptocurrency.
+          &bull;&nbsp;NFTs and cryptocurrency are not the same. NFTs are traded
+          using cryptocurrency.
         </ListItem>
         <ListItem>
-          &bull;&nbsp;The value of an NFT hinges on several factors, including social relevancy and scarcity.
+          &bull;&nbsp;The value of an NFT hinges on several factors, including
+          social relevancy and scarcity.
         </ListItem>
         <ListItem>
-          &bull;&nbsp;Purchasing an NFT does not inherently provide you with the rights to the artwork or asset that the NFT represents.
+          &bull;&nbsp;Purchasing an NFT does not inherently provide you with the
+          rights to the artwork or asset that the NFT represents.
         </ListItem>
       </List>
     </Box>
