@@ -15,132 +15,132 @@ interface Props {
 }
 
 export default function ConceptNetwork(props: Props) {
-  const svgRef = useRef();
-  const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-  const width = 800 - margin.left - margin.right;
-  const height = 300 - margin.top - margin.bottom;
+  // const svgRef = useRef();
+  // const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+  // const width = 800 - margin.left - margin.right;
+  // const height = 300 - margin.top - margin.bottom;
 
-  useEffect(() => {
-    const svg = d3.select(svgRef.current);
+  // useEffect(() => {
+  //   const svg = d3.select(svgRef.current);
 
-    svg.selectAll("*").remove();
+  //   svg.selectAll("*").remove();
 
-    const content = svg
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  //   const content = svg
+  //     .attr("width", width + margin.left + margin.right)
+  //     .attr("height", height + margin.top + margin.bottom)
+  //     .append("g")
+  //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    const link = content
-      .selectAll("line")
-      .data(data.links)
-      .enter()
-      .append("line")
-      .style("stroke", "#aaa");
+  //   const link = content
+  //     .selectAll("line")
+  //     .data(data.links)
+  //     .enter()
+  //     .append("line")
+  //     .style("stroke", "#aaa");
 
-    // Initialize the nodes
-    const node = content
-      .selectAll("circle")
-      .data(data.nodes)
-      .enter()
-      .append("circle")
-      .attr("r", 15)
-      .attr("stroke-width", 1)
-      .attr("stroke", "black")
-      .style("fill", "white");
+  //   // Initialize the nodes
+  //   const node = content
+  //     .selectAll("circle")
+  //     .data(data.nodes)
+  //     .enter()
+  //     .append("circle")
+  //     .attr("r", 15)
+  //     .attr("stroke-width", 1)
+  //     .attr("stroke", "black")
+  //     .style("fill", "white");
 
-    const text = content
-      .selectAll("text")
-      .data(data.nodes)
-      .enter()
-      .append("text")
-      .text((d) => d.name)
-      .attr("font-size", "20px")
-      .attr("stroke-width", 1)
-      .attr("stroke", "black");
+  //   const text = content
+  //     .selectAll("text")
+  //     .data(data.nodes)
+  //     .enter()
+  //     .append("text")
+  //     .text((d) => d.name)
+  //     .attr("font-size", "20px")
+  //     .attr("stroke-width", 1)
+  //     .attr("stroke", "black");
 
-    // Let's list the force we wanna apply on the network
-    const simulation = d3
-      .forceSimulation(data.nodes) // Force algorithm is applied to data.nodes
-      .force(
-        "link",
-        d3
-          .forceLink() // This force provides links between nodes
-          // @ts-ignore
-          .id(function (d) {
-            // @ts-ignore
-            return d.id;
-          }) // This provide  the id of a node
-          .links(data.links), // and this the list of links
-      )
-      .force("charge", d3.forceManyBody().strength(-150)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
-      .force("center", d3.forceCenter(width / 2, height / 2)) // This force attracts nodes to the center of the svg area
-      .on("end", ticked);
+  //   // Let's list the force we wanna apply on the network
+  //   const simulation = d3
+  //     .forceSimulation(data.nodes) // Force algorithm is applied to data.nodes
+  //     .force(
+  //       "link",
+  //       d3
+  //         .forceLink() // This force provides links between nodes
+  //         // @ts-ignore
+  //         .id(function (d) {
+  //           // @ts-ignore
+  //           return d.id;
+  //         }) // This provide  the id of a node
+  //         .links(data.links), // and this the list of links
+  //     )
+  //     .force("charge", d3.forceManyBody().strength(-150)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+  //     .force("center", d3.forceCenter(width / 2, height / 2)) // This force attracts nodes to the center of the svg area
+  //     .on("end", ticked);
 
-    // This function is run at each iteration of the force algorithm, updating the nodes position.
-    function ticked() {
-      link
-        // @ts-ignore
-        .attr("x1", function (d) {
-          // @ts-ignore
-          return d.source.x;
-        })
-        // @ts-ignore
-        .attr("y1", function (d) {
-          // @ts-ignore
-          return d.source.y;
-        })
-        // @ts-ignore
-        .attr("x2", function (d) {
-          // @ts-ignore
-          return d.target.x;
-        })
-        // @ts-ignore
-        .attr("y2", function (d) {
-          // @ts-ignore
-          return d.target.y;
-        });
+  //   // This function is run at each iteration of the force algorithm, updating the nodes position.
+  //   function ticked() {
+  //     link
+  //       // @ts-ignore
+  //       .attr("x1", function (d) {
+  //         // @ts-ignore
+  //         return d.source.x;
+  //       })
+  //       // @ts-ignore
+  //       .attr("y1", function (d) {
+  //         // @ts-ignore
+  //         return d.source.y;
+  //       })
+  //       // @ts-ignore
+  //       .attr("x2", function (d) {
+  //         // @ts-ignore
+  //         return d.target.x;
+  //       })
+  //       // @ts-ignore
+  //       .attr("y2", function (d) {
+  //         // @ts-ignore
+  //         return d.target.y;
+  //       });
 
-      node
-        // @ts-ignore
-        .attr("cx", function (d) {
-          // @ts-ignore
-          return d.x + 6;
-        })
-        // @ts-ignore
-        .attr("cy", function (d) {
-          // @ts-ignore
-          return d.y - 6;
-        });
+  //     node
+  //       // @ts-ignore
+  //       .attr("cx", function (d) {
+  //         // @ts-ignore
+  //         return d.x + 6;
+  //       })
+  //       // @ts-ignore
+  //       .attr("cy", function (d) {
+  //         // @ts-ignore
+  //         return d.y - 6;
+  //       });
 
-      text
-        // @ts-ignore
-        .attr("x", function (d) {
-          // @ts-ignore
-          return d.x;
-        })
-        // @ts-ignore
-        .attr("y", function (d) {
-          // @ts-ignore
-          return d.y;
-        });
-    }
+  //     text
+  //       // @ts-ignore
+  //       .attr("x", function (d) {
+  //         // @ts-ignore
+  //         return d.x;
+  //       })
+  //       // @ts-ignore
+  //       .attr("y", function (d) {
+  //         // @ts-ignore
+  //         return d.y;
+  //       });
+  //   }
 
-    content.attr("transform", "translate(0, 100)");
+  //   content.attr("transform", "translate(0, 100)");
 
-    svg
-      .append("g")
-      .selectAll("text")
-      .data(data.nodes)
-      .enter()
-      .append("text")
-      .text((d) => `${d.name}: ${d.description}`)
-      .attr("font-size", "12px")
-      .attr("stroke-width", 1)
-      .attr("stroke", "black")
-      .attr("x", width - 100)
-      .attr("y", (d, i) => 50 + i * 20);
-  }, [data]);
+  //   svg
+  //     .append("g")
+  //     .selectAll("text")
+  //     .data(data.nodes)
+  //     .enter()
+  //     .append("text")
+  //     .text((d) => `${d.name}: ${d.description}`)
+  //     .attr("font-size", "12px")
+  //     .attr("stroke-width", 1)
+  //     .attr("stroke", "black")
+  //     .attr("x", width - 100)
+  //     .attr("y", (d, i) => 50 + i * 20);
+  // }, [data]);
 
   return (
     <Box className={styles.interface_component}>
@@ -156,7 +156,16 @@ export default function ConceptNetwork(props: Props) {
         </Typography>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
-      <svg ref={svgRef}></svg>
+      {/* <svg ref={svgRef}></svg> */}
+      <Box
+        component="img"
+        sx={{
+          height: "100%", // You can specify the size
+          width: "100%",
+        }}
+        alt="Concept map of NFT"
+        src="/images/concept_map.png"
+      />
     </Box>
   );
 }
