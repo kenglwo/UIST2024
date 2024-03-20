@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
@@ -16,7 +16,9 @@ interface Props {
   userInfo: UserInfo | null;
   passConversationData: (ConversationData: ConversationData[]) => void;
   passFollowupQuestions: (followupQuestions: FollowupQuestion[]) => void;
-  passHoveredFollowupQuestionData: (hoveredFollowupQuestion: FollowupQuestion) => void;
+  passHoveredFollowupQuestionData: (
+    hoveredFollowupQuestion: FollowupQuestion,
+  ) => void;
 }
 
 export default function ChatRecord(props: Props) {
@@ -34,6 +36,17 @@ export default function ChatRecord(props: Props) {
     "controlled" | "epistemology"
   >("epistemology");
   const [conversationId, setConversationId] = useState<number>(0);
+  const parentRef = useRef(null); // Reference to the parent box
+  const [childHeight, setChildHeight] = useState("100px"); // State to hold the child's height
+
+  useEffect(() => {
+    if (parentRef.current) {
+      const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
+      setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
+      console.log("================");
+      console.log(`${parentHeight * 0.8}px`);
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -130,8 +143,8 @@ export default function ChatRecord(props: Props) {
   };
 
   const onHoverFollowupQuestion = (d: FollowupQuestion) => {
-    props.passHoveredFollowupQuestionData(d)
-  }
+    props.passHoveredFollowupQuestionData(d);
+  };
 
   const conversationBox = (
     conversation: ConversationData,
@@ -141,13 +154,19 @@ export default function ChatRecord(props: Props) {
     const _followupQuestions = followupQuestions.filter(
       (d) => d.conversationId === conversation.conversationId,
     );
-    const followupQuestionsContainer = _followupQuestions.map((d:FollowupQuestion, i:number) => (
-      <Box key={i} className={styles.followup_question_box} onMouseEnter={()=> onHoverFollowupQuestion(d)}>
-        <Typography variant="body1">
-          {i + 1}. {d.content}
-        </Typography>
-      </Box>
-    ));
+    const followupQuestionsContainer = _followupQuestions.map(
+      (d: FollowupQuestion, i: number) => (
+        <Box
+          key={i}
+          className={styles.followup_question_box}
+          onMouseEnter={() => onHoverFollowupQuestion(d)}
+        >
+          <Typography variant="body1">
+            {i + 1}. {d.content}
+          </Typography>
+        </Box>
+      ),
+    );
 
     return (
       <Box
@@ -207,7 +226,7 @@ export default function ChatRecord(props: Props) {
   };
 
   return (
-    <Box className={styles.interface_component}>
+    <Box ref={parentRef} className={styles.interface_component2}>
       <Stack
         direction="row"
         sx={{ display: "flex", justifyContent: "space-between" }}
@@ -242,37 +261,39 @@ export default function ChatRecord(props: Props) {
         </Stack>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
-      <Box>
-        {conversationData.map((conversation, i) => {
-          return conversationBox(conversation, followupQuestions, i);
-        })}
-        {/* {conversationData[conversationData.length-1]["role"] === "system" && } */}
-        {isLoadingLLMResponse && <CircularProgress />}
-      </Box>
-      <Box
-        sx={{
-          m: 2,
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <TextField
-          id="user_input"
-          label="Type here"
-          variant="outlined"
-          minRows={6}
-          value={textFieldValue}
-          onChange={(e) => onChangeTextField(e.target.value)}
-          sx={{ width: "50%", marginTop: "10px" }}
-        />
-        <Button
-          variant="contained"
-          sx={{ marginLeft: "10px" }}
-          onClick={onSubmit}
+      <Box sx={{ height: childHeight, overflowY: "auto" }}>
+        <Box>
+          {conversationData.map((conversation, i) => {
+            return conversationBox(conversation, followupQuestions, i);
+          })}
+          {/* {conversationData[conversationData.length-1]["role"] === "system" && } */}
+          {isLoadingLLMResponse && <CircularProgress />}
+        </Box>
+        <Box
+          sx={{
+            m: 2,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
         >
-          Submit
-        </Button>
+          <TextField
+            id="user_input"
+            label="Type here"
+            variant="outlined"
+            minRows={6}
+            value={textFieldValue}
+            onChange={(e) => onChangeTextField(e.target.value)}
+            sx={{ width: "50%", marginTop: "10px" }}
+          />
+          <Button
+            variant="contained"
+            sx={{ marginLeft: "10px" }}
+            onClick={onSubmit}
+          >
+            Submit
+          </Button>
+        </Box>
       </Box>
     </Box>
   );
