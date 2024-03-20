@@ -5,7 +5,7 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import TextNFT from "./TextNFT";
+import TextNFT2 from "./TextNFT2";
 
 import styles from "../styles.module.css";
 
@@ -16,13 +16,18 @@ interface Props {
 export default function EmbeddedContent(props: Props) {
   const [text, setText] = useState<string>("");
   const [navigationItems, setNavigationItem] = useState<string[]>([
-    "Introduction",
-    "Related Works",
-    "Method",
-    "Evaluation",
-    "Discussions",
-    "Contributions",
+    "Title",
+    "What does NFT stand for?",
+    "What is an NFT?",
+    "Why are NFTs so expensive?",
+    "Why do people buy NFTs?",
+    "Key takeaways",
   ]);
+  const [navigationDisplayValue, setNavigationDisplayValue] = useState<
+    "flex" | "none"
+  >("flex");
+  const [clickedNavigationButtonIndex, setClickedNavigationButtonIndex] =
+    useState<number | null>(null);
 
   useEffect(() => {
     if (props.textName === "NFT") {
@@ -42,20 +47,60 @@ export default function EmbeddedContent(props: Props) {
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Stack direction="row">
-        <Stack>
+        <Stack
+          sx={{ display: navigationDisplayValue, flexDirection: "column" }}
+        >
           <Typography variant="h6">Navigation</Typography>
-          {navigationItems.map((d, i) => (
-            <Button
-              key={i}
-              variant={d === "Method" ? "contained" : "outlined"}
-              sx={{ mt: 1 }}
-            >
-              {d}
-            </Button>
-          ))}
+          <Box>
+            {navigationItems.map((d, i) => (
+              <Button
+                key={i}
+                variant={
+                  clickedNavigationButtonIndex === i ? "contained" : "outlined"
+                }
+                sx={{ mt: 1, width: "100%" }}
+                onClick={() => {
+                  const element = document.getElementById(`content_sec${i}`);
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                  setClickedNavigationButtonIndex(i);
+                }}
+              >
+                {d}
+              </Button>
+            ))}
+          </Box>
         </Stack>
-        <Box sx={{ ml: 3 }}>
-          <TextNFT />
+        <Box
+          sx={{
+            width: "10px",
+            marginLeft: "10px",
+            backgroundColor: "darkgray",
+            display: "flex",
+            alignItems: "flex-start",
+          }}
+          className={styles.bar}
+          onClick={() => {
+            const newNavigationDisplayValue =
+              navigationDisplayValue === "flex" ? "none" : "flex";
+            setNavigationDisplayValue(newNavigationDisplayValue);
+          }}
+        >
+          <Box
+            className={styles.navigation_bar}
+            onClick={() => {
+              const newNavigationDisplayValue =
+                navigationDisplayValue === "flex" ? "none" : "flex";
+              setNavigationDisplayValue(newNavigationDisplayValue);
+            }}
+            sx={{ marginTop: "230px" }}
+          >
+            {navigationDisplayValue === "flex" ? "<" : ">"}
+          </Box>
+        </Box>
+        <Box sx={{ ml: 3, height: "100%" }}>
+          <TextNFT2 />
         </Box>
       </Stack>
     </Box>

@@ -76,3 +76,32 @@
   width: 80px;
   height: 25px;
 }
+
+.embedded_content_paragraph {
+  margin-bottom: 20px;
+}
+
+.embedded_content_section_title {
+  margin-bottom: 20px;
+}
+.embedded_content_sub_section_title {
+  margin-bottom: 10px;
+}
+
+.navigation_bar {
+  background-color: lightgray;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+.navigation_bar:hover {
+  background-color: gainsboro;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  cursor: pointer;
+}
+.bar {
+    cursor: default;
+}
+.bar:hover {
+    cursor: pointer;
+}
