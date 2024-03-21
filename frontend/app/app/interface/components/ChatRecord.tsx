@@ -39,12 +39,21 @@ export default function ChatRecord(props: Props) {
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState("100px"); // State to hold the child's height
 
+  useEffect(()=> {
+    // scroll to the question
+    if (conversationData.length > 0) {
+      const latestConversationData = conversationData[conversationData.length - 1]
+      const element = latestConversationData.role === 'user' ? document.querySelector(`#question_${latestConversationData.role}_${latestConversationData.conversationId}`) : document.getElementById(`#answer_${latestConversationData.role}_${latestConversationData.conversationId}`)
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [conversationData])
+
   useEffect(() => {
     if (parentRef.current) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
-      console.log("================");
-      console.log(`${parentHeight * 0.8}px`);
     }
   }, []); // Empty dependency array means this runs once on mount
 
@@ -71,6 +80,7 @@ export default function ChatRecord(props: Props) {
     ];
     setConversationData([...conversationData, newConversationDataUser]);
     props.passConversationData([...conversationData, newConversationDataUser]);
+
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
@@ -117,7 +127,6 @@ export default function ChatRecord(props: Props) {
             followupQuestionIndex: i,
             content: content,
           }));
-          console.log(newFollowupQuestions);
           setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
           props.passFollowupQuestions([
             ...followupQuestions,
@@ -136,7 +145,6 @@ export default function ChatRecord(props: Props) {
   };
 
   const onChangeSwitch = (isSwitchOn: boolean) => {
-    console.log(isSwitchOn);
     const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
     setFollowupQuestionMode(newFollowupQuestionMode);
   };
@@ -162,6 +170,8 @@ export default function ChatRecord(props: Props) {
     ];
     setConversationData([...conversationData, newConversationDataUser]);
     props.passConversationData([...conversationData, newConversationDataUser]);
+
+
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
     const data = {
@@ -223,6 +233,7 @@ export default function ChatRecord(props: Props) {
     const followupQuestionsContainer = _followupQuestions.map(
       (d: FollowupQuestion, i: number) => (
         <Box
+          key={i}
           sx={{
             display: "flex",
             flexDirection: "row",
@@ -290,7 +301,7 @@ export default function ChatRecord(props: Props) {
                 : "ChatGPT"}
             </h3>
           </Stack>
-          <Box className={styles.chat_text_box}>
+          <Box id={conversation.role === "user" ? `question_${conversation.role}_${conversation.conversationId}` : `answer_${conversation.role}_${conversation.conversationId}` } className={styles.chat_text_box}>
             <p>{conversation.content}</p>
           </Box>
           {conversation.role === "system" && (
