@@ -16,6 +16,8 @@ export interface ConversationData {
   role: string;
   content: string;
   conversationId: number;
+  isAnswerToFolloupQuestion?: boolean;
+  followupQuestionId?: string;
 }
 
 export interface FollowupQuestion {

@@ -157,25 +157,25 @@ export default function ChatRecord(props: Props) {
     setTextFieldValue(followupQuestionContent);
   };
 
-  const onClickFollowupQuestion = (followupQuestionContent: string) => {
-    const newConversationDataUser: ConversationData = {
-      userId: props.userInfo.userId,
-      role: "user",
-      content: followupQuestionContent,
-      conversationId: conversationId,
-    };
-    const conversationDataPrev: ConversationData[] = [
-      ...conversationData,
-      newConversationDataUser,
-    ];
-    setConversationData([...conversationData, newConversationDataUser]);
-    props.passConversationData([...conversationData, newConversationDataUser]);
+  const onClickFollowupQuestion = (followupQuestion: FollowupQuestion) => {
+    const followupQuestionContent: string = followupQuestion.content
+    // const newConversationDataUser: ConversationData = {
+    //   userId: props.userInfo.userId,
+    //   role: "user",
+    //   content: followupQuestionContent,
+    //   conversationId: conversationId,
+    // };
+    // const conversationDataPrev: ConversationData[] = [
+    //   ...conversationData,
+    //   newConversationDataUser,
+    // ];
+    // setConversationData([...conversationData, newConversationDataUser]);
+    // props.passConversationData([...conversationData, newConversationDataUser]);
 
-
-
-    const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
+    const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
       user_input_prompt: followupQuestionContent,
+      followup_question_mode: followupQuestionMode,
     };
     const header = {
       method: "POST",
@@ -192,25 +192,36 @@ export default function ChatRecord(props: Props) {
       .then((res) => res.json())
       .then(
         (result) => {
-          // add LLM response to conversation data
+          // add LLM response to conversation data as children of the selected follow-up question
           const newConversationDataLLM: ConversationData = {
             userId: props.userInfo!.userId,
             role: "system",
             content: result["answer_question"],
-            conversationId: conversationId,
+            conversationId: followupQuestion.conversationId,
+            isAnswerToFolloupQuestion: true,
+            // followupQuestionIndex: followupQuestion.followupQuestionIndex
           };
 
-          setConversationData([
-            ...conversationDataPrev,
-            newConversationDataLLM,
+          const newConversationData: ConversationData[] = [...conversationData, newConversationDataLLM]
+          setConversationData(newConversationData);
+          props.passConversationData(newConversationData);
+
+
+          // handle follow-up questions of a selected follow-up question
+          const newFollowupQuestions: FollowupQuestion[] = result[
+            "followup_questions"
+          ].map((content: FollowupQuestion, i: number) => ({
+            conversationId: followupQuestion.conversationId,
+            followupQuestionIndex: i,
+            content
+          }));
+          setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
+          props.passFollowupQuestions([
+            ...followupQuestions,
+            ...newFollowupQuestions,
           ]);
 
-          props.passConversationData([
-            ...conversationDataPrev,
-            newConversationDataLLM,
-          ]);
-
-          setConversationId(conversationId + 1);
+          // setConversationId(conversationId + 1);
 
           // set false to hide loading icon
           setIsLoadingLLMResponse(false);
@@ -259,7 +270,7 @@ export default function ChatRecord(props: Props) {
             key={i}
             className={styles.followup_question_box}
             onMouseEnter={() => onHoverFollowupQuestion(d)}
-            onClick={() => onClickFollowupQuestion(d.content)}
+            onClick={() => onClickFollowupQuestion(d)}
           >
             <Typography variant="body1">
               {i + 1}. {d.content}

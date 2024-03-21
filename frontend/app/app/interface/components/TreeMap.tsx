@@ -38,8 +38,8 @@ export default function TreeMap(props: Props) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
       const parentWidth = parentRef.current.offsetWidth;
-      setChildWidth(`${parentWidth *0.95}`)
-      console.log(`parentHeight: ${parentHeight*0.8}, parentWidth: ${parentWidth*0.8}`)
+      setChildWidth(`${parentWidth * 0.95}`)
+      console.log(`parentHeight: ${parentHeight * 0.8}, parentWidth: ${parentWidth * 0.8}`)
     }
   }, []); // Empty dependency array means this runs once on mount
 
@@ -59,6 +59,8 @@ export default function TreeMap(props: Props) {
   }
 
   useEffect(() => {
+    console.log('====== conversation data in tree map ==========')
+    console.log(props.conversationData)
     const d: TreemapData[] = props.conversationData
       .filter((d) => d.role === "user")
       .map((d) => {
