@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
+import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import { UserInfo } from "../../types";
@@ -15,6 +16,9 @@ interface Props {
 }
 
 export default function ConceptNetwork(props: Props) {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   // const svgRef = useRef();
   // const margin = { top: 20, right: 30, bottom: 30, left: 40 };
   // const width = 800 - margin.left - margin.right;
@@ -142,6 +146,18 @@ export default function ConceptNetwork(props: Props) {
   //     .attr("y", (d, i) => 50 + i * 20);
   // }, [data]);
 
+  const style = {
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+
   return (
     <Box className={styles.interface_component}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
@@ -165,7 +181,33 @@ export default function ConceptNetwork(props: Props) {
         }}
         alt="Concept map of NFT"
         src="/images/concept_map.png"
+        onClick={handleOpen}
       />
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Box
+          component="img"
+          sx={{
+            height: "70%", // You can specify the size
+            width: "70%",
+            backgroundColor: "white",
+            margin: "10px",
+            padding: "10px",
+          }}
+          alt="Concept map of NFT"
+          src="/images/concept_map.png"
+          onClick={handleOpen}
+        />
+      </Modal>
     </Box>
   );
 }
