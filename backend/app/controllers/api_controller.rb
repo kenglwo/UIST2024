@@ -13,7 +13,9 @@ class ApiController < ApplicationController
       'in the order of material, formal, efficient and final cause.' \
       'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line' \
       :
-      'Could you provide some follow-up questions? Output just follow-up questions'
+      'Could you provide some follow-up questions? Output just follow-up questions' \
+      'Output just the corresponding 4 follow-up questions without the description of which type of cause, ' \
+      'in the order of material, formal, efficient and final cause.' \
 
      answer_question = getResponseByLLM(user_input_prompt)
      followup_questions = getResponseByLLM(followup_question_prompt, user_input_prompt)
@@ -26,10 +28,18 @@ class ApiController < ApplicationController
      render json: output
   end
 
+  def get_chatgpt_answer_without_followup_questions
+     user_input_prompt = params['user_input_prompt']
+     answer_question = getResponseByLLM(user_input_prompt)
+     output = {
+      answer_question: answer_question,
+     }
+     render json:output
+
+  end
+
   def getResponseByLLM(input_prompt, question = nil)
     input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
-    logger.debug (input_prompt)
-
 
      uri = URI(ENV['CHATGPT_API_ENDPOINT'])
      header = {

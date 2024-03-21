@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
@@ -28,6 +28,16 @@ export default function EmbeddedContent(props: Props) {
   >("flex");
   const [clickedNavigationButtonIndex, setClickedNavigationButtonIndex] =
     useState<number | null>(null);
+  const parentRef = useRef(null); // Reference to the parent box
+  const [childHeight, setChildHeight] = useState("0px"); // State to hold the child's height
+
+  useEffect(() => {
+    if (parentRef.current) {
+      const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
+      setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
+      console.log(`${parentHeight * 0.8}px`);
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     if (props.textName === "NFT") {
@@ -35,7 +45,7 @@ export default function EmbeddedContent(props: Props) {
   }, [props]);
 
   return (
-    <Box className={styles.interface_component}>
+    <Box ref={parentRef} className={styles.interface_component2}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Embedded Content Sharp"
@@ -48,7 +58,15 @@ export default function EmbeddedContent(props: Props) {
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Stack direction="row">
         <Stack
-          sx={{ display: navigationDisplayValue, flexDirection: "column" }}
+          sx={{
+            display: navigationDisplayValue,
+            flexDirection: "column",
+            alignItems: "center",
+            overflowY: "auto",
+            height: childHeight,
+            overflowX: 'visible',
+            padding: "10px",
+          }}
         >
           <Typography variant="h6">Navigation</Typography>
           <Box>
@@ -75,6 +93,7 @@ export default function EmbeddedContent(props: Props) {
         <Box
           sx={{
             width: "10px",
+            height: childHeight,
             marginLeft: "10px",
             backgroundColor: "darkgray",
             display: "flex",
@@ -94,12 +113,12 @@ export default function EmbeddedContent(props: Props) {
                 navigationDisplayValue === "flex" ? "none" : "flex";
               setNavigationDisplayValue(newNavigationDisplayValue);
             }}
-            sx={{ marginTop: "230px" }}
+            sx={{ marginTop: "130px" }}
           >
             {navigationDisplayValue === "flex" ? "<" : ">"}
           </Box>
         </Box>
-        <Box sx={{ ml: 3, height: "100%" }}>
+        <Box sx={{ ml: 3, overflowY: "auto", height: childHeight }}>
           <TextNFT2 />
         </Box>
       </Stack>
