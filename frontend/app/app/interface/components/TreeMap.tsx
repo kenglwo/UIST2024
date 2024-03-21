@@ -29,6 +29,19 @@ export default function TreeMap(props: Props) {
     useState<TreemapData>(treemapDataInitial);
   const svgRef = useRef();
   const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion>()
+  const parentRef = useRef(null); // Reference to the parent box
+  const [childHeight, setChildHeight] = useState<number>(0); // State to hold the child's height
+  const [childWidth, setChildWidth] = useState<number>(0); // State to hold the child's height
+
+  useEffect(() => {
+    if (parentRef.current) {
+      const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
+      setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
+      const parentWidth = parentRef.current.offsetWidth;
+      setChildWidth(`${parentWidth * 0.8}`)
+      console.log(`parentHeight: ${parentHeight*0.8}, parentWidth: ${parentWidth*0.8}`)
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   function removeDuplicatesByName(array) {
     const unique = array.reduce(
@@ -157,8 +170,8 @@ export default function TreeMap(props: Props) {
   const renderTreeMap = () => {
     // Define main variables and the tree layout
     let root = d3.hierarchy(treemapData);
-    const width = 1128;
-    const height = 300;
+    const width = childWidth;
+    const height = childHeight;
     const marginTop = 10;
     const marginRight = 10;
     const marginBottom = 10;
@@ -181,7 +194,7 @@ export default function TreeMap(props: Props) {
     svg
       .attr("width", width)
       .attr("height", 240)
-      .attr("viewBox", [-marginLeft, -marginTop, width, 140])
+      .attr("viewBox", [-marginLeft, -marginTop, width, height])
       .attr(
         "style",
         "max-width: 100%; height: 240px; font: 10px sans-serif; user-select: none;",
@@ -243,7 +256,6 @@ export default function TreeMap(props: Props) {
           }
         }))
         .attr("class", (d => {
-          console.log(d.data)
          return  `conversationId_${d.data.conversationId}`
         }))
         .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
@@ -435,7 +447,7 @@ export default function TreeMap(props: Props) {
   );
 
   return (
-    <Box className={styles.interface_component}>
+    <Box ref={parentRef} className={styles.interface_component2}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Embedded Content Sharp"
@@ -451,6 +463,8 @@ export default function TreeMap(props: Props) {
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box
         sx={{
+          height: `${childHeight}px`,
+          width: `${childWidth}px`,
           overflowX: "auto",
           overflowY: "auto",
         }}
