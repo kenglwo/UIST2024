@@ -146,6 +146,10 @@ export default function ChatRecord(props: Props) {
     props.passHoveredFollowupQuestionData(d);
   };
 
+  const onClickModifyButton = (folloupQuestionContent: string) => {
+    setTextFieldValue(folloupQuestionContent)
+  };
+
   const conversationBox = (
     conversation: ConversationData,
     followupQuestions: FollowupQuestion[],
@@ -157,13 +161,36 @@ export default function ChatRecord(props: Props) {
     const followupQuestionsContainer = _followupQuestions.map(
       (d: FollowupQuestion, i: number) => (
         <Box
-          key={i}
-          className={styles.followup_question_box}
-          onMouseEnter={() => onHoverFollowupQuestion(d)}
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
         >
-          <Typography variant="body1">
-            {i + 1}. {d.content}
-          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            sx={{
+              height: 30,
+              width: 30,
+              minWidth: 0,
+              borderRadius: "50%",
+              marginRight: "10px",
+            }}
+            onClick={() => onClickModifyButton(d.content)}
+          >
+            M
+          </Button>
+          <Box
+            key={i}
+            className={styles.followup_question_box}
+            onMouseEnter={() => onHoverFollowupQuestion(d)}
+          >
+            <Typography variant="body1">
+              {i + 1}. {d.content}
+            </Typography>
+          </Box>
         </Box>
       ),
     );
@@ -209,18 +236,6 @@ export default function ChatRecord(props: Props) {
             </Box>
           )}
         </Box>
-      </Box>
-    );
-  };
-
-  const followupQuestionBox = (conversation: ConversationData, i: number) => {
-    return (
-      <Box key={i} className={styles.followup_question_container}>
-        {conversation.content.split("\n").map((d, i) => (
-          <Box key={i} className={styles.followup_question_box}>
-            <Typography variant="body1">{d}</Typography>
-          </Box>
-        ))}
       </Box>
     );
   };
