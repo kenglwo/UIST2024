@@ -359,10 +359,12 @@ export default function ChatRecord(props: Props) {
             id="user_input"
             label="Type here"
             variant="outlined"
-            minRows={6}
+            multiline
+            rows={3}
+            fullWidth
             value={textFieldValue}
             onChange={(e) => onChangeTextField(e.target.value)}
-            sx={{ width: "50%", marginTop: "10px" }}
+            sx={{  marginTop: "10px" }}
           />
           <Button
             variant="contained"
