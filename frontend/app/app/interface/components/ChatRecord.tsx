@@ -92,7 +92,6 @@ export default function ChatRecord(props: Props) {
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log(result);
           // add LLM response to conversation data
           const newConversationDataLLM: ConversationData = {
             userId: props.userInfo!.userId,
@@ -146,8 +145,71 @@ export default function ChatRecord(props: Props) {
     props.passHoveredFollowupQuestionData(d);
   };
 
-  const onClickModifyButton = (folloupQuestionContent: string) => {
-    setTextFieldValue(folloupQuestionContent)
+  const onClickModifyButton = (followupQuestionContent: string) => {
+    setTextFieldValue(followupQuestionContent);
+  };
+
+  const onClickFollowupQuestion = (followupQuestionContent: string) => {
+    const newConversationDataUser: ConversationData = {
+      userId: props.userInfo.userId,
+      role: "user",
+      content: followupQuestionContent,
+      conversationId: conversationId,
+    };
+    const conversationDataPrev: ConversationData[] = [
+      ...conversationData,
+      newConversationDataUser,
+    ];
+    setConversationData([...conversationData, newConversationDataUser]);
+    props.passConversationData([...conversationData, newConversationDataUser]);
+
+    const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
+    const data = {
+      user_input_prompt: followupQuestionContent,
+    };
+    const header = {
+      method: "POST",
+      "Access-Control-Allow-Origin": "*",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+
+    // set true to show loading icon
+    setIsLoadingLLMResponse(true);
+
+    // get LLM response
+    fetch(url, header)
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          // add LLM response to conversation data
+          const newConversationDataLLM: ConversationData = {
+            userId: props.userInfo!.userId,
+            role: "system",
+            content: result["answer_question"],
+            conversationId: conversationId,
+          };
+
+          setConversationData([
+            ...conversationDataPrev,
+            newConversationDataLLM,
+          ]);
+
+          props.passConversationData([
+            ...conversationDataPrev,
+            newConversationDataLLM,
+          ]);
+
+          setConversationId(conversationId + 1);
+
+          // set false to hide loading icon
+          setIsLoadingLLMResponse(false);
+        },
+        (error) => {
+          console.log("========== API error ==========");
+          console.log(error);
+        },
+      );
   };
 
   const conversationBox = (
@@ -186,6 +248,7 @@ export default function ChatRecord(props: Props) {
             key={i}
             className={styles.followup_question_box}
             onMouseEnter={() => onHoverFollowupQuestion(d)}
+            onClick={() => onClickFollowupQuestion(d.content)}
           >
             <Typography variant="body1">
               {i + 1}. {d.content}
