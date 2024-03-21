@@ -38,7 +38,7 @@ export default function TreeMap(props: Props) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
       const parentWidth = parentRef.current.offsetWidth;
-      setChildWidth(`${parentWidth * 0.8}`)
+      setChildWidth(`${parentWidth *0.95}`)
       console.log(`parentHeight: ${parentHeight*0.8}, parentWidth: ${parentWidth*0.8}`)
     }
   }, []); // Empty dependency array means this runs once on mount
@@ -172,9 +172,9 @@ export default function TreeMap(props: Props) {
     let root = d3.hierarchy(treemapData);
     const width = childWidth;
     const height = childHeight;
-    const marginTop = 10;
+    const marginTop = 20;
     const marginRight = 10;
-    const marginBottom = 10;
+    const marginBottom = 20;
     const marginLeft = 40;
     const dx = 40;
     const dy = (width - marginRight - marginLeft) / (1 + root.height);
@@ -192,12 +192,12 @@ export default function TreeMap(props: Props) {
     svg.selectAll("*").remove();
 
     svg
-      .attr("width", width)
-      .attr("height", 240)
+      // .attr("width", width)
+      // .attr("height", height)
       .attr("viewBox", [-marginLeft, -marginTop, width, height])
       .attr(
         "style",
-        "max-width: 100%; height: 240px; font: 10px sans-serif; user-select: none;",
+        `width: ${width}; height: ${height}; font: 10px sans-serif; user-select: none;`
       );
 
     // Add groups for links and nodes
