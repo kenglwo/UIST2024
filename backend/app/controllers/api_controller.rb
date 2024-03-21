@@ -13,9 +13,9 @@ class ApiController < ApplicationController
       'in the order of material, formal, efficient and final cause.' \
       'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line' \
       :
-      'Could you provide some follow-up questions? Output just follow-up questions' \
-      'Output just the corresponding 4 follow-up questions without the description of which type of cause, ' \
-      'in the order of material, formal, efficient and final cause.' \
+      'Regarding the previous question: "###", Could you provide some follow-up questions? Output just follow-up questions' \
+      'Output just the corresponding 4 follow-up questions' \
+      'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line'
 
      answer_question = getResponseByLLM(user_input_prompt)
      followup_questions = getResponseByLLM(followup_question_prompt, user_input_prompt)
