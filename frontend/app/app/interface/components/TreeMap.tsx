@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -22,57 +23,6 @@ interface Props {
 
 const treemapDataInitial: TreemapData = { name: "root", children: [] };
 
-const treemapDataDemo: TreemapData = {
-  name: "root",
-  children: [
-    {
-      name: "What's NFT?",
-      category: "quesiton",
-      conversationId: 0,
-      children: [
-        {
-          name: "XXX",
-          category: "",
-          conversationId: 0,
-          followupQuestionIndex: 0,
-        },
-        {
-          name: "XXX",
-          category: "",
-          conversationId: 0,
-          followupQuestionIndex: 1,
-        },
-        {
-          name: "XXX",
-          category: "",
-          conversationId: 0,
-          followupQuestionIndex: 2,
-        },
-        {
-          name: "XXX",
-          category: "",
-          conversationId: 0,
-          followupQuestionIndex: 3,
-          children: [
-            {
-              name: "XXX",
-              category: "",
-              conversationId: 0,
-              followupQuestionIndex: 3_0,
-            },
-            {
-              name: "XXX",
-              category: "",
-              conversationId: 0,
-              followupQuestionIndex: 3_1,
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
-
 export default function TreeMap(props: Props) {
   const [questionData, setQuestionData] = useState(treemapDataInitial);
   const [counter, setCounter] = useState<number>(0);
@@ -84,6 +34,12 @@ export default function TreeMap(props: Props) {
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState<number>(0); // State to hold the child's height
   const [childWidth, setChildWidth] = useState<number>(0); // State to hold the child's height
+  const [viewBoxRect, setViewBoxRect] = useState({
+    width: 0,
+    height: 0,
+    minX: 0,
+    minY: 0,
+  });
 
   useEffect(() => {
     if (parentRef.current) {
@@ -91,6 +47,8 @@ export default function TreeMap(props: Props) {
       setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
       const parentWidth = parentRef.current.offsetWidth;
       setChildWidth(`${parentWidth * 0.95}`);
+      console.log("------------------");
+      console.log(`parentWidth: ${parentWidth}, parentHeight: ${parentHeight}`);
     }
   }, []); // Empty dependency array means this runs once on mount
 
@@ -142,39 +100,34 @@ export default function TreeMap(props: Props) {
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
+    updateSVGSize();
   }, [props.conversationData]);
 
-  // function buildTree(conversations) {
-  //   // Create a map to track all nodes by their followupQuestionIndex for quick access
-  //   const map = {};
-  //
-  //   // First, initialize all conversations in the map and ensure they all have a children array
-  //   conversations.forEach((conv) => {
-  //     map[conv.followupQuestionIndex] = { ...conv, children: [] };
-  //   });
-  //
-  //   // This will hold our root level conversations
-  //   const root = [];
-  //
-  //   // Now, go through the conversations again to structure the tree
-  //   conversations.forEach((conv) => {
-  //     const index = conv.followupQuestionIndex.toString();
-  //     if (index.includes("_")) {
-  //       // It's supposed to be a child, find its parent index
-  //       const parentIndex = index.substring(0, index.lastIndexOf("_"));
-  //
-  //       // If the parent exists in our map, add this conversation to its children
-  //       if (map[parentIndex]) {
-  //         map[parentIndex].children.push(map[index]);
-  //       }
-  //     } else {
-  //       // It's a root conversation, add it directly to the root array
-  //       root.push(map[index]);
-  //     }
-  //   });
-  //
-  //   return root;
-  // }
+  const updateSVGSize = () => {
+    const svgElement = document.querySelector("svg");
+    const viewBoxRectNew = calculateSvgContentSize(svgElement);
+    setViewBoxRect(viewBoxRectNew);
+
+    console.log("======= viewBoxRectNew =========");
+    console.log(viewBoxRectNew);
+    // console.log(_minX, _minY, _width, _height);
+
+    // const parentHeight = Math.round(parentRef.current.offsetHeight * 0.8); // Get the rendered height of the parent
+    // // setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
+    // const parentWidth = Math.round(parentRef.current.offsetWidth * 0.8);
+    // // setChildWidth(`${parentWidth * 0.95}`);
+    //
+    // // update the svg size
+    // const svgElement = document.querySelector("svg");
+    // const svgHeight = svgElement.clientHeight;
+    // const svgWidth = svgElement.clientWidth;
+    // console.log(`parentWidth: ${parentWidth}, parentHeight: ${parentHeight}`);
+    // console.log(`svgWidth: ${svgWidth}, svgHeight: ${svgHeight}`);
+    // const newChildWidth = svgWidth > parentWidth ? svgWidth : parentWidth;
+    // const newChildHeight = svgHeight > parentHeight ? svgHeight : parentHeight;
+    // setChildWidth(newChildWidth);
+    // setChildHeight(newChildHeight);
+  };
 
   function buildTree(questions) {
     let indexMap = {};
@@ -264,6 +217,7 @@ export default function TreeMap(props: Props) {
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
+    updateSVGSize();
   }, [props.followupQuestions]);
 
   useEffect(() => {
@@ -304,6 +258,34 @@ export default function TreeMap(props: Props) {
     }
   }, [props.hoveredFollowupQuestion]);
 
+  function calculateSvgContentSize(svgElement) {
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+
+    const elements = svgElement.querySelectorAll("*");
+    elements.forEach((el) => {
+      // Use getBoundingClientRect() or other properties depending on element type
+      const rect = el.getBoundingClientRect();
+      const { left, top, width, height } = rect;
+
+      // Convert to SVG coordinate space if necessary
+      // This example assumes the SVG is full-viewport or adjustments are otherwise made
+      minX = Math.min(minX, left);
+      minY = Math.min(minY, top);
+      maxX = Math.max(maxX, left + width);
+      maxY = Math.max(maxY, top + height);
+    });
+
+    return {
+      width: maxX - minX,
+      height: maxY - minY,
+      minX,
+      minY,
+    };
+  }
+
   const renderTreeMap = () => {
     // Define main variables and the tree layout
     let root = d3.hierarchy(treemapData);
@@ -312,7 +294,7 @@ export default function TreeMap(props: Props) {
     const marginTop = 20;
     const marginRight = 10;
     const marginBottom = 20;
-    const marginLeft = 40;
+    const marginLeft = 20;
     const dx = 40;
     const dy = (width - marginRight - marginLeft) / (1 + root.height);
     const tree = d3.tree().nodeSize([dx, dy]);
@@ -328,13 +310,23 @@ export default function TreeMap(props: Props) {
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
+    const svgElement = document.querySelector("svg");
+    const svgHeight = svgElement.clientHeight;
+    const svgWidth = svgElement.clientWidth;
+    console.log(`svgWidth: ${svgWidth}, svgHeight: ${svgHeight}`);
+    console.log(`childWidth: ${childWidth}, childHeight: ${childHeight}`);
+    const svgRect = svgElement.getBoundingClientRect();
+    console.log(
+      `svgRectWidth: ${svgRect.width}, svgRectHeight: ${svgRect.height}`,
+    );
+
     svg
-      // .attr("width", width)
-      // .attr("height", height)
-      .attr("viewBox", [-marginLeft, -marginTop, width, height])
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [0, 0, width, height])
       .attr(
         "style",
-        `width: ${width}; height: ${height}; font: 10px sans-serif; user-select: none;`,
+        `width: ${width}; height: ${height}; font: 10px sans-serif; user-select: none; preserveAspectRatio: xMidYMid meet`,
       );
 
     // Add groups for links and nodes
@@ -366,17 +358,6 @@ export default function TreeMap(props: Props) {
         if (node.x > right.x) right = node;
       });
       const height = right.x - left.x + marginTop + marginBottom;
-
-      // Transition the svg and gLink
-      const transition = svg
-        .transition()
-        .duration(duration)
-        .attr("height", height)
-        .attr("viewBox", [50, left.x - marginTop, width, height]);
-      // .tween(
-      //   "resize",
-      //   window.ResizeObserver ? null : () => () => svg.dispatch("toggle"),
-      // );
 
       // Update the nodes
       const node = gNode.selectAll("g").data(nodes, (d) => d.id);
@@ -450,10 +431,12 @@ export default function TreeMap(props: Props) {
           .attr("rx", 6)
           .attr("ry", 6)
           .attr("id", (d) => {
+            // console.log(d);
             if (d.data.category !== "question") {
-              return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+              // return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+              return d.conversationId;
             } else {
-              return "";
+              return d.followupQuestionIndex;
             }
           })
           .attr("class", (d) => {
@@ -479,6 +462,27 @@ export default function TreeMap(props: Props) {
           .attr("stroke", "black")
           .style("padding", "5px");
       });
+
+      // const svgElement = document.querySelector("svg");
+      const viewBoxRect = calculateSvgContentSize(svgElement);
+      console.log("================");
+      console.log(viewBoxRect);
+      // console.log(_minX, _minY, _width, _height);
+      const svgRect = document.querySelector("svg").getBoundingClientRect();
+      // Transition the svg and gLink
+      const transition = svg
+        .transition()
+        .duration(duration)
+        .attr("viewBox", [
+          Math.round(viewBoxRect.minX),
+          Math.round(viewBoxRect.minY),
+          Math.round(viewBoxRect.width),
+          Math.round(viewBoxRect.height),
+        ])
+        .tween(
+          "resize",
+          window.ResizeObserver ? null : () => () => svg.dispatch("toggle"),
+        );
 
       // Transition nodes to their new position
       const nodeUpdate = node
@@ -579,6 +583,53 @@ export default function TreeMap(props: Props) {
     },
   );
 
+  const svgElement = document.querySelector("svg");
+  const onClickDown = () => {
+    const viewBoxRectNew = viewBoxRect;
+    viewBoxRectNew.minY -= 20;
+    setViewBoxRect(viewBoxRectNew);
+    svgElement.setAttribute("viewBox", [
+      viewBoxRectNew.minX,
+      viewBoxRectNew.minY,
+      viewBoxRectNew.width,
+      viewBoxRectNew.height,
+    ]);
+  };
+  const onClickUp = () => {
+    const viewBoxRectNew = viewBoxRect;
+    viewBoxRectNew.minY += 20;
+    setViewBoxRect(viewBoxRectNew);
+    svgElement.setAttribute("viewBox", [
+      viewBoxRectNew.minX,
+      viewBoxRectNew.minY,
+      viewBoxRectNew.width,
+      viewBoxRectNew.height,
+    ]);
+  };
+  const onClickLeft = () => {
+    const viewBoxRectNew = viewBoxRect;
+    viewBoxRectNew.minX += 20;
+    setViewBoxRect(viewBoxRectNew);
+    svgElement.setAttribute("viewBox", [
+      viewBoxRectNew.minX,
+      viewBoxRectNew.minY,
+      viewBoxRectNew.width,
+      viewBoxRectNew.height,
+    ]);
+  };
+
+  const onClickRight = () => {
+    const viewBoxRectNew = viewBoxRect;
+    viewBoxRectNew.minX -= 20;
+    setViewBoxRect(viewBoxRectNew);
+    svgElement.setAttribute("viewBox", [
+      viewBoxRectNew.minX,
+      viewBoxRectNew.minY,
+      viewBoxRectNew.width,
+      viewBoxRectNew.height,
+    ]);
+  };
+
   return (
     <Box ref={parentRef} className={styles.interface_component2}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
@@ -592,6 +643,10 @@ export default function TreeMap(props: Props) {
           Tree Map
         </Typography>
         {/* {categories} */}
+        <Button onClick={onClickDown}>Down</Button>
+        <Button onClick={onClickUp}>Up</Button>
+        <Button onClick={onClickLeft}>Left</Button>
+        <Button onClick={onClickRight}>Right</Button>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box
