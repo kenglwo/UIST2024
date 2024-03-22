@@ -124,7 +124,7 @@ export default function ChatRecord(props: Props) {
             "followup_questions"
           ].map((content: FollowupQuestion, i: number) => ({
             conversationId: conversationId,
-            followupQuestionIndex: i,
+            followupQuestionIndex: String(i),
             content: content,
           }));
           setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
@@ -159,6 +159,9 @@ export default function ChatRecord(props: Props) {
 
   const onClickFollowupQuestion = (followupQuestion: FollowupQuestion) => {
     const followupQuestionContent: string = followupQuestion.content
+    const clickedFollowupQuestionIndex = followupQuestion.followupQuestionIndex
+    console.log('---- clicked Follorup QUesiton index ===')
+    console.log(clickedFollowupQuestionIndex)
     // const newConversationDataUser: ConversationData = {
     //   userId: props.userInfo.userId,
     //   role: "user",
@@ -210,11 +213,14 @@ export default function ChatRecord(props: Props) {
           // handle follow-up questions of a selected follow-up question
           const newFollowupQuestions: FollowupQuestion[] = result[
             "followup_questions"
-          ].map((content: FollowupQuestion, i: number) => ({
-            conversationId: followupQuestion.conversationId,
-            followupQuestionIndex: i,
-            content
-          }));
+          ].map((content: FollowupQuestion, i: number) => {
+            console.log(`${clickedFollowupQuestionIndex}_${i}`)
+            return {
+              conversationId: followupQuestion.conversationId,
+              followupQuestionIndex: `${clickedFollowupQuestionIndex}_${i}`,
+              content
+            }
+          });
           setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
           props.passFollowupQuestions([
             ...followupQuestions,

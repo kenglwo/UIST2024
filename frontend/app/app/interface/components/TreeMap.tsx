@@ -22,6 +22,32 @@ interface Props {
 
 const treemapDataInitial: TreemapData = { name: "root", children: [] };
 
+const treemapDataDemo: TreemapData = {
+  name: "root",
+  children: [
+    {
+      name: "What's NFT?",
+      category: "quesiton",
+      conversationId: 0,
+      children: [
+        { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 0 },
+        { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 1 },
+        { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 2 },
+        { 
+          name: "XXX",
+          category: "",
+          conversationId: 0,
+          followupQuestionIndex: 3,
+          children: [
+            { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 3_0 },
+            { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 3_1 }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
 export default function TreeMap(props: Props) {
   const [questionData, setQuestionData] = useState(treemapDataInitial);
   const [counter, setCounter] = useState<number>(0);
@@ -58,6 +84,7 @@ export default function TreeMap(props: Props) {
     return unique;
   }
 
+  // update conversation data
   useEffect(() => {
     console.log('====== conversation data in tree map ==========')
     console.log(props.conversationData)
@@ -84,39 +111,125 @@ export default function TreeMap(props: Props) {
     const newChildren: TreemapData[] = [...treemapData.children!, ...d];
     const newChildrenUnique = removeDuplicatesByName(newChildren);
     treemapDataNew["children"] = newChildrenUnique.sort((a, b) => a.conversationId - b.conversationId);
+    console.log(treemapDataNew)
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
   }, [props.conversationData]);
 
+  function buildTree(conversations) {
+    // Create a map to track all nodes by their followupQuestionIndex for quick access
+    const map = {};
+
+    // First, initialize all conversations in the map and ensure they all have a children array
+    conversations.forEach(conv => {
+      map[conv.followupQuestionIndex] = { ...conv, children: [] };
+    });
+
+    // This will hold our root level conversations
+    const root = [];
+
+    // Now, go through the conversations again to structure the tree
+    conversations.forEach(conv => {
+      const index = conv.followupQuestionIndex.toString();
+      if (index.includes('_')) {
+        // It's supposed to be a child, find its parent index
+        const parentIndex = index.substring(0, index.lastIndexOf('_'));
+
+        // If the parent exists in our map, add this conversation to its children
+        if (map[parentIndex]) {
+          map[parentIndex].children.push(map[index]);
+        }
+      } else {
+        // It's a root conversation, add it directly to the root array
+        root.push(map[index]);
+      }
+    });
+
+    return root;
+  }
+
+
+  // update followupQuestion data
   useEffect(() => {
+    console.log('=== props.followupQuestions ===')
+    console.log(props.followupQuestions)
+    const newTree = buildTree(props.followupQuestions)
+    console.log(newTree)
+
     const questionNodes = treemapData.children!;
+
+
+    // for (let index = 0; index < questionNodes.length; index++) {
+    //   const question = questionNodes[index];
+    //   const followupQuestionsForThisQuestion2 = props.followupQuestions.filter(d => d.conversationId === question.conversationId)
+    //   for (let index = 0; index < followupQuestionsForThisQuestion2.length; index++) {
+    //     const followupQuestion = followupQuestionsForThisQuestion2[index];
+    //     if (followupQuestion.followupQuestionIndex.includes("_")) {
+    //       // further followup question
+    //       const followupQUestionIndexes = followupQuestion.followupQuestionIndex.split("_") // ["2", "0"]
+    //       let parentFollowupQuestion = null
+    //       for (let index = 0; index < followupQUestionIndexes.length; index++) {
+    //         const followupQuestionIndex: string = followupQUestionIndexes[index];
+    //         const followupQuestionIndexNum: number = Number(followupQuestionIndex)
+
+
+    //         if (index === followupQuestionIndex.length - 1) { // 0
+    //           const newTreemapData = {
+    //             name: followupQuestion.content,
+    //             conversationId: followupQuestion.conversationId,
+    //             followupQUestionIndex: followupQuestion.followupQuestionIndex
+    //           }
+
+    //           parentFollowupQuestion?.children = [...parentFollowupQuestion?.children, newTreemapData]
+    //         } else { // 2
+    //           parentFollowupQuestion = followupQuestionsForThisQuestion2[followupQuestionIndexNum]
+    //         }
+    //       }
+    //     } else { 
+    //       // first followup quesiton
+    //       const treemapDataNew = {
+    //         name: followupQuestion.content,
+    //         category: "",
+    //         conversationId: followupQuestion.conversationId,
+    //         followupQuestionIndex: followupQuestion.followupQuestionIndex
+    //       };
+
+    //     }
+    //   }
+
+      // update quesiton
+      // question.children = []
+    // }
+
+
     const questionNodesUpdated = questionNodes.map((question) => {
       const followupQuestionsForThisQuestion: TreemapData[] =
         props.followupQuestions
           .filter((d) => d.conversationId === question.conversationId!)
           .map((d, i) => {
-            let category = "";
-            switch (i) {
-              case 0:
-                category = "followup_material";
-                break;
-              case 1:
-                category = "followup_formal";
-                break;
-              case 2:
-                category = "followup_efficient";
-                break;
-              case 3:
-                category = "followup_final";
-                break;
-              default:
-                break;
-            }
+            const category = "";
+            // switch (i) {
+            //   case 0:
+            //     category = "followup_material";
+            //     break;
+            //   case 1:
+            //     category = "followup_formal";
+            //     break;
+            //   case 2:
+            //     category = "followup_efficient";
+            //     break;
+            //   case 3:
+            //     category = "followup_final";
+            //     break;
+            //   default:
+            //     break;
+            // }
 
+            // create an element of treemap data
             return {
               name: d.content,
-              category: category,
+              category,
               conversationId: d.conversationId,
               followupQuestionIndex: d.followupQuestionIndex
             };
@@ -128,6 +241,8 @@ export default function TreeMap(props: Props) {
 
     let treemapDataNew = treemapData;
     treemapDataNew.children = questionNodesUpdated;
+    console.log('==== treemap data ====')
+    console.log(treemapDataNew)
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
