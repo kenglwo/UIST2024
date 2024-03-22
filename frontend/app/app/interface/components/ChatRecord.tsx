@@ -39,16 +39,24 @@ export default function ChatRecord(props: Props) {
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState("100px"); // State to hold the child's height
 
-  useEffect(()=> {
+  useEffect(() => {
     // scroll to the question
     if (conversationData.length > 0) {
-      const latestConversationData = conversationData[conversationData.length - 1]
-      const element = latestConversationData.role === 'user' ? document.querySelector(`#question_${latestConversationData.role}_${latestConversationData.conversationId}`) : document.getElementById(`#answer_${latestConversationData.role}_${latestConversationData.conversationId}`)
+      const latestConversationData =
+        conversationData[conversationData.length - 1];
+      const element =
+        latestConversationData.role === "user"
+          ? document.querySelector(
+              `#question_${latestConversationData.role}_${latestConversationData.conversationId}`,
+            )
+          : document.getElementById(
+              `#answer_${latestConversationData.role}_${latestConversationData.conversationId}`,
+            );
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
     }
-  }, [conversationData])
+  }, [conversationData]);
 
   useEffect(() => {
     if (parentRef.current) {
@@ -80,7 +88,6 @@ export default function ChatRecord(props: Props) {
     ];
     setConversationData([...conversationData, newConversationDataUser]);
     props.passConversationData([...conversationData, newConversationDataUser]);
-
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
@@ -124,7 +131,8 @@ export default function ChatRecord(props: Props) {
             "followup_questions"
           ].map((content: FollowupQuestion, i: number) => ({
             conversationId: conversationId,
-            followupQuestionIndex: String(i),
+            // followupQuestionIndex: String(i),
+            followupQuestionIndex: `conversationId${conversationId}_${i}`,
             content: content,
           }));
           setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
@@ -158,10 +166,8 @@ export default function ChatRecord(props: Props) {
   };
 
   const onClickFollowupQuestion = (followupQuestion: FollowupQuestion) => {
-    const followupQuestionContent: string = followupQuestion.content
-    const clickedFollowupQuestionIndex = followupQuestion.followupQuestionIndex
-    console.log('---- clicked Follorup QUesiton index ===')
-    console.log(clickedFollowupQuestionIndex)
+    const followupQuestionContent: string = followupQuestion.content;
+    const clickedFollowupQuestionIndex = followupQuestion.followupQuestionIndex;
     // const newConversationDataUser: ConversationData = {
     //   userId: props.userInfo.userId,
     //   role: "user",
@@ -200,26 +206,31 @@ export default function ChatRecord(props: Props) {
             userId: props.userInfo!.userId,
             role: "system",
             content: result["answer_question"],
-            conversationId: followupQuestion.conversationId,
+            // conversationId: followupQuestion.conversationId,
+            conversationId: conversationId,
             isAnswerToFolloupQuestion: true,
             // followupQuestionIndex: followupQuestion.followupQuestionIndex
           };
 
-          const newConversationData: ConversationData[] = [...conversationData, newConversationDataLLM]
+          // console.log('-- new conversation data --')
+          // console.log(newConversationData)
+          const newConversationData: ConversationData[] = [
+            ...conversationData,
+            newConversationDataLLM,
+          ];
           setConversationData(newConversationData);
           props.passConversationData(newConversationData);
-
 
           // handle follow-up questions of a selected follow-up question
           const newFollowupQuestions: FollowupQuestion[] = result[
             "followup_questions"
           ].map((content: FollowupQuestion, i: number) => {
-            console.log(`${clickedFollowupQuestionIndex}_${i}`)
             return {
-              conversationId: followupQuestion.conversationId,
+              // conversationId: followupQuestion.conversationId,
+              conversationId: conversationId,
               followupQuestionIndex: `${clickedFollowupQuestionIndex}_${i}`,
-              content
-            }
+              content,
+            };
           });
           setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
           props.passFollowupQuestions([
@@ -227,7 +238,7 @@ export default function ChatRecord(props: Props) {
             ...newFollowupQuestions,
           ]);
 
-          // setConversationId(conversationId + 1);
+          setConversationId(conversationId + 1);
 
           // set false to hide loading icon
           setIsLoadingLLMResponse(false);
@@ -318,7 +329,14 @@ export default function ChatRecord(props: Props) {
                 : "ChatGPT"}
             </h3>
           </Stack>
-          <Box id={conversation.role === "user" ? `question_${conversation.role}_${conversation.conversationId}` : `answer_${conversation.role}_${conversation.conversationId}` } className={styles.chat_text_box}>
+          <Box
+            id={
+              conversation.role === "user"
+                ? `question_${conversation.role}_${conversation.conversationId}`
+                : `answer_${conversation.role}_${conversation.conversationId}`
+            }
+            className={styles.chat_text_box}
+          >
             <p>{conversation.content}</p>
           </Box>
           {conversation.role === "system" && (
@@ -392,7 +410,7 @@ export default function ChatRecord(props: Props) {
             fullWidth
             value={textFieldValue}
             onChange={(e) => onChangeTextField(e.target.value)}
-            sx={{  marginTop: "10px" }}
+            sx={{ marginTop: "10px" }}
           />
           <Button
             variant="contained"

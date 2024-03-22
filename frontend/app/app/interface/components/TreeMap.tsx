@@ -30,23 +30,48 @@ const treemapDataDemo: TreemapData = {
       category: "quesiton",
       conversationId: 0,
       children: [
-        { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 0 },
-        { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 1 },
-        { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 2 },
-        { 
+        {
+          name: "XXX",
+          category: "",
+          conversationId: 0,
+          followupQuestionIndex: 0,
+        },
+        {
+          name: "XXX",
+          category: "",
+          conversationId: 0,
+          followupQuestionIndex: 1,
+        },
+        {
+          name: "XXX",
+          category: "",
+          conversationId: 0,
+          followupQuestionIndex: 2,
+        },
+        {
           name: "XXX",
           category: "",
           conversationId: 0,
           followupQuestionIndex: 3,
           children: [
-            { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 3_0 },
-            { name: "XXX", category: "", conversationId: 0, followupQuestionIndex: 3_1 }
-          ]
-        }
-      ]
-    }
-  ]
-}
+            {
+              name: "XXX",
+              category: "",
+              conversationId: 0,
+              followupQuestionIndex: 3_0,
+            },
+            {
+              name: "XXX",
+              category: "",
+              conversationId: 0,
+              followupQuestionIndex: 3_1,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
 
 export default function TreeMap(props: Props) {
   const [questionData, setQuestionData] = useState(treemapDataInitial);
@@ -54,7 +79,8 @@ export default function TreeMap(props: Props) {
   const [treemapData, setTreemapData] =
     useState<TreemapData>(treemapDataInitial);
   const svgRef = useRef();
-  const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion>()
+  const [hoveredFollowupQuestion, setHoveredFollowupQuestion] =
+    useState<FollowupQuestion>();
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState<number>(0); // State to hold the child's height
   const [childWidth, setChildWidth] = useState<number>(0); // State to hold the child's height
@@ -64,8 +90,7 @@ export default function TreeMap(props: Props) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
       const parentWidth = parentRef.current.offsetWidth;
-      setChildWidth(`${parentWidth * 0.95}`)
-      console.log(`parentHeight: ${parentHeight * 0.8}, parentWidth: ${parentWidth * 0.8}`)
+      setChildWidth(`${parentWidth * 0.95}`);
     }
   }, []); // Empty dependency array means this runs once on mount
 
@@ -86,8 +111,8 @@ export default function TreeMap(props: Props) {
 
   // update conversation data
   useEffect(() => {
-    console.log('====== conversation data in tree map ==========')
-    console.log(props.conversationData)
+    console.log("====== conversation data in tree map ==========");
+    console.log(props.conversationData);
     const d: TreemapData[] = props.conversationData
       .filter((d) => d.role === "user")
       .map((d) => {
@@ -110,179 +135,174 @@ export default function TreeMap(props: Props) {
 
     const newChildren: TreemapData[] = [...treemapData.children!, ...d];
     const newChildrenUnique = removeDuplicatesByName(newChildren);
-    treemapDataNew["children"] = newChildrenUnique.sort((a, b) => a.conversationId - b.conversationId);
-    console.log(treemapDataNew)
+    treemapDataNew["children"] = newChildrenUnique.sort(
+      (a, b) => a.conversationId - b.conversationId,
+    );
+    console.log(treemapDataNew);
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
   }, [props.conversationData]);
 
-  function buildTree(conversations) {
-    // Create a map to track all nodes by their followupQuestionIndex for quick access
-    const map = {};
+  // function buildTree(conversations) {
+  //   // Create a map to track all nodes by their followupQuestionIndex for quick access
+  //   const map = {};
+  //
+  //   // First, initialize all conversations in the map and ensure they all have a children array
+  //   conversations.forEach((conv) => {
+  //     map[conv.followupQuestionIndex] = { ...conv, children: [] };
+  //   });
+  //
+  //   // This will hold our root level conversations
+  //   const root = [];
+  //
+  //   // Now, go through the conversations again to structure the tree
+  //   conversations.forEach((conv) => {
+  //     const index = conv.followupQuestionIndex.toString();
+  //     if (index.includes("_")) {
+  //       // It's supposed to be a child, find its parent index
+  //       const parentIndex = index.substring(0, index.lastIndexOf("_"));
+  //
+  //       // If the parent exists in our map, add this conversation to its children
+  //       if (map[parentIndex]) {
+  //         map[parentIndex].children.push(map[index]);
+  //       }
+  //     } else {
+  //       // It's a root conversation, add it directly to the root array
+  //       root.push(map[index]);
+  //     }
+  //   });
+  //
+  //   return root;
+  // }
 
-    // First, initialize all conversations in the map and ensure they all have a children array
-    conversations.forEach(conv => {
-      map[conv.followupQuestionIndex] = { ...conv, children: [] };
+  function buildTree(questions) {
+    let indexMap = {};
+
+    // Initialize each question with a children array and map them by followupQuestionIndex
+    questions.forEach((question) => {
+      indexMap[question.followupQuestionIndex] = { ...question, children: [] };
     });
 
-    // This will hold our root level conversations
-    const root = [];
-
-    // Now, go through the conversations again to structure the tree
-    conversations.forEach(conv => {
-      const index = conv.followupQuestionIndex.toString();
-      if (index.includes('_')) {
-        // It's supposed to be a child, find its parent index
-        const parentIndex = index.substring(0, index.lastIndexOf('_'));
-
-        // If the parent exists in our map, add this conversation to its children
-        if (map[parentIndex]) {
-          map[parentIndex].children.push(map[index]);
-        }
-      } else {
-        // It's a root conversation, add it directly to the root array
-        root.push(map[index]);
+    // Populate the children arrays
+    Object.values(indexMap).forEach((question) => {
+      // Identify parent index, if present
+      let parentIndex = question.followupQuestionIndex.substring(
+        0,
+        question.followupQuestionIndex.lastIndexOf("_"),
+      );
+      if (indexMap[parentIndex]) {
+        indexMap[parentIndex].children.push(question);
       }
     });
 
-    return root;
+    // Filter out only the top-level questions (those without a parent)
+    return Object.values(indexMap).filter((question) => {
+      return question.followupQuestionIndex.match(/_/g)
+        ? question.followupQuestionIndex.match(/_/g).length === 1
+        : true;
+    });
   }
 
+  function convertToTreemapData(followupQuestions) {
+    // Helper function to recursively transform the data
+    function transform(element) {
+      // Map the current element to the new structure
+      const treemapElement = {
+        name: element.content,
+        conversationId: element.conversationId,
+        followupQuestionIndex: element.followupQuestionIndex,
+        children: [],
+      };
+
+      // Recursively transform and add children if they exist
+      if (element.children && element.children.length > 0) {
+        treemapElement.children = element.children.map((child) =>
+          transform(child),
+        );
+      } else {
+        delete treemapElement.children; // Remove the children property if there are no children
+      }
+
+      return treemapElement;
+    }
+
+    // Transform each top-level element
+    return followupQuestions.map((question) => transform(question));
+  }
 
   // update followupQuestion data
   useEffect(() => {
-    console.log('=== props.followupQuestions ===')
-    console.log(props.followupQuestions)
-    const newTree = buildTree(props.followupQuestions)
-    console.log(newTree)
+    // console.log("=== props.followupQuestions ===");
+    // console.log(props.followupQuestions);
+    const newFollowupQuestionTreeRawData = buildTree(props.followupQuestions);
+    console.log("====   newFollowupQuestionTreeRawData ====");
+    console.log(newFollowupQuestionTreeRawData);
 
+    const treemapDataForFollowupQuesitons = convertToTreemapData(
+      newFollowupQuestionTreeRawData,
+    );
+    console.log("====   converted tree map data ====");
+    console.log(treemapDataForFollowupQuesitons);
+
+    // combine convationData and treemapDataForFollowupQuesitons
     const questionNodes = treemapData.children!;
 
+    for (let index = 0; index < questionNodes.length; index++) {
+      const questionNode = questionNodes[index];
 
-    // for (let index = 0; index < questionNodes.length; index++) {
-    //   const question = questionNodes[index];
-    //   const followupQuestionsForThisQuestion2 = props.followupQuestions.filter(d => d.conversationId === question.conversationId)
-    //   for (let index = 0; index < followupQuestionsForThisQuestion2.length; index++) {
-    //     const followupQuestion = followupQuestionsForThisQuestion2[index];
-    //     if (followupQuestion.followupQuestionIndex.includes("_")) {
-    //       // further followup question
-    //       const followupQUestionIndexes = followupQuestion.followupQuestionIndex.split("_") // ["2", "0"]
-    //       let parentFollowupQuestion = null
-    //       for (let index = 0; index < followupQUestionIndexes.length; index++) {
-    //         const followupQuestionIndex: string = followupQUestionIndexes[index];
-    //         const followupQuestionIndexNum: number = Number(followupQuestionIndex)
+      const followupQuestionsForThisQuestion =
+        treemapDataForFollowupQuesitons.filter(
+          (d) => d.conversationId === questionNode.conversationId,
+        );
 
+      questionNode.children = followupQuestionsForThisQuestion;
+    }
 
-    //         if (index === followupQuestionIndex.length - 1) { // 0
-    //           const newTreemapData = {
-    //             name: followupQuestion.content,
-    //             conversationId: followupQuestion.conversationId,
-    //             followupQUestionIndex: followupQuestion.followupQuestionIndex
-    //           }
-
-    //           parentFollowupQuestion?.children = [...parentFollowupQuestion?.children, newTreemapData]
-    //         } else { // 2
-    //           parentFollowupQuestion = followupQuestionsForThisQuestion2[followupQuestionIndexNum]
-    //         }
-    //       }
-    //     } else { 
-    //       // first followup quesiton
-    //       const treemapDataNew = {
-    //         name: followupQuestion.content,
-    //         category: "",
-    //         conversationId: followupQuestion.conversationId,
-    //         followupQuestionIndex: followupQuestion.followupQuestionIndex
-    //       };
-
-    //     }
-    //   }
-
-      // update quesiton
-      // question.children = []
-    // }
-
-
-    const questionNodesUpdated = questionNodes.map((question) => {
-      const followupQuestionsForThisQuestion: TreemapData[] =
-        props.followupQuestions
-          .filter((d) => d.conversationId === question.conversationId!)
-          .map((d, i) => {
-            const category = "";
-            // switch (i) {
-            //   case 0:
-            //     category = "followup_material";
-            //     break;
-            //   case 1:
-            //     category = "followup_formal";
-            //     break;
-            //   case 2:
-            //     category = "followup_efficient";
-            //     break;
-            //   case 3:
-            //     category = "followup_final";
-            //     break;
-            //   default:
-            //     break;
-            // }
-
-            // create an element of treemap data
-            return {
-              name: d.content,
-              category,
-              conversationId: d.conversationId,
-              followupQuestionIndex: d.followupQuestionIndex
-            };
-          });
-
-      question.children = followupQuestionsForThisQuestion;
-      return question;
-    });
-
-    let treemapDataNew = treemapData;
-    treemapDataNew.children = questionNodesUpdated;
-    console.log('==== treemap data ====')
-    console.log(treemapDataNew)
+    // streo data to a new var to activate setTreemapData
+    const treemapDataNew = treemapData;
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
   }, [props.followupQuestions]);
 
   useEffect(() => {
-    setHoveredFollowupQuestion(props.hoveredFollowupQuestion)
+    setHoveredFollowupQuestion(props.hoveredFollowupQuestion);
 
     // emit click action on the quesiton node if not expanded
-    const nodeId = `question_${props.hoveredFollowupQuestion?.conversationId}`
-    const classId =  `conversationId_${props.hoveredFollowupQuestion?.conversationId}`
+    const nodeId = `question_${props.hoveredFollowupQuestion?.conversationId}`;
+    const classId = `conversationId_${props.hoveredFollowupQuestion?.conversationId}`;
     const targetNode = document.querySelector(`#${nodeId}`);
-    if(targetNode) {
-      const clickEvent = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true
+    if (targetNode) {
+      const clickEvent = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
       });
 
-      const nodes = document.querySelectorAll(`.${classId}`)
-      const rectIdToHighlight = `rect#conversationId_${props.hoveredFollowupQuestion.conversationId}_followupQuestionIndex_${props.hoveredFollowupQuestion.followupQuestionIndex}`
+      const nodes = document.querySelectorAll(`.${classId}`);
+      const rectIdToHighlight = `rect#conversationId_${props.hoveredFollowupQuestion.conversationId}_followupQuestionIndex_${props.hoveredFollowupQuestion.followupQuestionIndex}`;
       // highlight the hovered follow-up question in treemap
-      if(nodes.length > 1){ // already expanded
-        const rectToHighlight = document.querySelector(rectIdToHighlight)
-        rectToHighlight?.setAttribute('fill', 'yellow')
+      if (nodes.length > 1) {
+        // already expanded
+        const rectToHighlight = document.querySelector(rectIdToHighlight);
+        rectToHighlight?.setAttribute("fill", "yellow");
         // reset rect fill of other follow-up questions
-        nodes.forEach((d)=> {
-          const rect = d.querySelector('rect')
-          if(rect !== rectToHighlight){
-            rect?.setAttribute("fill", "white")
+        nodes.forEach((d) => {
+          const rect = d.querySelector("rect");
+          if (rect !== rectToHighlight) {
+            rect?.setAttribute("fill", "white");
           }
-        })
-      } else { // expand follow-up quesitons
+        });
+      } else {
+        // expand follow-up quesitons
         targetNode.dispatchEvent(clickEvent);
-        const rectToHighlight = document.querySelector(rectIdToHighlight)
-        rectToHighlight?.setAttribute('fill', 'yellow')
+        const rectToHighlight = document.querySelector(rectIdToHighlight);
+        rectToHighlight?.setAttribute("fill", "yellow");
         //TODO: close other follow-up quesitons if expanded
       }
     }
-  }, [props.hoveredFollowupQuestion])
+  }, [props.hoveredFollowupQuestion]);
 
   const renderTreeMap = () => {
     // Define main variables and the tree layout
@@ -314,7 +334,7 @@ export default function TreeMap(props: Props) {
       .attr("viewBox", [-marginLeft, -marginTop, width, height])
       .attr(
         "style",
-        `width: ${width}; height: ${height}; font: 10px sans-serif; user-select: none;`
+        `width: ${width}; height: ${height}; font: 10px sans-serif; user-select: none;`,
       );
 
     // Add groups for links and nodes
@@ -364,17 +384,16 @@ export default function TreeMap(props: Props) {
       const nodeEnter = node
         .enter()
         .append("g")
-        .attr("id", ((d, i) => {
-          if (d.data.category === 'question'){
-            return `question_${d.data.conversationId}`
+        .attr("id", (d, i) => {
+          if (d.data.category === "question") {
+            return `question_${d.data.conversationId}`;
           } else {
-            return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}` 
-
+            return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
           }
-        }))
-        .attr("class", (d => {
-         return  `conversationId_${d.data.conversationId}`
-        }))
+        })
+        .attr("class", (d) => {
+          return `conversationId_${d.data.conversationId}`;
+        })
         .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
         .attr("fill-opacity", 0)
         .attr("stroke-opacity", 0)
@@ -385,17 +404,14 @@ export default function TreeMap(props: Props) {
           update(d);
         })
         .on("mouseenter", (event, d) => {
-          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}` 
-          d3.select(id).selectChild('rect').style("fill", "yellow")
+          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+          d3.select(id).selectChild("rect").style("fill", "yellow");
           // TODO: reset highlight other follow-up questions
         })
         .on("mouseleave", (event, d) => {
-          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}` 
-          d3.select(id).selectChild('rect').style("fill", "white")
-        })
-        ;
-        
-
+          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+          d3.select(id).selectChild("rect").style("fill", "white");
+        });
       nodeEnter
         .append("circle")
         .attr("r", 2.5)
@@ -433,32 +449,32 @@ export default function TreeMap(props: Props) {
           .attr("height", bbox.height + padding)
           .attr("rx", 6)
           .attr("ry", 6)
-          .attr("id", d => {
-            if (d.data.category !== 'question'){
-              return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`
+          .attr("id", (d) => {
+            if (d.data.category !== "question") {
+              return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
             } else {
-              return ""
+              return "";
             }
           })
-          .attr("class", d => {
-            if (d.data.category !== 'question'){
-              return ""
+          .attr("class", (d) => {
+            if (d.data.category !== "question") {
+              return "";
             } else {
-              return styles.followup_question_rect
+              return styles.followup_question_rect;
             }
           })
           .attr("fill", (d) => {
-            return "white"
-          //   if (d.data.category === "followup_material") {
-          //     return "#DDA0A1";
-          //   } else if (d.data.category === "followup_formal") {
-          //     return "#A4CCE3";
-          //   } else if (d.data.category === "followup_efficient") {
-          //     return "#EFCAAC";
-          //   } else if (d.data.category === "followup_final") {
-          //     return "#A5CB93";
-          //   }
-          //   return "none";
+            return "white";
+            //   if (d.data.category === "followup_material") {
+            //     return "#DDA0A1";
+            //   } else if (d.data.category === "followup_formal") {
+            //     return "#A4CCE3";
+            //   } else if (d.data.category === "followup_efficient") {
+            //     return "#EFCAAC";
+            //   } else if (d.data.category === "followup_final") {
+            //     return "#A5CB93";
+            //   }
+            //   return "none";
           })
           .attr("stroke", "black")
           .style("padding", "5px");
