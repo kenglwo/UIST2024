@@ -227,40 +227,79 @@ export default function TreeMap(props: Props) {
 
   useEffect(() => {
     setHoveredFollowupQuestion(props.hoveredFollowupQuestion);
+    // console.log('=== hovered FQ data ====')
+    // console.log(props.hoveredFollowupQuestion)
+    if (props.hoveredFollowupQuestion !== undefined) {
+      const indexes = props.hoveredFollowupQuestion!.followupQuestionIndex.split("_")
+      const conversationIdNum =  Number(indexes[0].replace('conversationId', ''))
+      // console.log(`conversationIdNum: ${conversationIdNum}`)
+      const questionGElement = document.querySelector(`#question_${conversationIdNum}`)
+      // console.log(questionGElement)
 
-    // emit click action on the quesiton node if not expanded
-    const nodeId = `question_${props.hoveredFollowupQuestion?.conversationId}`;
-    const classId = `conversationId_${props.hoveredFollowupQuestion?.conversationId}`;
-    const targetNode = document.querySelector(`#${nodeId}`);
-    if (targetNode) {
-      const clickEvent = new MouseEvent("click", {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-      });
-
-      const nodes = document.querySelectorAll(`.${classId}`);
-      const rectIdToHighlight = `rect#conversationId_${props.hoveredFollowupQuestion.conversationId}_followupQuestionIndex_${props.hoveredFollowupQuestion.followupQuestionIndex}`;
-      // highlight the hovered follow-up question in treemap
-      if (nodes.length > 1) {
+      // TODO: get updated class name of followup questions for this quesiton
+      const followupQuestionGElements = document.querySelectorAll( `.followup_question_${props.hoveredFollowupQuestion.conversationId}`);
+      if (followupQuestionGElements.length > 1){
         // already expanded
-        const rectToHighlight = document.querySelector(rectIdToHighlight);
-        rectToHighlight?.setAttribute("fill", "yellow");
-        // reset rect fill of other follow-up questions
-        nodes.forEach((d) => {
-          const rect = d.querySelector("rect");
-          if (rect !== rectToHighlight) {
-            rect?.setAttribute("fill", "white");
-          }
-        });
       } else {
-        // expand follow-up quesitons
-        targetNode.dispatchEvent(clickEvent);
-        const rectToHighlight = document.querySelector(rectIdToHighlight);
-        rectToHighlight?.setAttribute("fill", "yellow");
-        //TODO: close other follow-up quesitons if expanded
+        // expand
+        const clickEvent = new MouseEvent("click", {
+          view: window,
+          bubbles: true,
+          cancelable: true,
+        });
+        questionGElement!.dispatchEvent(clickEvent)
       }
+
+      const followupQuesionRectToHighlight = document.querySelector(`#${props.hoveredFollowupQuestion.followupQuestionIndex}`)?.querySelector('rect')
+      followupQuesionRectToHighlight?.setAttribute('fill', 'yellow')
+
+      // reset highlight of other rects
+      followupQuestionGElements.forEach((e, i) => {
+        if (e.getAttribute('id') === props.hoveredFollowupQuestion?.followupQuestionIndex) {
+          // highlighted followup quesiton
+
+        } else {
+          // reset highlight
+          e.querySelector('rect')!.setAttribute('fill', 'white')
+        }
+
+      })
     }
+
+
+    // // emit click action on the quesiton node if not expanded
+    // const nodeId = `question_${props.hoveredFollowupQuestion?.conversationId}`;
+    // const classId = `conversationId_${props.hoveredFollowupQuestion?.conversationId}`;
+    // const targetNode = document.querySelector(`#${nodeId}`);
+    // if (targetNode) {
+    //   const clickEvent = new MouseEvent("click", {
+    //     view: window,
+    //     bubbles: true,
+    //     cancelable: true,
+    //   });
+
+    //   const nodes = document.querySelectorAll(`.${classId}`);
+    //   const rectIdToHighlight = `rect#conversationId_${props.hoveredFollowupQuestion.conversationId}_followupQuestionIndex_${props.hoveredFollowupQuestion.followupQuestionIndex}`;
+    //   // highlight the hovered follow-up question in treemap
+    //   if (nodes.length > 1) {
+    //     // already expanded
+    //     const rectToHighlight = document.querySelector(rectIdToHighlight);
+    //     rectToHighlight?.setAttribute("fill", "yellow");
+    //     // reset rect fill of other follow-up questions
+    //     nodes.forEach((d) => {
+    //       const rect = d.querySelector("rect");
+    //       if (rect !== rectToHighlight) {
+    //         rect?.setAttribute("fill", "white");
+    //       }
+    //     });
+    //   } else {
+    //     // expand follow-up quesitons
+    //     targetNode.dispatchEvent(clickEvent);
+    //     const rectToHighlight = document.querySelector(rectIdToHighlight);
+    //     rectToHighlight?.setAttribute("fill", "yellow");
+    //     //TODO: close other follow-up quesitons if expanded
+    //   }
+    // }
   }, [props.hoveredFollowupQuestion]);
 
   const handleMouseMove = () => {
@@ -461,11 +500,16 @@ export default function TreeMap(props: Props) {
           if (d.data.category === "question") {
             return `question_${d.data.conversationId}`;
           } else {
-            return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+            // return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+            return `${d.data.followupQuestionIndex}`;
           }
         })
         .attr("class", (d) => {
-          return `conversationId_${d.data.conversationId}`;
+          if (d.data.category === 'question') {
+            return `question_${d.data.conversationId}`;
+          } else {
+            return `followup_question_${d.data.conversationId}`;
+          }
         })
         .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
         .attr("fill-opacity", 0)
@@ -477,13 +521,15 @@ export default function TreeMap(props: Props) {
           update(d);
         })
         .on("mouseenter", (event, d) => {
-          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
-          d3.select(id).selectChild("rect").style("fill", "yellow");
+          // const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+          // const id = `g#${d.data.followupQuestionIndex}`;
+          
+          // d3.select(id).selectChild("rect").style("fill", "yellow");
           // TODO: reset highlight other follow-up questions
         })
         .on("mouseleave", (event, d) => {
-          const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
-          d3.select(id).selectChild("rect").style("fill", "white");
+          // const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+          // d3.select(id).selectChild("rect").style("fill", "white");
         });
       nodeEnter
         .append("circle")
@@ -522,15 +568,15 @@ export default function TreeMap(props: Props) {
           .attr("height", bbox.height + padding)
           .attr("rx", 6)
           .attr("ry", 6)
-          .attr("id", (d) => {
-            // console.log(d);
-            if (d.data.category !== "question") {
-              // return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
-              return d.conversationId;
-            } else {
-              return d.followupQuestionIndex;
-            }
-          })
+          // .attr("id", (d) => {
+          //   // console.log(d);
+          //   if (d.data.category !== "question") {
+          //     // return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
+          //     return d.data.conversationId;
+          //   } else {
+          //     return d.data.followupQuestionIndex;
+          //   }
+          // })
           .attr("class", (d) => {
             if (d.data.category !== "question") {
               return "";
