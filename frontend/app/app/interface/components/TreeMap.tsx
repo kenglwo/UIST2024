@@ -241,6 +241,7 @@ export default function TreeMap(props: Props) {
         bubbles: true,
         cancelable: true,
       });
+      const traversedNodeOfGElement = [];
       for (let i = 0; i < indexes.length; i++) {
         if (i === 0) {
           // expand quesiton node
@@ -249,6 +250,7 @@ export default function TreeMap(props: Props) {
             followupQuestionClassName,
           );
 
+          traversedNodeOfGElement.push(questionGElement);
           if (followupQuestionGElements.length > 1) {
             // already expanded
           } else {
@@ -268,6 +270,7 @@ export default function TreeMap(props: Props) {
             const followupQuestionGElements = document.querySelectorAll(
               followupQuestionClassName,
             );
+              traversedNodeOfGElement.push(followupQuestionNodeToClick);
             if (followupQuestionGElements.length > 1) {
               // already expanded
             } else {
@@ -278,7 +281,9 @@ export default function TreeMap(props: Props) {
             const followupQuestionNodeToHighlight = document.querySelector(
               `#${props.hoveredFollowupQuestion.followupQuestionIndex}`,
             );
-            // First reset highlight of other nodes
+            traversedNodeOfGElement.push(followupQuestionNodeToHighlight);
+
+            // ============ reset highlight of other nodes
             const followupQuestionPattern = /^followup_question_\d+$/;
             // Select all <g> elements and filter them
             const allFollowupQuestionNodes = Array.from(
@@ -288,15 +293,32 @@ export default function TreeMap(props: Props) {
                 followupQuestionPattern.test(className),
               ),
             );
-            console.log(allFollowupQuestionNodes);
             allFollowupQuestionNodes.forEach((e) => {
-              console.log(e);
               e.querySelector("rect").setAttribute("fill", "white");
             });
+            // ============= reset opacity
+            const allNodes = document.querySelectorAll(".treemap_node");
+            // allNodes.forEach((e) => {
+            //   e.setAttribute("opacity", 1);
+            // });
+
             // highlight the hovered node
-            followupQuestionNodeToHighlight
-              .querySelector("rect")
-              .setAttribute("fill", "yellow");
+            if (followupQuestionNodeToHighlight) {
+              followupQuestionNodeToHighlight
+                .querySelector("rect")
+                .setAttribute("fill", "yellow");
+            }
+
+            // hide other nodes
+            allNodes.forEach((e) => {
+              // check if traversed element of g
+              if (!traversedNodeOfGElement.includes(e)) {
+                // hide this node
+                e.setAttribute("opacity", 0);
+              } else {
+                e.setAttribute("opacity", 1);
+              }
+            });
           }
         }
       }
@@ -502,9 +524,9 @@ export default function TreeMap(props: Props) {
         })
         .attr("class", (d) => {
           if (d.data.category === "question") {
-            return `question_${d.data.conversationId}`;
+            return `question_${d.data.conversationId} treemap_node`;
           } else {
-            return `followup_question_${d.data.conversationId}`;
+            return `followup_question_${d.data.conversationId} treemap_node`;
           }
         })
         .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
