@@ -227,18 +227,24 @@ export default function TreeMap(props: Props) {
 
   useEffect(() => {
     setHoveredFollowupQuestion(props.hoveredFollowupQuestion);
-    // console.log('=== hovered FQ data ====')
+    //console.log('=== hovered FQ data ====')
     // console.log(props.hoveredFollowupQuestion)
     if (props.hoveredFollowupQuestion !== undefined) {
-      const indexes = props.hoveredFollowupQuestion!.followupQuestionIndex.split("_")
-      const conversationIdNum =  Number(indexes[0].replace('conversationId', ''))
+      const indexes =
+        props.hoveredFollowupQuestion!.followupQuestionIndex.split("_");
+      const conversationIdNum = Number(
+        indexes[0].replace("conversationId", ""),
+      );
       // console.log(`conversationIdNum: ${conversationIdNum}`)
-      const questionGElement = document.querySelector(`#question_${conversationIdNum}`)
+      const questionGElement = document.querySelector(
+        `#question_${conversationIdNum}`,
+      );
       // console.log(questionGElement)
-
       // TODO: get updated class name of followup questions for this quesiton
-      const followupQuestionGElements = document.querySelectorAll( `.followup_question_${props.hoveredFollowupQuestion.conversationId}`);
-      if (followupQuestionGElements.length > 1){
+      const followupQuestionGElements = document.querySelectorAll(
+        `.followup_question_${props.hoveredFollowupQuestion.conversationId}`,
+      );
+      if (followupQuestionGElements.length > 1) {
         // already expanded
       } else {
         // expand
@@ -247,25 +253,29 @@ export default function TreeMap(props: Props) {
           bubbles: true,
           cancelable: true,
         });
-        questionGElement!.dispatchEvent(clickEvent)
+        questionGElement!.dispatchEvent(clickEvent);
       }
 
-      const followupQuesionRectToHighlight = document.querySelector(`#${props.hoveredFollowupQuestion.followupQuestionIndex}`)?.querySelector('rect')
-      followupQuesionRectToHighlight?.setAttribute('fill', 'yellow')
+      const followupQuesionRectToHighlight = document
+        .querySelector(
+          `#${props.hoveredFollowupQuestion.followupQuestionIndex}`,
+        )
+        ?.querySelector("rect");
+      followupQuesionRectToHighlight?.setAttribute("fill", "yellow");
 
       // reset highlight of other rects
       followupQuestionGElements.forEach((e, i) => {
-        if (e.getAttribute('id') === props.hoveredFollowupQuestion?.followupQuestionIndex) {
+        if (
+          e.getAttribute("id") ===
+          props.hoveredFollowupQuestion?.followupQuestionIndex
+        ) {
           // highlighted followup quesiton
-
         } else {
           // reset highlight
-          e.querySelector('rect')!.setAttribute('fill', 'white')
+          e.querySelector("rect")!.setAttribute("fill", "white");
         }
-
-      })
+      });
     }
-
 
     // // emit click action on the quesiton node if not expanded
     // const nodeId = `question_${props.hoveredFollowupQuestion?.conversationId}`;
@@ -505,7 +515,7 @@ export default function TreeMap(props: Props) {
           }
         })
         .attr("class", (d) => {
-          if (d.data.category === 'question') {
+          if (d.data.category === "question") {
             return `question_${d.data.conversationId}`;
           } else {
             return `followup_question_${d.data.conversationId}`;
@@ -523,7 +533,6 @@ export default function TreeMap(props: Props) {
         .on("mouseenter", (event, d) => {
           // const id = `g#conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
           // const id = `g#${d.data.followupQuestionIndex}`;
-          
           // d3.select(id).selectChild("rect").style("fill", "yellow");
           // TODO: reset highlight other follow-up questions
         })
@@ -606,17 +615,18 @@ export default function TreeMap(props: Props) {
       // console.log("================");
       // console.log(viewBoxRect.current);
       // console.log(_minX, _minY, _width, _height);
-      const svgRect = document.querySelector("svg").getBoundingClientRect();
+      // const svgRect = document.querySelector("svg").getBoundingClientRect();
       // Transition the svg and gLink
       const transition = svg
         .transition()
         .duration(duration)
-        .attr("viewBox", [
-          Math.round(viewBoxRect.current.minX),
-          Math.round(viewBoxRect.current.minY),
-          Math.round(viewBoxRect.current.width),
-          Math.round(viewBoxRect.current.height),
-        ])
+        // .attr("viewBox", [
+        //   Math.round(viewBoxRect.current.minX),
+        //   Math.round(viewBoxRect.current.minY),
+        //   Math.round(viewBoxRect.current.width),
+        //   Math.round(viewBoxRect.current.height),
+        // ])
+        .attr("viewBox", [-marginLeft, left.x - marginTop, width, height])
         .tween(
           "resize",
           window.ResizeObserver ? null : () => () => svg.dispatch("toggle"),
