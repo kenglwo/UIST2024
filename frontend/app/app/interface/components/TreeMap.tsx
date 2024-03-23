@@ -34,12 +34,18 @@ export default function TreeMap(props: Props) {
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState<number>(0); // State to hold the child's height
   const [childWidth, setChildWidth] = useState<number>(0); // State to hold the child's height
-  const [viewBoxRect, setViewBoxRect] = useState({
-    width: 0,
-    height: 0,
-    minX: 0,
-    minY: 0,
-  });
+  // const [viewBoxRect, setViewBoxRect] = useState({
+  //   width: 0,
+  //   height: 0,
+  //   minX: 0,
+  //   minY: 0,
+  // });
+  const viewBoxRect = useRef({ width: 0, height: 0, minX: 0, minY: 0 });
+  const isMouseHoveringSVG = useRef<boolean>(false);
+  const isMiddleButtonPressed = useRef<boolean>(false);
+  const mouseClientX = useRef<number>(0);
+  const mouseClientY = useRef<number>(0);
+  const isScrollButtonPressedFirst = useRef<boolean>(false);
 
   useEffect(() => {
     if (parentRef.current) {
@@ -104,14 +110,13 @@ export default function TreeMap(props: Props) {
   }, [props.conversationData]);
 
   const updateSVGSize = () => {
-    const svgElement = document.querySelector("svg");
-    const viewBoxRectNew = calculateSvgContentSize(svgElement);
-    setViewBoxRect(viewBoxRectNew);
-
-    console.log("======= viewBoxRectNew =========");
-    console.log(viewBoxRectNew);
+    // const svgElement = document.querySelector("svg");
+    // const viewBoxRectNew.current = calculateSvgContentSize(svgElement);
+    // setViewBoxRect(viewBoxRectNew.current);
+    //
+    // console.log("======= viewBoxRectNew =========");
+    // console.log(viewBoxRectNew.current);
     // console.log(_minX, _minY, _width, _height);
-
     // const parentHeight = Math.round(parentRef.current.offsetHeight * 0.8); // Get the rendered height of the parent
     // // setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
     // const parentWidth = Math.round(parentRef.current.offsetWidth * 0.8);
@@ -258,6 +263,35 @@ export default function TreeMap(props: Props) {
     }
   }, [props.hoveredFollowupQuestion]);
 
+  const handleMouseMove = () => {
+    if (isMouseHoveringSVG.current && isMiddleButtonPressed.current) {
+      if (isScrollButtonPressedFirst.current === false) {
+        // initial setting
+        mouseClientX.current = event.clientX;
+        mouseClientY.current = event.clientY;
+        isScrollButtonPressedFirst.current = true;
+      } else {
+        const mouseClientXDiff = mouseClientX.current - event.clientX;
+        const mouseClientYDiff = mouseClientY.current - event.clientY;
+        const currentViewBox = svgRef.current
+          .getAttribute("viewBox")
+          .split(",");
+        const newMinX = Number(currentViewBox[0]) + mouseClientXDiff;
+        const newMinY = Number(currentViewBox[1]) + mouseClientYDiff;
+
+        svgRef.current.setAttribute("viewBox", [
+          newMinX,
+          newMinY,
+          Number(currentViewBox[2]),
+          Number(currentViewBox[3]),
+        ]);
+
+        mouseClientX.current = event.clientX;
+        mouseClientY.current = event.clientY;
+      }
+    }
+  };
+
   function calculateSvgContentSize(svgElement) {
     let minX = Infinity,
       minY = Infinity,
@@ -328,6 +362,41 @@ export default function TreeMap(props: Props) {
         "style",
         `width: ${width}; height: ${height}; font: 10px sans-serif; user-select: none; preserveAspectRatio: xMidYMid meet`,
       );
+
+    // event listener for pan and scrool
+    svgElement.addEventListener("mouseover", (event) => {
+      if (isMouseHoveringSVG.current === false) {
+        isMouseHoveringSVG.current = true;
+      }
+    });
+    svgElement.addEventListener("mouseleave", (event) => {
+      if (isMouseHoveringSVG.current === true) {
+        isMouseHoveringSVG.current = false;
+      }
+    });
+    // Listen for mouse down events on the whole document
+    document.addEventListener("mousedown", (event) => {
+      // Check if the middle mouse button was pressed
+      if (event.button === 1) {
+        if (isMiddleButtonPressed.current === false) {
+          isMiddleButtonPressed.current = true;
+          // Start listening for mouse move events
+          document.addEventListener("mousemove", handleMouseMove);
+        }
+      }
+    });
+    // Listen for mouse up events on the whole document
+    document.addEventListener("mouseup", (event) => {
+      // Check if the middle mouse button was released
+      if (event.button === 1) {
+        if (isMiddleButtonPressed.current === true) {
+          isMiddleButtonPressed.current = false;
+          isScrollButtonPressedFirst.current = false;
+          // Stop listening for mouse move events
+          document.removeEventListener("mousemove", handleMouseMove);
+        }
+      }
+    });
 
     // Add groups for links and nodes
     const gLink = svg
@@ -464,9 +533,9 @@ export default function TreeMap(props: Props) {
       });
 
       // const svgElement = document.querySelector("svg");
-      const viewBoxRect = calculateSvgContentSize(svgElement);
-      console.log("================");
-      console.log(viewBoxRect);
+      viewBoxRect.current = calculateSvgContentSize(svgElement);
+      // console.log("================");
+      // console.log(viewBoxRect.current);
       // console.log(_minX, _minY, _width, _height);
       const svgRect = document.querySelector("svg").getBoundingClientRect();
       // Transition the svg and gLink
@@ -474,10 +543,10 @@ export default function TreeMap(props: Props) {
         .transition()
         .duration(duration)
         .attr("viewBox", [
-          Math.round(viewBoxRect.minX),
-          Math.round(viewBoxRect.minY),
-          Math.round(viewBoxRect.width),
-          Math.round(viewBoxRect.height),
+          Math.round(viewBoxRect.current.minX),
+          Math.round(viewBoxRect.current.minY),
+          Math.round(viewBoxRect.current.width),
+          Math.round(viewBoxRect.current.height),
         ])
         .tween(
           "resize",
@@ -584,51 +653,51 @@ export default function TreeMap(props: Props) {
   );
 
   const svgElement = document.querySelector("svg");
-  const onClickDown = () => {
-    const viewBoxRectNew = viewBoxRect;
-    viewBoxRectNew.minY -= 20;
-    setViewBoxRect(viewBoxRectNew);
-    svgElement.setAttribute("viewBox", [
-      viewBoxRectNew.minX,
-      viewBoxRectNew.minY,
-      viewBoxRectNew.width,
-      viewBoxRectNew.height,
-    ]);
-  };
-  const onClickUp = () => {
-    const viewBoxRectNew = viewBoxRect;
-    viewBoxRectNew.minY += 20;
-    setViewBoxRect(viewBoxRectNew);
-    svgElement.setAttribute("viewBox", [
-      viewBoxRectNew.minX,
-      viewBoxRectNew.minY,
-      viewBoxRectNew.width,
-      viewBoxRectNew.height,
-    ]);
-  };
-  const onClickLeft = () => {
-    const viewBoxRectNew = viewBoxRect;
-    viewBoxRectNew.minX += 20;
-    setViewBoxRect(viewBoxRectNew);
-    svgElement.setAttribute("viewBox", [
-      viewBoxRectNew.minX,
-      viewBoxRectNew.minY,
-      viewBoxRectNew.width,
-      viewBoxRectNew.height,
-    ]);
-  };
-
-  const onClickRight = () => {
-    const viewBoxRectNew = viewBoxRect;
-    viewBoxRectNew.minX -= 20;
-    setViewBoxRect(viewBoxRectNew);
-    svgElement.setAttribute("viewBox", [
-      viewBoxRectNew.minX,
-      viewBoxRectNew.minY,
-      viewBoxRectNew.width,
-      viewBoxRectNew.height,
-    ]);
-  };
+  // const onClickDown = () => {
+  //   const viewBoxRectNew = viewBoxRect;
+  //   viewBoxRectNew.minY -= 20;
+  //   setViewBoxRect(viewBoxRectNew);
+  //   svgElement.setAttribute("viewBox", [
+  //     viewBoxRectNew.minX,
+  //     viewBoxRectNew.minY,
+  //     viewBoxRectNew.width,
+  //     viewBoxRectNew.height,
+  //   ]);
+  // };
+  // const onClickUp = () => {
+  //   const viewBoxRectNew = viewBoxRect;
+  //   viewBoxRectNew.minY += 20;
+  //   setViewBoxRect(viewBoxRectNew);
+  //   svgElement.setAttribute("viewBox", [
+  //     viewBoxRectNew.minX,
+  //     viewBoxRectNew.minY,
+  //     viewBoxRectNew.width,
+  //     viewBoxRectNew.height,
+  //   ]);
+  // };
+  // const onClickLeft = () => {
+  //   const viewBoxRectNew = viewBoxRect;
+  //   viewBoxRectNew.minX += 20;
+  //   setViewBoxRect(viewBoxRectNew);
+  //   svgElement.setAttribute("viewBox", [
+  //     viewBoxRectNew.minX,
+  //     viewBoxRectNew.minY,
+  //     viewBoxRectNew.width,
+  //     viewBoxRectNew.height,
+  //   ]);
+  // };
+  //
+  // const onClickRight = () => {
+  //   const viewBoxRectNew = viewBoxRect;
+  //   viewBoxRectNew.minX -= 20;
+  //   setViewBoxRect(viewBoxRectNew);
+  //   svgElement.setAttribute("viewBox", [
+  //     viewBoxRectNew.minX,
+  //     viewBoxRectNew.minY,
+  //     viewBoxRectNew.width,
+  //     viewBoxRectNew.height,
+  //   ]);
+  // };
 
   return (
     <Box ref={parentRef} className={styles.interface_component2}>
@@ -643,10 +712,10 @@ export default function TreeMap(props: Props) {
           Tree Map
         </Typography>
         {/* {categories} */}
-        <Button onClick={onClickDown}>Down</Button>
+        {/*<Button onClick={onClickDown}>Down</Button>
         <Button onClick={onClickUp}>Up</Button>
         <Button onClick={onClickLeft}>Left</Button>
-        <Button onClick={onClickRight}>Right</Button>
+        <Button onClick={onClickRight}>Right</Button>*/}
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box
