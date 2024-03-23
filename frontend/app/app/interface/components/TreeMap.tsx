@@ -292,6 +292,25 @@ export default function TreeMap(props: Props) {
     }
   };
 
+  const handleScrollMove = () => {
+    // disable page scrolling
+    event.preventDefault();
+    const scrollValueY: number = event.deltaY;
+    const currentViewBox = svgRef.current.getAttribute("viewBox").split(",");
+
+    const scale: number = scrollValueY > 0 ? 1.1 : 0.9;
+    // update scale
+    const newWidth: number = Number(currentViewBox[2]) * scale;
+    const newHeight: number = Number(currentViewBox[3]) * scale;
+
+    svgRef.current.setAttribute("viewBox", [
+      Number(currentViewBox[0]),
+      Number(currentViewBox[1]),
+      newWidth,
+      newHeight,
+    ]);
+  };
+
   function calculateSvgContentSize(svgElement) {
     let minX = Infinity,
       minY = Infinity,
@@ -367,11 +386,15 @@ export default function TreeMap(props: Props) {
     svgElement.addEventListener("mouseover", (event) => {
       if (isMouseHoveringSVG.current === false) {
         isMouseHoveringSVG.current = true;
+        document.addEventListener("wheel", handleScrollMove, {
+          passive: false,
+        });
       }
     });
     svgElement.addEventListener("mouseleave", (event) => {
       if (isMouseHoveringSVG.current === true) {
         isMouseHoveringSVG.current = false;
+        document.removeEventListener("wheel", handleScrollMove);
       }
     });
     // Listen for mouse down events on the whole document
@@ -722,8 +745,8 @@ export default function TreeMap(props: Props) {
         sx={{
           height: `${childHeight}px`,
           width: `${childWidth}px`,
-          overflowX: "auto",
-          overflowY: "auto",
+          // overflowX: "auto",
+          // overflowY: "auto",
         }}
       >
         <svg ref={svgRef}></svg>
