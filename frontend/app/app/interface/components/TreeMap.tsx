@@ -53,8 +53,6 @@ export default function TreeMap(props: Props) {
       setChildHeight(`${parentHeight * 0.8}`); // Set the child's height to half of the parent's height
       const parentWidth = parentRef.current.offsetWidth;
       setChildWidth(`${parentWidth * 0.95}`);
-      console.log("------------------");
-      console.log(`parentWidth: ${parentWidth}, parentHeight: ${parentHeight}`);
     }
   }, []); // Empty dependency array means this runs once on mount
 
@@ -102,7 +100,6 @@ export default function TreeMap(props: Props) {
     treemapDataNew["children"] = newChildrenUnique.sort(
       (a, b) => a.conversationId - b.conversationId,
     );
-    console.log(treemapDataNew);
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
@@ -191,11 +188,11 @@ export default function TreeMap(props: Props) {
 
   // update followupQuestion data
   useEffect(() => {
-    // console.log("=== props.followupQuestions ===");
-    // console.log(props.followupQuestions);
+    console.log("=== props.followupQuestions ===");
+    console.log(props.followupQuestions);
     const newFollowupQuestionTreeRawData = buildTree(props.followupQuestions);
-    console.log("====   newFollowupQuestionTreeRawData ====");
-    console.log(newFollowupQuestionTreeRawData);
+    // console.log("====   newFollowupQuestionTreeRawData ====");
+    // console.log(newFollowupQuestionTreeRawData);
 
     const treemapDataForFollowupQuesitons = convertToTreemapData(
       newFollowupQuestionTreeRawData,
@@ -227,54 +224,98 @@ export default function TreeMap(props: Props) {
 
   useEffect(() => {
     setHoveredFollowupQuestion(props.hoveredFollowupQuestion);
-    //console.log('=== hovered FQ data ====')
-    // console.log(props.hoveredFollowupQuestion)
+    console.log("=== hovered FQ data ====");
+    console.log(props.hoveredFollowupQuestion);
     if (props.hoveredFollowupQuestion !== undefined) {
       const indexes =
         props.hoveredFollowupQuestion!.followupQuestionIndex.split("_");
       const conversationIdNum = Number(
         indexes[0].replace("conversationId", ""),
       );
-      // console.log(`conversationIdNum: ${conversationIdNum}`)
       const questionGElement = document.querySelector(
         `#question_${conversationIdNum}`,
       );
-      // console.log(questionGElement)
-      // TODO: get updated class name of followup questions for this quesiton
-      const followupQuestionGElements = document.querySelectorAll(
-        `.followup_question_${props.hoveredFollowupQuestion.conversationId}`,
-      );
-      if (followupQuestionGElements.length > 1) {
-        // already expanded
-      } else {
-        // expand
-        const clickEvent = new MouseEvent("click", {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-        });
-        questionGElement!.dispatchEvent(clickEvent);
+
+      const clickEvent = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      });
+      for (let i = 0; i < indexes.length; i++) {
+        if (i === 0) {
+          // expand quesiton node
+          const followupQuestionClassName = `.followup_question_${props.hoveredFollowupQuestion.conversationId}`;
+          const followupQuestionGElements = document.querySelectorAll(
+            followupQuestionClassName,
+          );
+
+          if (followupQuestionGElements.length > 1) {
+            // already expanded
+          } else {
+            // expand nodes by clicking the quesiton node
+            questionGElement!.dispatchEvent(clickEvent);
+          }
+        } else {
+          if (i !== indexes.lengh - 1) {
+            // expand followup question node
+
+            const followupQuestionIdToClick = indexes.slice(0, i + 1).join("_");
+            const followupQuestionNodeToClick = document.querySelector(
+              `#${followupQuestionIdToClick}`,
+            );
+
+            // check if already expanded
+            const followupQuestionClassName = `.followup_question_${props.hoveredFollowupQuestion.conversationId}`;
+            const followupQuestionGElements = document.querySelectorAll(
+              followupQuestionClassName,
+            );
+            if (followupQuestionGElements.length > 1) {
+              // already expanded
+            } else {
+              followupQuestionNodeToClick.dispatchEvent(clickEvent);
+            }
+          } else {
+            // folloup question to highlight
+          }
+        }
       }
 
-      const followupQuesionRectToHighlight = document
-        .querySelector(
-          `#${props.hoveredFollowupQuestion.followupQuestionIndex}`,
-        )
-        ?.querySelector("rect");
-      followupQuesionRectToHighlight?.setAttribute("fill", "yellow");
+      // // expand nodes until the last hovered followup question
+      // const followupQuestionGElements = document.querySelectorAll(
+      //   `.followup_question_${props.hoveredFollowupQuestion.conversationId}`,
+      // );
+      // if (followupQuestionGElements.length > 1) {
+      //   // already expanded
+      // } else {
+      //   // expand
+      //   const clickEvent = new MouseEvent("click", {
+      //     view: window,
+      //     bubbles: true,
+      //     cancelable: true,
+      //   });
+      //   questionGElement!.dispatchEvent(clickEvent);
+      // }
 
-      // reset highlight of other rects
-      followupQuestionGElements.forEach((e, i) => {
-        if (
-          e.getAttribute("id") ===
-          props.hoveredFollowupQuestion?.followupQuestionIndex
-        ) {
-          // highlighted followup quesiton
-        } else {
-          // reset highlight
-          e.querySelector("rect")!.setAttribute("fill", "white");
-        }
-      });
+      // TODO: highlight hovered followup question
+      // const followupQuesionRectToHighlight = document
+      //   .querySelector(
+      //     `#${props.hoveredFollowupQuestion.followupQuestionIndex}`,
+      //   )
+      //   ?.querySelector("rect");
+      // followupQuesionRectToHighlight?.setAttribute("fill", "yellow");
+      //
+      // // reset highlight of other rects
+      // followupQuestionGElements.forEach((e, i) => {
+      //   if (
+      //     e.getAttribute("id") ===
+      //     props.hoveredFollowupQuestion?.followupQuestionIndex
+      //   ) {
+      //     // highlighted followup quesiton
+      //   } else {
+      //     // reset highlight
+      //     e.querySelector("rect")!.setAttribute("fill", "white");
+      //   }
+      // });
     }
 
     // // emit click action on the quesiton node if not expanded
@@ -415,12 +456,7 @@ export default function TreeMap(props: Props) {
     const svgElement = document.querySelector("svg");
     const svgHeight = svgElement.clientHeight;
     const svgWidth = svgElement.clientWidth;
-    console.log(`svgWidth: ${svgWidth}, svgHeight: ${svgHeight}`);
-    console.log(`childWidth: ${childWidth}, childHeight: ${childHeight}`);
     const svgRect = svgElement.getBoundingClientRect();
-    console.log(
-      `svgRectWidth: ${svgRect.width}, svgRectHeight: ${svgRect.height}`,
-    );
 
     svg
       .attr("width", width)
@@ -577,15 +613,6 @@ export default function TreeMap(props: Props) {
           .attr("height", bbox.height + padding)
           .attr("rx", 6)
           .attr("ry", 6)
-          // .attr("id", (d) => {
-          //   // console.log(d);
-          //   if (d.data.category !== "question") {
-          //     // return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
-          //     return d.data.conversationId;
-          //   } else {
-          //     return d.data.followupQuestionIndex;
-          //   }
-          // })
           .attr("class", (d) => {
             if (d.data.category !== "question") {
               return "";
@@ -612,20 +639,9 @@ export default function TreeMap(props: Props) {
 
       // const svgElement = document.querySelector("svg");
       viewBoxRect.current = calculateSvgContentSize(svgElement);
-      // console.log("================");
-      // console.log(viewBoxRect.current);
-      // console.log(_minX, _minY, _width, _height);
-      // const svgRect = document.querySelector("svg").getBoundingClientRect();
-      // Transition the svg and gLink
       const transition = svg
         .transition()
         .duration(duration)
-        // .attr("viewBox", [
-        //   Math.round(viewBoxRect.current.minX),
-        //   Math.round(viewBoxRect.current.minY),
-        //   Math.round(viewBoxRect.current.width),
-        //   Math.round(viewBoxRect.current.height),
-        // ])
         .attr("viewBox", [-marginLeft, left.x - marginTop, width, height])
         .tween(
           "resize",
