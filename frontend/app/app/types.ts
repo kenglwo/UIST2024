@@ -16,12 +16,15 @@ export interface ConversationData {
   role: string;
   content: string;
   conversationId: number;
+  isAnswerToFolloupQuestion?: boolean;
+  followupQuestionId?: string;
 }
 
 export interface FollowupQuestion {
   conversationId: number;
-  followupQuestionIndex: number;
+  followupQuestionIndex: string;
   content: string;
+  children?: FollowupQuestion[];
 }
 
 export interface TreemapData {

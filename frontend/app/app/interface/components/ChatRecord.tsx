@@ -40,11 +40,28 @@ export default function ChatRecord(props: Props) {
   const [childHeight, setChildHeight] = useState("100px"); // State to hold the child's height
 
   useEffect(() => {
+    // scroll to the question
+    if (conversationData.length > 0) {
+      const latestConversationData =
+        conversationData[conversationData.length - 1];
+      const element =
+        latestConversationData.role === "user"
+          ? document.querySelector(
+              `#question_${latestConversationData.role}_${latestConversationData.conversationId}`,
+            )
+          : document.getElementById(
+              `#answer_${latestConversationData.role}_${latestConversationData.conversationId}`,
+            );
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [conversationData]);
+
+  useEffect(() => {
     if (parentRef.current) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
-      console.log("================");
-      console.log(`${parentHeight * 0.8}px`);
     }
   }, []); // Empty dependency array means this runs once on mount
 
@@ -114,10 +131,10 @@ export default function ChatRecord(props: Props) {
             "followup_questions"
           ].map((content: FollowupQuestion, i: number) => ({
             conversationId: conversationId,
-            followupQuestionIndex: i,
+            // followupQuestionIndex: String(i),
+            followupQuestionIndex: `conversationId${conversationId}_${i}`,
             content: content,
           }));
-          console.log(newFollowupQuestions);
           setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
           props.passFollowupQuestions([
             ...followupQuestions,
@@ -136,7 +153,6 @@ export default function ChatRecord(props: Props) {
   };
 
   const onChangeSwitch = (isSwitchOn: boolean) => {
-    console.log(isSwitchOn);
     const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
     setFollowupQuestionMode(newFollowupQuestionMode);
   };
@@ -149,23 +165,26 @@ export default function ChatRecord(props: Props) {
     setTextFieldValue(followupQuestionContent);
   };
 
-  const onClickFollowupQuestion = (followupQuestionContent: string) => {
-    const newConversationDataUser: ConversationData = {
-      userId: props.userInfo.userId,
-      role: "user",
-      content: followupQuestionContent,
-      conversationId: conversationId,
-    };
-    const conversationDataPrev: ConversationData[] = [
-      ...conversationData,
-      newConversationDataUser,
-    ];
-    setConversationData([...conversationData, newConversationDataUser]);
-    props.passConversationData([...conversationData, newConversationDataUser]);
+  const onClickFollowupQuestion = (followupQuestion: FollowupQuestion) => {
+    const followupQuestionContent: string = followupQuestion.content;
+    const clickedFollowupQuestionIndex = followupQuestion.followupQuestionIndex;
+    // const newConversationDataUser: ConversationData = {
+    //   userId: props.userInfo.userId,
+    //   role: "user",
+    //   content: followupQuestionContent,
+    //   conversationId: conversationId,
+    // };
+    // const conversationDataPrev: ConversationData[] = [
+    //   ...conversationData,
+    //   newConversationDataUser,
+    // ];
+    // setConversationData([...conversationData, newConversationDataUser]);
+    // props.passConversationData([...conversationData, newConversationDataUser]);
 
-    const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
+    const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
       user_input_prompt: followupQuestionContent,
+      followup_question_mode: followupQuestionMode,
     };
     const header = {
       method: "POST",
@@ -182,22 +201,41 @@ export default function ChatRecord(props: Props) {
       .then((res) => res.json())
       .then(
         (result) => {
-          // add LLM response to conversation data
+          // add LLM response to conversation data as children of the selected follow-up question
           const newConversationDataLLM: ConversationData = {
             userId: props.userInfo!.userId,
             role: "system",
             content: result["answer_question"],
+            // conversationId: followupQuestion.conversationId,
             conversationId: conversationId,
+            isAnswerToFolloupQuestion: true,
+            // followupQuestionIndex: followupQuestion.followupQuestionIndex
           };
 
-          setConversationData([
-            ...conversationDataPrev,
+          // console.log('-- new conversation data --')
+          // console.log(newConversationData)
+          const newConversationData: ConversationData[] = [
+            ...conversationData,
             newConversationDataLLM,
-          ]);
+          ];
+          setConversationData(newConversationData);
+          props.passConversationData(newConversationData);
 
-          props.passConversationData([
-            ...conversationDataPrev,
-            newConversationDataLLM,
+          // handle follow-up questions of a selected follow-up question
+          const newFollowupQuestions: FollowupQuestion[] = result[
+            "followup_questions"
+          ].map((content: FollowupQuestion, i: number) => {
+            return {
+              // conversationId: followupQuestion.conversationId,
+              conversationId: conversationId,
+              followupQuestionIndex: `${clickedFollowupQuestionIndex}_${i}`,
+              content,
+            };
+          });
+          setFollowupQuestions([...followupQuestions, ...newFollowupQuestions]);
+          props.passFollowupQuestions([
+            ...followupQuestions,
+            ...newFollowupQuestions,
           ]);
 
           setConversationId(conversationId + 1);
@@ -223,6 +261,7 @@ export default function ChatRecord(props: Props) {
     const followupQuestionsContainer = _followupQuestions.map(
       (d: FollowupQuestion, i: number) => (
         <Box
+          key={i}
           sx={{
             display: "flex",
             flexDirection: "row",
@@ -248,7 +287,7 @@ export default function ChatRecord(props: Props) {
             key={i}
             className={styles.followup_question_box}
             onMouseEnter={() => onHoverFollowupQuestion(d)}
-            onClick={() => onClickFollowupQuestion(d.content)}
+            onClick={() => onClickFollowupQuestion(d)}
           >
             <Typography variant="body1">
               {i + 1}. {d.content}
@@ -290,7 +329,14 @@ export default function ChatRecord(props: Props) {
                 : "ChatGPT"}
             </h3>
           </Stack>
-          <Box className={styles.chat_text_box}>
+          <Box
+            id={
+              conversation.role === "user"
+                ? `question_${conversation.role}_${conversation.conversationId}`
+                : `answer_${conversation.role}_${conversation.conversationId}`
+            }
+            className={styles.chat_text_box}
+          >
             <p>{conversation.content}</p>
           </Box>
           {conversation.role === "system" && (
@@ -359,10 +405,12 @@ export default function ChatRecord(props: Props) {
             id="user_input"
             label="Type here"
             variant="outlined"
-            minRows={6}
+            multiline
+            rows={3}
+            fullWidth
             value={textFieldValue}
             onChange={(e) => onChangeTextField(e.target.value)}
-            sx={{ width: "50%", marginTop: "10px" }}
+            sx={{ marginTop: "10px" }}
           />
           <Button
             variant="contained"
