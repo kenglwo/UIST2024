@@ -316,7 +316,7 @@ export default function TreeMap(props: Props) {
             const allLinks = document.querySelectorAll(".treemap_link")
             allLinks.forEach(e => {
               const linkId = e.getAttribute('id')
-              const traversedLinkIds = traversedNodeOfGElement.map(e => `path_${e.getAttribute('id')}`)
+              const traversedLinkIds = traversedNodeOfGElement.map(e => e !== null ? `path_${e.getAttribute('id')}` : "")
               if (!traversedLinkIds.includes(linkId!)) {
                 // hide link
                 e.setAttribute('opacity', '0');
@@ -416,9 +416,10 @@ export default function TreeMap(props: Props) {
     const marginRight = 10;
     const marginBottom = 20;
     const marginLeft = 20;
-    const dx = 40;
-    const dy = (width - marginRight - marginLeft) / (1 + root.height);
-    const tree = d3.tree().nodeSize([dx, dy]);
+    const dx = 60;
+    const dy = Math.round((width - marginRight - marginLeft) / (1 + root.height));
+    // const tree = d3.tree().nodeSize([dx, dy]);
+    const tree = d3.tree().nodeSize([dx, 200]);
     const diagonal = d3
       .linkHorizontal()
       .x((d) => d.y)
@@ -432,9 +433,6 @@ export default function TreeMap(props: Props) {
     svg.selectAll("*").remove();
 
     const svgElement = document.querySelector("svg");
-    const svgHeight = svgElement.clientHeight;
-    const svgWidth = svgElement.clientWidth;
-    const svgRect = svgElement.getBoundingClientRect();
 
     svg
       .attr("width", width)
@@ -499,7 +497,6 @@ export default function TreeMap(props: Props) {
 
     // Define the update function
     function update(source) {
-      const offsetLeft = -90;
       const duration = 250; // Duration of the animations
       const nodes = root.descendants().reverse();
       const links = root.links();
@@ -524,7 +521,6 @@ export default function TreeMap(props: Props) {
           if (d.data.category === "question") {
             return `question_${d.data.conversationId}`;
           } else {
-            // return `conversationId_${d.data.conversationId}_followupQuestionIndex_${d.data.followupQuestionIndex}`;
             return `${d.data.followupQuestionIndex}`;
           }
         })
@@ -541,7 +537,6 @@ export default function TreeMap(props: Props) {
         .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
         .on("click", (event, d) => {
           d.children = d.children ? null : d._children;
-          // d._children = d.children ? null : d._children;
           update(d);
         })
         .on("mouseenter", (event, d) => {
@@ -616,7 +611,7 @@ export default function TreeMap(props: Props) {
       });
 
       // const svgElement = document.querySelector("svg");
-      viewBoxRect.current = calculateSvgContentSize(svgElement);
+      // viewBoxRect.current = calculateSvgContentSize(svgElement);
       const transition = svg
         .transition()
         .duration(duration)
@@ -733,51 +728,6 @@ export default function TreeMap(props: Props) {
   );
 
   const svgElement = document.querySelector("svg");
-  // const onClickDown = () => {
-  //   const viewBoxRectNew = viewBoxRect;
-  //   viewBoxRectNew.minY -= 20;
-  //   setViewBoxRect(viewBoxRectNew);
-  //   svgElement.setAttribute("viewBox", [
-  //     viewBoxRectNew.minX,
-  //     viewBoxRectNew.minY,
-  //     viewBoxRectNew.width,
-  //     viewBoxRectNew.height,
-  //   ]);
-  // };
-  // const onClickUp = () => {
-  //   const viewBoxRectNew = viewBoxRect;
-  //   viewBoxRectNew.minY += 20;
-  //   setViewBoxRect(viewBoxRectNew);
-  //   svgElement.setAttribute("viewBox", [
-  //     viewBoxRectNew.minX,
-  //     viewBoxRectNew.minY,
-  //     viewBoxRectNew.width,
-  //     viewBoxRectNew.height,
-  //   ]);
-  // };
-  // const onClickLeft = () => {
-  //   const viewBoxRectNew = viewBoxRect;
-  //   viewBoxRectNew.minX += 20;
-  //   setViewBoxRect(viewBoxRectNew);
-  //   svgElement.setAttribute("viewBox", [
-  //     viewBoxRectNew.minX,
-  //     viewBoxRectNew.minY,
-  //     viewBoxRectNew.width,
-  //     viewBoxRectNew.height,
-  //   ]);
-  // };
-  //
-  // const onClickRight = () => {
-  //   const viewBoxRectNew = viewBoxRect;
-  //   viewBoxRectNew.minX -= 20;
-  //   setViewBoxRect(viewBoxRectNew);
-  //   svgElement.setAttribute("viewBox", [
-  //     viewBoxRectNew.minX,
-  //     viewBoxRectNew.minY,
-  //     viewBoxRectNew.width,
-  //     viewBoxRectNew.height,
-  //   ]);
-  // };
 
   return (
     <Box ref={parentRef} className={styles.interface_component2}>
