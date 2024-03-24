@@ -8,14 +8,9 @@ class ApiController < ApplicationController
      user_input_prompt = params['user_input_prompt']
      followup_question_mode = params['followup_question_mode']
      followup_question_prompt = followup_question_mode == 'epistemology' ?
-      'Regarding the previous question: "###", could you provide some follow-up questions,' \
-      'using the four causes idea originating from Aristotle\'s philosophy?' \
-      'Output just the corresponding 4 follow-up questions without the description of which type of cause, ' \
-      'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line' \
+      'Provide the top 4 related follow-up questions based on the previous question using the four causes idea. Attach ; after each question.'
       :
-      'Regarding the previous question: "###", Could you provide some follow-up questions? Output just follow-up questions' \
-      'Output just the corresponding 4 follow-up questions' \
-      'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line'
+      'Provide the top 4 related follow-up questions based on the previous question. Attach ; after each question.'
 
      answer_question = getResponseByLLM(user_input_prompt)
      followup_questions = getResponseByLLM(followup_question_prompt, user_input_prompt)
