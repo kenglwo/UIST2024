@@ -10,10 +10,12 @@ import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 import { UserInfo, ConversationData, FollowupQuestion } from "../../types";
+import { askChatGptToReadEmbeddedContent } from "./chatgpt_api";
 import styles from "../styles.module.css";
 
 interface Props {
   userInfo: UserInfo | null;
+  embeddedContentType: string;
   passConversationData: (ConversationData: ConversationData[]) => void;
   passFollowupQuestions: (followupQuestions: FollowupQuestion[]) => void;
   passHoveredFollowupQuestionData: (
@@ -38,6 +40,8 @@ export default function ChatRecord(props: Props) {
   const [conversationId, setConversationId] = useState<number>(0);
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState("100px"); // State to hold the child's height
+  const [llmAlreadyReadEmbeddedContent, setllmAlreadyReadEmbeddedContent] = useState<boolean>(false)
+  // const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
 
   useEffect(() => {
     // scroll to the question
@@ -63,7 +67,25 @@ export default function ChatRecord(props: Props) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
     }
+
   }, []); // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    if(props.embeddedContentType !== '') {
+      // ask ChatGPT to read the embedded content
+      const checkAndReadContent = async () => {
+        if (!llmAlreadyReadEmbeddedContent) {
+          console.log('===== ask chatgpt to read content ===')
+          console.log(props.embeddedContentType)
+          const hasRead = await askChatGptToReadEmbeddedContent(props.embeddedContentType, followupQuestionMode);
+          // Update the state based on whether ChatGPT has successfully read the content
+          setllmAlreadyReadEmbeddedContent(hasRead);
+        }
+      };
+      // Call the async function
+      checkAndReadContent();
+    }
+  }, [props.embeddedContentType])
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
