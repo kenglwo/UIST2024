@@ -20,7 +20,7 @@ export default function BasicGrid() {
     FollowupQuestion[]
   >([]);
   const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion | undefined>()
-  const [embeddedContentType, setEmbeddedContentType] = useState<string>("nft")
+  const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
 
   const searchParams = useSearchParams();
 
@@ -53,9 +53,11 @@ export default function BasicGrid() {
 
     // get embedded content type
     let embeddedContentTypeNew = searchParams.get("embedded_content")
+    console.log('++++++++++++++++++')
+    console.log(embeddedContentTypeNew)
     embeddedContentTypeNew = embeddedContentTypeNew === null ? "nft" : embeddedContentTypeNew
     setEmbeddedContentType(embeddedContentTypeNew)
-  }, [userInfo]);
+  }, []);
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
@@ -67,6 +69,7 @@ export default function BasicGrid() {
             <EmbeddedContent embeddedContentType={embeddedContentType}/>
             <ChatRecord
               userInfo={userInfo}
+              embeddedContentType={embeddedContentType}
               passConversationData={passConversationData}
               passFollowupQuestions={passFollowupQuestions}
               passHoveredFollowupQuestionData={passHoveredFollowupQuestionData}

@@ -1,6 +1,7 @@
 require 'net/http'
 require 'uri'
 require 'json'
+require_relative 'embedded_content_text'
 
 class ApiController < ApplicationController
   def get_chatgpt_answer
@@ -73,6 +74,41 @@ class ApiController < ApplicationController
       return "API_ERROR"
     end
   end
+
+  def ask_read_content
+    embedded_content_type = params['embedded_content_type']
+    mode = params['mode']
+    # contolled | epistemology
+
+    input_prompt = mode == 'epistemology' ?
+     'Please read an article on ### below to'  \
+     'Play a role as a tutor helping your novice students learn the material of ### from the next prompt. Just output Yes if you understand' \
+     '\n' \
+     '???'
+     :
+     'Please read an article on ### below. Then asnwer my questions from the next prompt' \
+     '\n' \
+     '???'
+    input_prompt = input_prompt.gsub("###", embedded_content_type) # nft or semiotics
+
+    embedded_content = ''
+    if embedded_content_type == 'nft'
+      # embedded_content = EmbeddedContent:NFT
+      embedded_content = EmbeddedContent::NFT_SHORT
+    elsif embedded_content_type == 'semiotics'
+      # embedded_content = EmbeddedContent:SEMIOTICS
+      embedded_content = EmbeddedContent::SEMIOTICS_SHORT
+    end
+    # insert embedded content text
+    input_prompt = input_prompt.gsub("???", embedded_content)
+
+    logger.debug input_prompt
+
+    output_prompt = getResponseByLLM(input_prompt) # "API_ERROR" when failed
+
+    render json: {output_prompt: output_prompt }
+  end
+
 
   def save_user_info
     user_info = params['user_info']

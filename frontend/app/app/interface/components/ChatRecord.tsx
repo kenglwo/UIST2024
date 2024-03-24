@@ -10,10 +10,12 @@ import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 import { UserInfo, ConversationData, FollowupQuestion } from "../../types";
+import { askChatGptToReadEmbeddedContent } from "./chatgpt_api";
 import styles from "../styles.module.css";
 
 interface Props {
   userInfo: UserInfo | null;
+  embeddedContentType: string;
   passConversationData: (ConversationData: ConversationData[]) => void;
   passFollowupQuestions: (followupQuestions: FollowupQuestion[]) => void;
   passHoveredFollowupQuestionData: (
@@ -38,6 +40,8 @@ export default function ChatRecord(props: Props) {
   const [conversationId, setConversationId] = useState<number>(0);
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState("100px"); // State to hold the child's height
+  const [llmAlreadyReadEmbeddedContent, setllmAlreadyReadEmbeddedContent] = useState<boolean>(false)
+  // const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
 
   useEffect(() => {
     // scroll to the question
@@ -63,7 +67,25 @@ export default function ChatRecord(props: Props) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
     }
+
   }, []); // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    if(props.embeddedContentType !== '') {
+      // ask ChatGPT to read the embedded content
+      const checkAndReadContent = async () => {
+        if (!llmAlreadyReadEmbeddedContent) {
+          console.log('===== ask chatgpt to read content ===')
+          console.log(props.embeddedContentType)
+          const hasRead = await askChatGptToReadEmbeddedContent(props.embeddedContentType, followupQuestionMode);
+          // Update the state based on whether ChatGPT has successfully read the content
+          setllmAlreadyReadEmbeddedContent(hasRead);
+        }
+      };
+      // Call the async function
+      checkAndReadContent();
+    }
+  }, [props.embeddedContentType])
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -152,10 +174,32 @@ export default function ChatRecord(props: Props) {
       );
   };
 
-  const onChangeSwitch = (isSwitchOn: boolean) => {
+  const onChangeSwitch = async (isSwitchOn: boolean) => {
     const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
     setFollowupQuestionMode(newFollowupQuestionMode);
+
+    const prompt = newFollowupQuestionMode === "epistemology" 
+      ? `Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`  
+      : `Do not Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. if OK just say "ChatGPT does not play a role as a tutor about ${props.embeddedContentType}" without further comments.`;
+
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
+    const data = { user_input_prompt: prompt };
+    const headers = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+
+    try {
+      const res = await fetch(url, headers);
+      const result = await res.json();
+      window.alert(result.answer_question);
+    } catch (error) {
+      console.log("========== API error ==========");
+      console.log(error);
+    }
   };
+
 
   const onHoverFollowupQuestion = (d: FollowupQuestion) => {
     props.passHoveredFollowupQuestionData(d);
