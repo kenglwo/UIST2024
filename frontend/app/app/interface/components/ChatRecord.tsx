@@ -333,8 +333,11 @@ export default function ChatRecord(props: Props) {
           <Box
             key={i}
             className={styles.followup_question_box}
-            onMouseEnter={() => onHoverFollowupQuestion(d)}
-            onClick={() => onClickFollowupQuestion(d)}
+            // onMouseEnter={() => onHoverFollowupQuestion(d)}
+            onClick={() => {
+              onClickFollowupQuestion(d);
+              onHoverFollowupQuestion(d);
+            }}
           >
             <Typography variant="body1">
               {i + 1}. {d.content}
