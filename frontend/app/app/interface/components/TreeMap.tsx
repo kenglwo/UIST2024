@@ -274,7 +274,7 @@ export default function TreeMap(props: Props) {
             if (followupQuestionGElements.length > 1) {
               // already expanded
             } else {
-              followupQuestionNodeToClick.dispatchEvent(clickEvent);
+              followupQuestionNodeToClick?.dispatchEvent(clickEvent);
             }
           } else {
             // folloup question to highlight
@@ -294,31 +294,37 @@ export default function TreeMap(props: Props) {
               ),
             );
             allFollowupQuestionNodes.forEach((e) => {
-              e.querySelector("rect").setAttribute("fill", "white");
+              e.querySelector("rect")?.setAttribute("fill", "white");
             });
-            // ============= reset opacity
             const allNodes = document.querySelectorAll(".treemap_node");
-            // allNodes.forEach((e) => {
-            //   e.setAttribute("opacity", 1);
-            // });
 
             // highlight the hovered node
-            if (followupQuestionNodeToHighlight) {
-              followupQuestionNodeToHighlight
-                .querySelector("rect")
-                .setAttribute("fill", "yellow");
-            }
+            followupQuestionNodeToHighlight?.querySelector("rect")?.setAttribute("fill", "yellow");
 
-            // hide other nodes
+            // update node opacity
             allNodes.forEach((e) => {
               // check if traversed element of g
               if (!traversedNodeOfGElement.includes(e)) {
                 // hide this node
-                e.setAttribute("opacity", 0);
+                e.setAttribute("opacity", '0');
               } else {
-                e.setAttribute("opacity", 1);
+                e.setAttribute("opacity", '1');
               }
             });
+
+            // update link opacity
+            const allLinks = document.querySelectorAll(".treemap_link")
+            allLinks.forEach(e => {
+              const linkId = e.getAttribute('id')
+              const traversedLinkIds = traversedNodeOfGElement.map(e => `path_${e.getAttribute('id')}`)
+              if (!traversedLinkIds.includes(linkId!)) {
+                // hide link
+                e.setAttribute('opacity', '0');
+              } else {
+                // show link
+                e.setAttribute('opacity', '1');
+              }
+             })
           }
         }
       }
@@ -654,7 +660,14 @@ export default function TreeMap(props: Props) {
         })
         .style("display", (d) =>
           d.source.data.name === "root" ? "none" : "block",
-        );
+        )
+        .attr('id', (d) => {
+            return `path_${d.target.data.followupQuestionIndex}`
+        })
+        .attr('class', (d) => {
+            return `treemap_link path_${d.target.data.conversationId}`
+        })
+        ;
       // Transition links to their new position.
       link
         .merge(linkEnter)
