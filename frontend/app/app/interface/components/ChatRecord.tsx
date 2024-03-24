@@ -174,10 +174,32 @@ export default function ChatRecord(props: Props) {
       );
   };
 
-  const onChangeSwitch = (isSwitchOn: boolean) => {
+  const onChangeSwitch = async (isSwitchOn: boolean) => {
     const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
     setFollowupQuestionMode(newFollowupQuestionMode);
+
+    const prompt = newFollowupQuestionMode === "epistemology" 
+      ? `Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say OK.`  
+      : `Do not Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. if OK just say OK`;
+
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
+    const data = { user_input_prompt: prompt };
+    const headers = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+
+    try {
+      const res = await fetch(url, headers);
+      const result = await res.json();
+      window.alert(result.answer_question);
+    } catch (error) {
+      console.log("========== API error ==========");
+      console.log(error);
+    }
   };
+
 
   const onHoverFollowupQuestion = (d: FollowupQuestion) => {
     props.passHoveredFollowupQuestionData(d);
