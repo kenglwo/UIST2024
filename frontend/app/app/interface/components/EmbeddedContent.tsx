@@ -11,19 +11,32 @@ import TextSemiotics from "./TextSemiotics";
 import styles from "../styles.module.css";
 
 interface Props {
-  textName: string;
+  embeddedContentType: string;
 }
 
-export default function EmbeddedContent(props: Props) {
-  const [text, setText] = useState<string>("");
-  const [navigationItems, setNavigationItem] = useState<string[]>([
+const navigationItemsNFT = [
     "Title",
     "What does NFT stand for?",
     "What is an NFT?",
     "Why are NFTs so expensive?",
     "Why do people buy NFTs?",
     "Key takeaways",
-  ]);
+]
+
+const navigationItemsSemiotics = [
+    "Title",
+    "Semiotics: definition",
+    "Signs in semiotics",
+    "Semiotic theory",
+    "Semiotic analysis",
+    "Semiotics examples",
+    "Semiotics and language teaching",
+    "Semiotics - Key Takeaways"
+]
+
+export default function EmbeddedContent(props: Props) {
+  const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
+  const [navigationItems, setNavigationItems] = useState<string[]>([])
   const [navigationDisplayValue, setNavigationDisplayValue] = useState<
     "flex" | "none"
   >("flex");
@@ -36,12 +49,15 @@ export default function EmbeddedContent(props: Props) {
     if (parentRef.current) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
-      console.log(`${parentHeight * 0.8}px`);
     }
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    if (props.textName === "NFT") {
+    setEmbeddedContentType(props.embeddedContentType)
+    if (props.embeddedContentType === 'nft') {
+      setNavigationItems(navigationItemsNFT)
+    } else if (props.embeddedContentType === 'semiotics') {
+      setNavigationItems(navigationItemsSemiotics)
     }
   }, [props]);
 
@@ -120,8 +136,8 @@ export default function EmbeddedContent(props: Props) {
           </Box>
         </Box>
         <Box sx={{ ml: 3, overflowY: "auto", height: childHeight }}>
-          {/* <TextNFT2 /> */}
-          <TextSemiotics />
+          {embeddedContentType === "nft" &&  <TextNFT2 />}
+          {embeddedContentType === "semiotics" &&  <TextSemiotics />}
         </Box>
       </Stack>
     </Box>

@@ -48,6 +48,7 @@ export default function TextSemiotics () {
       </Typography>
       <Typography
         variant="h5"
+        id="content_sec2"
         className={styles.embedded_content_section_title}
       >Signs in semiotics</Typography>
       <Typography variant="body1" className={styles.embedded_content_paragraph}>
