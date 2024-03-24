@@ -6,6 +6,7 @@ import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import TextNFT2 from "./TextNFT2";
+import TextSemiotics from "./TextSemiotics";
 
 import styles from "../styles.module.css";
 
@@ -119,7 +120,8 @@ export default function EmbeddedContent(props: Props) {
           </Box>
         </Box>
         <Box sx={{ ml: 3, overflowY: "auto", height: childHeight }}>
-          <TextNFT2 />
+          {/* <TextNFT2 /> */}
+          <TextSemiotics />
         </Box>
       </Stack>
     </Box>
