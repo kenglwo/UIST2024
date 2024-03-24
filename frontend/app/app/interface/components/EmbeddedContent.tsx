@@ -97,7 +97,7 @@ export default function EmbeddedContent(props: Props) {
                 onClick={() => {
                   const element = document.getElementById(`content_sec${i}`);
                   if (element) {
-                    element.scrollIntoView({ behavior: "smooth" });
+                    element.scrollIntoView({ behavior: "smooth", block: "nearest" });
                   }
                   setClickedNavigationButtonIndex(i);
                 }}
