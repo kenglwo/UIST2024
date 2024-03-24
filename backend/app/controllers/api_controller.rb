@@ -11,7 +11,6 @@ class ApiController < ApplicationController
       'Regarding the previous question: "###", could you provide some follow-up questions,' \
       'using the four causes idea originating from Aristotle\'s philosophy?' \
       'Output just the corresponding 4 follow-up questions without the description of which type of cause, ' \
-      'in the order of material, formal, efficient and final cause.' \
       'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line' \
       :
       'Regarding the previous question: "###", Could you provide some follow-up questions? Output just follow-up questions' \
@@ -102,7 +101,7 @@ class ApiController < ApplicationController
     # insert embedded content text
     input_prompt = input_prompt.gsub("???", embedded_content)
 
-    logger.debug input_prompt
+    # logger.debug input_prompt
 
     output_prompt = getResponseByLLM(input_prompt) # "API_ERROR" when failed
 

@@ -40,7 +40,8 @@ export default function ChatRecord(props: Props) {
   const [conversationId, setConversationId] = useState<number>(0);
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState("100px"); // State to hold the child's height
-  const [llmAlreadyReadEmbeddedContent, setllmAlreadyReadEmbeddedContent] = useState<boolean>(false)
+  const [llmAlreadyReadEmbeddedContent, setllmAlreadyReadEmbeddedContent] =
+    useState<boolean>(false);
   // const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
 
   useEffect(() => {
@@ -67,17 +68,19 @@ export default function ChatRecord(props: Props) {
       const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
       setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
     }
-
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    if(props.embeddedContentType !== '') {
+    if (props.embeddedContentType !== "") {
       // ask ChatGPT to read the embedded content
       const checkAndReadContent = async () => {
         if (!llmAlreadyReadEmbeddedContent) {
-          console.log('===== ask chatgpt to read content ===')
-          console.log(props.embeddedContentType)
-          const hasRead = await askChatGptToReadEmbeddedContent(props.embeddedContentType, followupQuestionMode);
+          console.log("===== ask chatgpt to read content ===");
+          console.log(props.embeddedContentType);
+          const hasRead = await askChatGptToReadEmbeddedContent(
+            props.embeddedContentType,
+            followupQuestionMode,
+          );
           // Update the state based on whether ChatGPT has successfully read the content
           setllmAlreadyReadEmbeddedContent(hasRead);
         }
@@ -85,7 +88,7 @@ export default function ChatRecord(props: Props) {
       // Call the async function
       checkAndReadContent();
     }
-  }, [props.embeddedContentType])
+  }, [props.embeddedContentType]);
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -178,9 +181,10 @@ export default function ChatRecord(props: Props) {
     const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
     setFollowupQuestionMode(newFollowupQuestionMode);
 
-    const prompt = newFollowupQuestionMode === "epistemology" 
-      ? `Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`  
-      : `Do not Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. if OK just say "ChatGPT does not play a role as a tutor about ${props.embeddedContentType}" without further comments.`;
+    const prompt =
+      newFollowupQuestionMode === "epistemology"
+        ? `Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`
+        : `Forget our conversation, learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType}, without further comments`;
 
     const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
     const data = { user_input_prompt: prompt };
@@ -199,7 +203,6 @@ export default function ChatRecord(props: Props) {
       console.log(error);
     }
   };
-
 
   const onHoverFollowupQuestion = (d: FollowupQuestion) => {
     props.passHoveredFollowupQuestionData(d);
