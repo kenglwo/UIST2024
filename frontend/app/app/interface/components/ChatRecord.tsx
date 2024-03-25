@@ -92,6 +92,20 @@ export default function ChatRecord(props: Props) {
     }
   }, [props.embeddedContentType]);
 
+  function getTimestamp() {
+    const now = new Date();
+    const year = now.getFullYear();
+    // getMonth() returns month from 0 (January) to 11 (December) so we add 1
+    const month = ('0' + (now.getMonth() + 1)).slice(-2); // Ensure two digits
+    const day = ('0' + now.getDate()).slice(-2); // Ensure two digits
+    const hours = ('0' + now.getHours()).slice(-2);
+    const minutes = ('0' + now.getMinutes()).slice(-2);
+    const seconds = ('0' + now.getSeconds()).slice(-2);
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+    
+
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
     setTextFieldValue(inputText);
@@ -108,6 +122,8 @@ export default function ChatRecord(props: Props) {
       role: "user",
       content: userInputPrompt,
       conversationId: conversationId,
+      mode: followupQuestionMode,
+      timestamp: getTimestamp()
     };
     const conversationDataPrev: ConversationData[] = [
       ...conversationData,
@@ -142,6 +158,8 @@ export default function ChatRecord(props: Props) {
             role: "system",
             content: result["answer_question"],
             conversationId: conversationId,
+            mode: followupQuestionMode,
+            timestamp: getTimestamp()
           };
 
           setConversationData([
@@ -245,10 +263,9 @@ export default function ChatRecord(props: Props) {
             userId: props.userInfo!.userId,
             role: "system",
             content: result["answer_question"],
-            // conversationId: followupQuestion.conversationId,
             conversationId: conversationId,
-            isAnswerToFolloupQuestion: true,
-            // followupQuestionIndex: followupQuestion.followupQuestionIndex
+            mode: followupQuestionMode,
+            timestamp: getTimestamp()
           };
 
           // console.log('-- new conversation data --')
@@ -429,6 +446,7 @@ export default function ChatRecord(props: Props) {
 
   const onClickDownload = () => {
     // conversationData, followupQuestions, clickedFollowupQuestionIndexArray
+    // TODO: add mode and timestamp!!
     const conversationDataCsvRows = objectArrayToTsv(conversationData)
     downloadTsv(conversationDataCsvRows, "conversation_data.tsv")
 
