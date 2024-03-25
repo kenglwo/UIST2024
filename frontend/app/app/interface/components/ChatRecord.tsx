@@ -183,8 +183,8 @@ export default function ChatRecord(props: Props) {
 
     const prompt =
       newFollowupQuestionMode === "epistemology"
-        ? `Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`
-        : `Forget our conversation, learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType}, without further comments`;
+        ? `From now play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`
+        : `Forget about your role. Learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType} (control version), without further comments`;
 
     const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
     const data = { user_input_prompt: prompt };

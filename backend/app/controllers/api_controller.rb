@@ -20,7 +20,7 @@ class ApiController < ApplicationController
 
      followup_question_mode = params['followup_question_mode']
      followup_question_prompt_const = followup_question_mode == 'epistemology' ?
-      'Provide the top 4 related follow-up questions based on the previous question using the four causes idea. Attach ; after each question.'
+      'Provide the top 4 related follow-up questions based on the previous question using the four causes idea without mentioning the type of causes. Attach ; after each question.'
       :
       'Provide the top 4 related follow-up questions based on the previous question. Attach ; after each question.'
      followup_question_prompt = $past_conversations_array.join("\n") + @this_conversations + followup_question_prompt_const
@@ -120,8 +120,7 @@ class ApiController < ApplicationController
 
     input_prompt = mode == 'epistemology' ?
      "Please read an article on ### below to"  \
-     "Play a role as a tutor helping your novice students learn the material of ### from the next prompt. " \
-     "If OK, just say OK, I will serve as a tutor for the output of this prompt." \
+     "Play a role as a tutor helping your novice students learn the material of ### by answering the following questions from next prompts." \
      "\n" \
      "???"
      :
@@ -140,11 +139,11 @@ class ApiController < ApplicationController
     end
     # insert embedded content text
     input_prompt = input_prompt.gsub("???", embedded_content)
-    $past_conversations_array.push(input_prompt)
-
-    # logger.debug input_prompt
-
     output_prompt = getResponseByLLM(input_prompt) # "API_ERROR" when failed
+
+    $past_conversations_array.push(input_prompt)
+    $past_conversations_array.push(output_prompt)
+    logger.debug $past_conversations_array.join("\n")
 
     render json: {output_prompt: output_prompt }
   end
