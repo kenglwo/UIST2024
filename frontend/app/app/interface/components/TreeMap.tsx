@@ -509,7 +509,7 @@ export default function TreeMap(props: Props) {
     // Listen for mouse down events on the whole document
     document.addEventListener("mousedown", (event) => {
       // Check if the middle mouse button was pressed
-      if (event.button === 1) {
+      if (event.button === 0 || event.button === 1) {
         if (isMiddleButtonPressed.current === false) {
           isMiddleButtonPressed.current = true;
           // Start listening for mouse move events
@@ -520,7 +520,7 @@ export default function TreeMap(props: Props) {
     // Listen for mouse up events on the whole document
     document.addEventListener("mouseup", (event) => {
       // Check if the middle mouse button was released
-      if (event.button === 1) {
+      if (event.button === 0 || event.button === 1) {
         if (isMiddleButtonPressed.current === true) {
           isMiddleButtonPressed.current = false;
           isScrollButtonPressedFirst.current = false;
