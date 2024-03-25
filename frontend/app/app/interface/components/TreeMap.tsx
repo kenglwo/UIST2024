@@ -19,6 +19,7 @@ interface Props {
   conversationData: ConversationData[];
   followupQuestions: FollowupQuestion[];
   hoveredFollowupQuestion: FollowupQuestion | undefined;
+  clickedFollowupQuestionIndex: string;
 }
 
 interface ViewboxRect  {
@@ -41,6 +42,8 @@ export default function TreeMap(props: Props) {
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState<number>(0); // State to hold the child's height
   const [childWidth, setChildWidth] = useState<number>(0); // State to hold the child's height
+  // const [clickedFollowupQuestionIndexArray, setClickedFollowupQuestionIndexArray] = useState<string[]>([])
+  const clickedFollowupQuestionIndexArray = useRef([])
   const viewBoxRect = useRef<ViewboxRect>({ width: 0, height: 0, minX: 0, minY: 0 });
   const isMouseHoveringSVG = useRef<boolean>(false);
   const isMiddleButtonPressed = useRef<boolean>(false);
@@ -74,6 +77,14 @@ export default function TreeMap(props: Props) {
 
   // update conversation data
   useEffect(() => {
+    if (props.clickedFollowupQuestionIndex !== "") {
+      // setClickedFollowupQuestionIndexArray([...clickedFollowupQuestionIndexArray, props.clickedFollowupQuestionIndex])
+      clickedFollowupQuestionIndexArray.current.push(props.clickedFollowupQuestionIndex)
+      console.log(`@@@@  clickedFollowupQuesitonIndex at tree map  @@@@@@`)
+      console.log(clickedFollowupQuestionIndexArray)
+      // console.log(clickedFollowupQuestionIndexArray)
+    }
+
     console.log("====== conversation data in tree map ==========");
     console.log(props.conversationData);
     const d: TreemapData[] = props.conversationData
@@ -105,9 +116,8 @@ export default function TreeMap(props: Props) {
 
     renderTreeMap();
 
-
     // updateSVGSize();
-  }, [props.conversationData]);
+  }, [props.conversationData, props.clickedFollowupQuestionIndex]);
 
   const updateSVGSize = () => {
     // const svgElement = document.querySelector("svg");
@@ -309,11 +319,18 @@ export default function TreeMap(props: Props) {
             // update node opacity
             allNodes.forEach((e) => {
               // check if traversed element of g
-              if (!traversedNodeOfGElement.includes(e)) {
-                // hide this node
-                e.setAttribute("opacity", "0");
-              } else {
+              const GElementId = e.getAttribute('id')
+              if (GElementId?.includes("question")){
+                // keep question root node visible
                 e.setAttribute("opacity", "1");
+              } else {
+                // process follow up questions
+                if (!traversedNodeOfGElement.includes(e)) {
+                  // hide this node
+                  e.setAttribute("opacity", "0");
+                } else {
+                  e.setAttribute("opacity", "1");
+                }
               }
             });
 
@@ -441,7 +458,15 @@ export default function TreeMap(props: Props) {
     const tree = d3.tree().nodeSize([dx, 200]);
     const diagonal = d3
       .linkHorizontal()
-      .x((d) => d.y)
+      // .x((d) => d.y)
+      .x((d) => {
+        // if (d.data && d.data.followupQuestionIndex){
+        //   console.log(d)
+        //   const followupQuestionG = document.querySelector(`#${d.data.followupQuestionIndex}`)
+        //   console.log(followupQuestionG)
+        // }
+       return d.y 
+      })
       .y((d) => d.x);
 
     root.x0 = height / 2;
@@ -557,7 +582,20 @@ export default function TreeMap(props: Props) {
         .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
         .attr("fill-opacity", 0)
         .attr("stroke-opacity", 0)
-        .style("display", (d) => (d.data.name === "root" ? "none" : "block"))
+        .style("display", (d) => {
+          if (d.data.name === "root") {
+            return "none"
+          } else if (d.data.category === 'question') {
+            // show original quesiotn (root of the tree map)
+            return "block"
+          } else if (clickedFollowupQuestionIndexArray.current.includes(d.data.followupQuestionIndex)) {
+            // show clicked follow up questions
+            return "block"
+          } else {
+            // hide unclicked follow up quesions
+            return "none"
+          }
+        })
         .on("click", (event, d) => {
           d.children = d.children ? null : d._children;
           update(d);
@@ -585,6 +623,12 @@ export default function TreeMap(props: Props) {
         .attr("dy", "0.31em")
         .attr("x", (d) => (d._children ? -6 : 6))
         .attr("text-anchor", (d) => (d._children ? "end" : "start"))
+        // .attr("x", (d) => (d._children ? -6 : 6))
+        // .attr("text-anchor", (d) => {
+        //   console.log(d)
+        //   return d.data.category === 'question' ? "end" : "start"
+        //   // return (d._children ? "start" : "start")
+        // })        
         .text((d, i) =>
           d.category === "question" ? `Q${i + 1}: ${d.data.name}` : d.data.name,
         )
@@ -805,11 +849,18 @@ export default function TreeMap(props: Props) {
             // update node opacity
             allNodes.forEach((e) => {
               // check if traversed element of g
-              if (!traversedNodeOfGElement.includes(e)) {
-                // hide this node
-                e.setAttribute("opacity", "0");
-              } else {
+              const GElementId = e.getAttribute('id')
+              if (GElementId?.includes("question")){
+                // keep question root node visible
                 e.setAttribute("opacity", "1");
+              } else {
+                // process follow up questions
+                if (!traversedNodeOfGElement.includes(e)) {
+                  // hide this node
+                  e.setAttribute("opacity", "0");
+                } else {
+                  e.setAttribute("opacity", "1");
+                }
               }
             });
 

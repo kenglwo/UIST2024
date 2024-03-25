@@ -82,6 +82,7 @@ export default function BasicGrid() {
               passConversationData={passConversationData}
               passFollowupQuestions={passFollowupQuestions}
               passHoveredFollowupQuestionData={passHoveredFollowupQuestionData}
+              passClickedFollowupQuestionIndex={passClickedFollowupQuestionIndex}
             />
           </Stack>
         </Grid>
@@ -93,6 +94,7 @@ export default function BasicGrid() {
               conversationData={conversationData}
               followupQuestions={followupQuestions}
               hoveredFollowupQuestion={hoveredFollowupQuestion}
+              clickedFollowupQuestionIndex={clickedFollowupQuestionIndex}
             />
           </div>
         </Grid>
