@@ -723,6 +723,115 @@ export default function TreeMap(props: Props) {
     });
 
     update(root); // Call update to render the initial layout
+
+    // TODO: expand nodes to restore the previous state
+    if (props.hoveredFollowupQuestion !== undefined) {
+      const indexes =
+        props.hoveredFollowupQuestion!.followupQuestionIndex.split("_");
+      const conversationIdNum = Number(
+        indexes[0].replace("conversationId", ""),
+      );
+      const questionGElement = document.querySelector(
+        `#question_${conversationIdNum}`,
+      );
+
+      const clickEvent = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      });
+      const traversedNodeOfGElement = [];
+      for (let i = 0; i < indexes.length; i++) {
+        if (i === 0) {
+          // expand quesiton node
+          const followupQuestionClassName = `.followup_question_${props.hoveredFollowupQuestion.conversationId}`;
+          const followupQuestionGElements = document.querySelectorAll(
+            followupQuestionClassName,
+          );
+
+          traversedNodeOfGElement.push(questionGElement);
+          if (followupQuestionGElements.length > 1) {
+            // already expanded
+          } else {
+            // expand nodes by clicking the quesiton node
+            questionGElement?.dispatchEvent(clickEvent);
+          }
+        } else {
+          if (i !== indexes.length - 1) {
+            // expand followup question node
+            const followupQuestionIdToClick = indexes.slice(0, i + 1).join("_");
+            const followupQuestionNodeToClick = document.querySelector(
+              `#${followupQuestionIdToClick}`,
+            );
+
+            // check if already expanded
+            const followupQuestionClassName = `.followup_question_${props.hoveredFollowupQuestion.conversationId}`;
+            const followupQuestionGElements = document.querySelectorAll(
+              followupQuestionClassName,
+            );
+            traversedNodeOfGElement.push(followupQuestionNodeToClick);
+            if (followupQuestionGElements.length > 1) {
+              // already expanded
+            } else {
+              followupQuestionNodeToClick?.dispatchEvent(clickEvent);
+            }
+          } else {
+            // folloup question to highlight
+            const followupQuestionNodeToHighlight = document.querySelector(
+              `#${props.hoveredFollowupQuestion.followupQuestionIndex}`,
+            );
+            traversedNodeOfGElement.push(followupQuestionNodeToHighlight);
+
+            // ============ reset highlight of other nodes
+            const followupQuestionPattern = /^followup_question_\d+$/;
+            // Select all <g> elements and filter them
+            const allFollowupQuestionNodes = Array.from(
+              document.querySelectorAll("g"),
+            ).filter((g) =>
+              Array.from(g.classList).some((className) =>
+                followupQuestionPattern.test(className),
+              ),
+            );
+            allFollowupQuestionNodes.forEach((e) => {
+              e.querySelector("rect")?.setAttribute("fill", "white");
+            });
+            const allNodes = document.querySelectorAll(".treemap_node");
+
+            // highlight the hovered node
+            followupQuestionNodeToHighlight
+              ?.querySelector("rect")
+              ?.setAttribute("fill", "yellow");
+
+            // update node opacity
+            allNodes.forEach((e) => {
+              // check if traversed element of g
+              if (!traversedNodeOfGElement.includes(e)) {
+                // hide this node
+                e.setAttribute("opacity", "0");
+              } else {
+                e.setAttribute("opacity", "1");
+              }
+            });
+
+            // update link opacity
+            const allLinks = document.querySelectorAll(".treemap_link");
+            allLinks.forEach((e) => {
+              const linkId = e.getAttribute("id");
+              const traversedLinkIds = traversedNodeOfGElement.map((e) =>
+                e !== null ? `path_${e.getAttribute("id")}` : "",
+              );
+              if (!traversedLinkIds.includes(linkId!)) {
+                // hide link
+                e.setAttribute("opacity", "0");
+              } else {
+                // show link
+                e.setAttribute("opacity", "1");
+              }
+            });
+          }
+        }
+      }
+    }
   };
 
   const categories = ["Material", "Formal", "Efficient", "Final"].map(
