@@ -339,7 +339,7 @@ export default function ChatRecord(props: Props) {
             }}
           >
             <Typography variant="body1">
-              {i + 1}. {d.content}
+              {d.content}
             </Typography>
           </Box>
         </Box>

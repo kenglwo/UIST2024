@@ -4,7 +4,6 @@ require 'json'
 require_relative 'embedded_content_text'
 
 class ApiController < ApplicationController
-  $past_conversations = ""
   $past_conversations_array = []
 
   def get_chatgpt_answer
@@ -58,6 +57,9 @@ class ApiController < ApplicationController
      output = {
       answer_question: answer_question,
      }
+    
+     $past_conversations_array.push(user_input_prompt)
+     $past_conversations_array.push(answer_question)
      render json:output
 
   end
@@ -111,18 +113,21 @@ class ApiController < ApplicationController
 
   def ask_read_content
     embedded_content_type = params['embedded_content_type']
-    mode = params['mode']
-    # contolled | epistemology
+    mode = params['mode'] # contolled | epistemology
+
+    # initialize the global var since this starts the user task
+    $past_conversations_array = []
 
     input_prompt = mode == 'epistemology' ?
-     'Please read an article on ### below to'  \
-     'Play a role as a tutor helping your novice students learn the material of ### from the next prompt. Just output Yes if you understand' \
-     '\n' \
-     '???'
+     "Please read an article on ### below to"  \
+     "Play a role as a tutor helping your novice students learn the material of ### from the next prompt. " \
+     "If OK, just say OK, I will serve as a tutor for the output of this prompt." \
+     "\n" \
+     "???"
      :
-     'Please read an article on ### below. Then asnwer my questions from the next prompt' \
-     '\n' \
-     '???'
+     "Please read an article on ### below. Then asnwer my questions from the next prompt" \
+     "\n" \
+     "???"
     input_prompt = input_prompt.gsub("###", embedded_content_type) # nft or semiotics
 
     embedded_content = ''
@@ -135,6 +140,7 @@ class ApiController < ApplicationController
     end
     # insert embedded content text
     input_prompt = input_prompt.gsub("???", embedded_content)
+    $past_conversations_array.push(input_prompt)
 
     # logger.debug input_prompt
 

@@ -255,7 +255,7 @@ export default function TreeMap(props: Props) {
             // already expanded
           } else {
             // expand nodes by clicking the quesiton node
-            questionGElement!.dispatchEvent(clickEvent);
+            questionGElement?.dispatchEvent(clickEvent);
           }
         } else {
           if (i !== indexes.length - 1) {
