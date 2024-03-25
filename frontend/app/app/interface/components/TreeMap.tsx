@@ -80,13 +80,13 @@ export default function TreeMap(props: Props) {
     if (props.clickedFollowupQuestionIndex !== "") {
       // setClickedFollowupQuestionIndexArray([...clickedFollowupQuestionIndexArray, props.clickedFollowupQuestionIndex])
       clickedFollowupQuestionIndexArray.current.push(props.clickedFollowupQuestionIndex)
-      console.log(`@@@@  clickedFollowupQuesitonIndex at tree map  @@@@@@`)
-      console.log(clickedFollowupQuestionIndexArray)
+      // console.log(`@@@@  clickedFollowupQuesitonIndex at tree map  @@@@@@`)
+      // console.log(clickedFollowupQuestionIndexArray)
       // console.log(clickedFollowupQuestionIndexArray)
     }
 
-    console.log("====== conversation data in tree map ==========");
-    console.log(props.conversationData);
+    // console.log("====== conversation data in tree map ==========");
+    // console.log(props.conversationData);
     const d: TreemapData[] = props.conversationData
       .filter((d) => d.role === "user")
       .map((d) => {
@@ -201,8 +201,8 @@ export default function TreeMap(props: Props) {
 
   // update followupQuestion data
   useEffect(() => {
-    console.log("=== props.followupQuestions ===");
-    console.log(props.followupQuestions);
+    // console.log("=== props.followupQuestions ===");
+    // console.log(props.followupQuestions);
     const newFollowupQuestionTreeRawData = buildTree(props.followupQuestions);
     // console.log("====   newFollowupQuestionTreeRawData ====");
     // console.log(newFollowupQuestionTreeRawData);
@@ -210,8 +210,8 @@ export default function TreeMap(props: Props) {
     const treemapDataForFollowupQuesitons = convertToTreemapData(
       newFollowupQuestionTreeRawData,
     );
-    console.log("====   converted tree map data ====");
-    console.log(treemapDataForFollowupQuesitons);
+    // console.log("====   converted tree map data ====");
+    // console.log(treemapDataForFollowupQuesitons);
 
     // combine convationData and treemapDataForFollowupQuesitons
     const questionNodes = treemapData.children!;
@@ -237,8 +237,8 @@ export default function TreeMap(props: Props) {
 
   useEffect(() => {
     setHoveredFollowupQuestion(props.hoveredFollowupQuestion);
-    console.log("=== hovered FQ data ====");
-    console.log(props.hoveredFollowupQuestion);
+    // console.log("=== hovered FQ data ====");
+    // console.log(props.hoveredFollowupQuestion);
     if (props.hoveredFollowupQuestion !== undefined) {
       const indexes =
         props.hoveredFollowupQuestion!.followupQuestionIndex.split("_");
@@ -455,7 +455,7 @@ export default function TreeMap(props: Props) {
       (width - marginRight - marginLeft) / (1 + root.height),
     );
     // const tree = d3.tree().nodeSize([dx, dy]);
-    const tree = d3.tree().nodeSize([dx, 200]);
+    const tree = d3.tree().nodeSize([dx, 100]);
     const diagonal = d3
       .linkHorizontal()
       // .x((d) => d.y)
@@ -710,9 +710,23 @@ export default function TreeMap(props: Props) {
       const link = gLink
         .selectAll("path")
         .data(links, (d) => d.target.id)
-        .style("display", (d) =>
-          d.source.data.name === "root" ? "none" : "block",
-        );
+        .style("display", (d) => {
+          if (d.source.data.name === "root") {
+            // if root, hide the link
+            return "none"
+          } else {
+            if(d.target.data && d.target.data.followupQuestionIndex) {
+              // console.log(d.target.data.followupQuestionIndex)
+              // follow up questions
+              if (clickedFollowupQuestionIndexArray.current.includes(d.target.data.followupQuestionIndex)) {
+                console.log('=============: block')
+                return "block"
+              } else {
+                return "none"
+              }
+            } 
+          }
+        });
       // Enter any new links
       const linkEnter = link
         .enter()
@@ -735,8 +749,23 @@ export default function TreeMap(props: Props) {
         .merge(linkEnter)
         .transition(transition)
         .attr("d", diagonal)
-        .style("display", (d) =>
-          d.source.data.name === "root" ? "none" : "block",
+        .style("display", (d) => {
+          if (d.source.data.name === "root") {
+            // if root, hide the link
+            return "none"
+          } else {
+            if(d.target.data) {
+              // console.log(d.target.data.followupQuestionIndex)
+              // follow up questions
+              if (clickedFollowupQuestionIndexArray.current.includes(d.target.data.followupQuestionIndex)) {
+                return "block"
+              } else {
+                return "none"
+              }
+            } 
+          }
+        }
+          
         );
 
       // Transition exiting links to the parent's new position.
@@ -748,9 +777,23 @@ export default function TreeMap(props: Props) {
           const o = { x: source.x, y: source.y };
           return diagonal({ source: o, target: o });
         })
-        .style("display", (d) =>
-          d.source.data.name === "root" ? "none" : "block",
-        );
+        .style("display", (d) => {
+          if (d.source.data.name === "root") {
+            // if root, hide the link
+            return "none"
+          } else {
+            if(d.target.data) {
+              if (clickedFollowupQuestionIndexArray.current.includes(d.target.data.followupQuestionIndex)) {
+                return "block"
+              } else {
+                return "none"
+              }
+            } 
+          }
+        });
+        // .style("display", (d) =>
+        //   d.source.data.name === "root" ? "none" : "block",
+        // );
 
       // Stash the old positions for transition.
       nodes.forEach((d) => {
