@@ -44,6 +44,7 @@ export default function ChatRecord(props: Props) {
   const [llmAlreadyReadEmbeddedContent, setllmAlreadyReadEmbeddedContent] =
     useState<boolean>(false);
   // const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
+  const clickedFollowupQuestionIndexArray = useRef<string[]>([])
 
   useEffect(() => {
     // scroll to the question
@@ -91,6 +92,20 @@ export default function ChatRecord(props: Props) {
     }
   }, [props.embeddedContentType]);
 
+  function getTimestamp() {
+    const now = new Date();
+    const year = now.getFullYear();
+    // getMonth() returns month from 0 (January) to 11 (December) so we add 1
+    const month = ('0' + (now.getMonth() + 1)).slice(-2); // Ensure two digits
+    const day = ('0' + now.getDate()).slice(-2); // Ensure two digits
+    const hours = ('0' + now.getHours()).slice(-2);
+    const minutes = ('0' + now.getMinutes()).slice(-2);
+    const seconds = ('0' + now.getSeconds()).slice(-2);
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+    
+
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
     setTextFieldValue(inputText);
@@ -107,6 +122,8 @@ export default function ChatRecord(props: Props) {
       role: "user",
       content: userInputPrompt,
       conversationId: conversationId,
+      mode: followupQuestionMode,
+      timestamp: getTimestamp()
     };
     const conversationDataPrev: ConversationData[] = [
       ...conversationData,
@@ -141,6 +158,8 @@ export default function ChatRecord(props: Props) {
             role: "system",
             content: result["answer_question"],
             conversationId: conversationId,
+            mode: followupQuestionMode,
+            timestamp: getTimestamp()
           };
 
           setConversationData([
@@ -217,6 +236,7 @@ export default function ChatRecord(props: Props) {
     const followupQuestionContent: string = followupQuestion.content;
     const clickedFollowupQuestionIndex = followupQuestion.followupQuestionIndex;
     props.passClickedFollowupQuestionIndex(clickedFollowupQuestionIndex)
+    clickedFollowupQuestionIndexArray.current.push(clickedFollowupQuestionIndex)
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
@@ -243,10 +263,9 @@ export default function ChatRecord(props: Props) {
             userId: props.userInfo!.userId,
             role: "system",
             content: result["answer_question"],
-            // conversationId: followupQuestion.conversationId,
             conversationId: conversationId,
-            isAnswerToFolloupQuestion: true,
-            // followupQuestionIndex: followupQuestion.followupQuestionIndex
+            mode: followupQuestionMode,
+            timestamp: getTimestamp()
           };
 
           // console.log('-- new conversation data --')
@@ -336,6 +355,7 @@ export default function ChatRecord(props: Props) {
       ),
     );
 
+
     return (
       <Box
         key={i}
@@ -387,6 +407,55 @@ export default function ChatRecord(props: Props) {
       </Box>
     );
   };
+
+  // @ts-ignore
+  function objectArrayToTsv(data) {
+    if (data.length === 0) {
+      return '';
+    }
+
+    // Extract headers
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+
+    // Add header row
+    csvRows.push(headers.join('\t'));
+
+    // Convert each object to a CSV row
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '""'); // Convert to string and escape double quotes
+        const escapedLine = escaped.replaceAll("\n", "")
+        return `"${escaped}"`; // Enclose each value in double quotes
+      });
+      csvRows.push(values.join('\t'));
+    }
+
+    return csvRows.join('\n');
+  }
+
+  function downloadTsv(csvString: string, filename = 'data.csv') {
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  const onClickDownload = () => {
+    // conversationData, followupQuestions, clickedFollowupQuestionIndexArray
+    // TODO: add mode and timestamp!!
+    const conversationDataCsvRows = objectArrayToTsv(conversationData)
+    downloadTsv(conversationDataCsvRows, "conversation_data.tsv")
+
+    const followupQuestionsTsvRows = objectArrayToTsv(followupQuestions)
+    downloadTsv(followupQuestionsTsvRows, "followup_question.tsv")
+
+    const clickedFollowupQuesitonIndexArrayString = clickedFollowupQuestionIndexArray.current.join("\n")
+    downloadTsv(clickedFollowupQuesitonIndexArrayString, "clicked_followup_question_index.tsv")
+  }
 
   return (
     <Box ref={parentRef} className={styles.interface_component2}>
@@ -459,6 +528,16 @@ export default function ChatRecord(props: Props) {
             Submit
           </Button>
         </Box>
+      </Box>
+      <Box>
+        <Button
+          variant="outlined"
+          color="secondary"
+          sx={{ marginLeft: "10px" }}
+          onClick={onClickDownload}
+        >
+          Download
+        </Button>
       </Box>
     </Box>
   );
