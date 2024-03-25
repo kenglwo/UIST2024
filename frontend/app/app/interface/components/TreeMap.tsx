@@ -479,7 +479,7 @@ export default function TreeMap(props: Props) {
     const svgElement = document.querySelector("svg");
 
     const viewBoxArray: number[] = viewBoxRect.current.width === 0 && viewBoxRect.current.height === 0 ?
-     [0, 0, width, height] 
+     [- ( width / 2 ), - (height / 2), width, height] 
      :
      [viewBoxRect.current.minX, viewBoxRect.current.minY, viewBoxRect.current.width, viewBoxRect.current.height]
     svg
