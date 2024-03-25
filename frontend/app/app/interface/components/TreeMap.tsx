@@ -21,6 +21,13 @@ interface Props {
   hoveredFollowupQuestion: FollowupQuestion | undefined;
 }
 
+interface ViewboxRect  {
+  minX: number;
+  minY: number;
+  width: number;
+  height: number;
+}
+
 const treemapDataInitial: TreemapData = { name: "root", children: [] };
 
 export default function TreeMap(props: Props) {
@@ -34,13 +41,7 @@ export default function TreeMap(props: Props) {
   const parentRef = useRef(null); // Reference to the parent box
   const [childHeight, setChildHeight] = useState<number>(0); // State to hold the child's height
   const [childWidth, setChildWidth] = useState<number>(0); // State to hold the child's height
-  // const [viewBoxRect, setViewBoxRect] = useState({
-  //   width: 0,
-  //   height: 0,
-  //   minX: 0,
-  //   minY: 0,
-  // });
-  const viewBoxRect = useRef({ width: 0, height: 0, minX: 0, minY: 0 });
+  const viewBoxRect = useRef<ViewboxRect>({ width: 0, height: 0, minX: 0, minY: 0 });
   const isMouseHoveringSVG = useRef<boolean>(false);
   const isMiddleButtonPressed = useRef<boolean>(false);
   const mouseClientX = useRef<number>(0);
@@ -103,7 +104,9 @@ export default function TreeMap(props: Props) {
     setTreemapData(treemapDataNew);
 
     renderTreeMap();
-    updateSVGSize();
+
+
+    // updateSVGSize();
   }, [props.conversationData]);
 
   const updateSVGSize = () => {
@@ -358,6 +361,11 @@ export default function TreeMap(props: Props) {
           Number(currentViewBox[3]),
         ]);
 
+        viewBoxRect.current.minX = newMinX;
+        viewBoxRect.current.minY = newMinY;
+        viewBoxRect.current.width = Number(currentViewBox[2]);
+        viewBoxRect.current.height = Number(currentViewBox[3]);
+
         mouseClientX.current = event.clientX;
         mouseClientY.current = event.clientY;
       }
@@ -381,35 +389,40 @@ export default function TreeMap(props: Props) {
       newWidth,
       newHeight,
     ]);
+
+    viewBoxRect.current.minX =Number(currentViewBox[0]);
+    viewBoxRect.current.minY = Number(currentViewBox[1]);
+    viewBoxRect.current.width = newWidth;
+    viewBoxRect.current.height =newHeight 
   };
 
-  function calculateSvgContentSize(svgElement) {
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
+  // function calculateSvgContentSize(svgElement) {
+  //   let minX = Infinity,
+  //     minY = Infinity,
+  //     maxX = -Infinity,
+  //     maxY = -Infinity;
 
-    const elements = svgElement.querySelectorAll("*");
-    elements.forEach((el) => {
-      // Use getBoundingClientRect() or other properties depending on element type
-      const rect = el.getBoundingClientRect();
-      const { left, top, width, height } = rect;
+  //   const elements = svgElement.querySelectorAll("*");
+  //   elements.forEach((el) => {
+  //     // Use getBoundingClientRect() or other properties depending on element type
+  //     const rect = el.getBoundingClientRect();
+  //     const { left, top, width, height } = rect;
 
-      // Convert to SVG coordinate space if necessary
-      // This example assumes the SVG is full-viewport or adjustments are otherwise made
-      minX = Math.min(minX, left);
-      minY = Math.min(minY, top);
-      maxX = Math.max(maxX, left + width);
-      maxY = Math.max(maxY, top + height);
-    });
+  //     // Convert to SVG coordinate space if necessary
+  //     // This example assumes the SVG is full-viewport or adjustments are otherwise made
+  //     minX = Math.min(minX, left);
+  //     minY = Math.min(minY, top);
+  //     maxX = Math.max(maxX, left + width);
+  //     maxY = Math.max(maxY, top + height);
+  //   });
 
-    return {
-      width: maxX - minX,
-      height: maxY - minY,
-      minX,
-      minY,
-    };
-  }
+  //   return {
+  //     width: maxX - minX,
+  //     height: maxY - minY,
+  //     minX,
+  //     minY,
+  //   };
+  // }
 
   const renderTreeMap = () => {
     // Define main variables and the tree layout
@@ -440,10 +453,14 @@ export default function TreeMap(props: Props) {
 
     const svgElement = document.querySelector("svg");
 
+    const viewBoxArray: number[] = viewBoxRect.current.width === 0 && viewBoxRect.current.height === 0 ?
+     [0, 0, width, height] 
+     :
+     [viewBoxRect.current.minX, viewBoxRect.current.minY, viewBoxRect.current.width, viewBoxRect.current.height]
     svg
       .attr("width", width)
       .attr("height", height)
-      .attr("viewBox", [0, 0, width, height])
+      .attr("viewBox", viewBoxArray)
       .attr(
         "style",
         `width: ${width}; height: ${height}; font: 10px sans-serif; user-select: none; preserveAspectRatio: xMidYMid meet`,
@@ -618,10 +635,11 @@ export default function TreeMap(props: Props) {
 
       // const svgElement = document.querySelector("svg");
       // viewBoxRect.current = calculateSvgContentSize(svgElement);
+
       const transition = svg
         .transition()
         .duration(duration)
-        .attr("viewBox", [-marginLeft, left.x - marginTop, width, height])
+        // .attr("viewBox", viewBoxArray)
         .tween(
           "resize",
           window.ResizeObserver ? null : () => () => svg.dispatch("toggle"),
