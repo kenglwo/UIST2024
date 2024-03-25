@@ -21,11 +21,17 @@ export default function BasicGrid() {
   >([]);
   const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion | undefined>()
   const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
+  const [clickedFollowupQuestionIndex, setClickedFollowupQuestionIndex] = useState<string>("")
 
   const searchParams = useSearchParams();
 
+  const passClickedFollowupQuestionIndex = (clickedFollowupQuestionIndex: string) => {
+    setClickedFollowupQuestionIndex(clickedFollowupQuestionIndex)
+    console.log(`@@ clickedFollowupQuestionIndex at page: ${clickedFollowupQuestionIndex}`)
+  }
+
   const passConversationData = (
-    conversationDataInChildComponent: ConversationData[],
+    conversationDataInChildComponent: ConversationData[]
   ) => {
     setConversationData(conversationDataInChildComponent);
   };
@@ -52,11 +58,14 @@ export default function BasicGrid() {
     setUserInfo(userInfoTest);
 
     // get embedded content type
-    let embeddedContentTypeNew = searchParams.get("embedded_content")
-    console.log('++++++++++++++++++')
-    console.log(embeddedContentTypeNew)
-    embeddedContentTypeNew = embeddedContentTypeNew === null ? "nft" : embeddedContentTypeNew
-    setEmbeddedContentType(embeddedContentTypeNew)
+    const embeddedContentParameter = searchParams.get("embedded_content")
+    if (embeddedContentParameter === "nft") {
+      setEmbeddedContentType("nft")
+    } else if (embeddedContentParameter === "semiotics") {
+      setEmbeddedContentType("semiotics")
+    } else {
+      setEmbeddedContentType("nft")
+    }
   }, []);
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -73,17 +82,19 @@ export default function BasicGrid() {
               passConversationData={passConversationData}
               passFollowupQuestions={passFollowupQuestions}
               passHoveredFollowupQuestionData={passHoveredFollowupQuestionData}
+              passClickedFollowupQuestionIndex={passClickedFollowupQuestionIndex}
             />
           </Stack>
         </Grid>
         <Grid item xs={6}>
           <div>
-            <ConceptNetwork userInfo={userInfo} />
+            <ConceptNetwork userInfo={userInfo} embeddedContentType={embeddedContentType} />
             <TreeMap
               userInfo={userInfo}
               conversationData={conversationData}
               followupQuestions={followupQuestions}
               hoveredFollowupQuestion={hoveredFollowupQuestion}
+              clickedFollowupQuestionIndex={clickedFollowupQuestionIndex}
             />
           </div>
         </Grid>

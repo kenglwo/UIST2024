@@ -16,11 +16,12 @@ import styles from "../styles.module.css";
 interface Props {
   userInfo: UserInfo | null;
   embeddedContentType: string;
-  passConversationData: (ConversationData: ConversationData[]) => void;
+  passConversationData: (ConversationData: ConversationData[], clickedFollowupQuestionIndedx?: string) => void;
   passFollowupQuestions: (followupQuestions: FollowupQuestion[]) => void;
   passHoveredFollowupQuestionData: (
     hoveredFollowupQuestion: FollowupQuestion,
   ) => void;
+  passClickedFollowupQuestionIndex: (clickedFollowupQuestionIndex: string) => void;
 }
 
 export default function ChatRecord(props: Props) {
@@ -183,8 +184,8 @@ export default function ChatRecord(props: Props) {
 
     const prompt =
       newFollowupQuestionMode === "epistemology"
-        ? `Play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`
-        : `Forget our conversation, learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType}, without further comments`;
+        ? `From now play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`
+        : `Forget about your role. Learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType} (control version), without further comments`;
 
     const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
     const data = { user_input_prompt: prompt };
@@ -215,18 +216,7 @@ export default function ChatRecord(props: Props) {
   const onClickFollowupQuestion = (followupQuestion: FollowupQuestion) => {
     const followupQuestionContent: string = followupQuestion.content;
     const clickedFollowupQuestionIndex = followupQuestion.followupQuestionIndex;
-    // const newConversationDataUser: ConversationData = {
-    //   userId: props.userInfo.userId,
-    //   role: "user",
-    //   content: followupQuestionContent,
-    //   conversationId: conversationId,
-    // };
-    // const conversationDataPrev: ConversationData[] = [
-    //   ...conversationData,
-    //   newConversationDataUser,
-    // ];
-    // setConversationData([...conversationData, newConversationDataUser]);
-    // props.passConversationData([...conversationData, newConversationDataUser]);
+    props.passClickedFollowupQuestionIndex(clickedFollowupQuestionIndex)
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
@@ -334,10 +324,12 @@ export default function ChatRecord(props: Props) {
             key={i}
             className={styles.followup_question_box}
             onMouseEnter={() => onHoverFollowupQuestion(d)}
-            onClick={() => onClickFollowupQuestion(d)}
+            onClick={() => {
+              onClickFollowupQuestion(d);
+            }}
           >
             <Typography variant="body1">
-              {i + 1}. {d.content}
+              {d.content}
             </Typography>
           </Box>
         </Box>

@@ -4,27 +4,50 @@ require 'json'
 require_relative 'embedded_content_text'
 
 class ApiController < ApplicationController
+  $past_conversations_array = []
+
   def get_chatgpt_answer
-     user_input_prompt = params['user_input_prompt']
-     followup_question_mode = params['followup_question_mode']
-     followup_question_prompt = followup_question_mode == 'epistemology' ?
-      'Regarding the previous question: "###", could you provide some follow-up questions,' \
-      'using the four causes idea originating from Aristotle\'s philosophy?' \
-      'Output just the corresponding 4 follow-up questions without the description of which type of cause, ' \
-      'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line' \
-      :
-      'Regarding the previous question: "###", Could you provide some follow-up questions? Output just follow-up questions' \
-      'Output just the corresponding 4 follow-up questions' \
-      'Please concatenate the sentences of the four questions by ";" instead of "\n" in one line'
+     @this_conversations = "" 
+     @this_conversations +=  params['user_input_prompt'] + "\n Please answer the last question" + "\n\n"
+     user_input_prompt =  $past_conversations_array.join("\n") + params['user_input_prompt'] + "\n Please answer the last question"
+
+    #  logger.debug "\n--- propt to ask a question ---\n"
+    #  logger.debug user_input_prompt
 
      answer_question = getResponseByLLM(user_input_prompt)
+     @this_conversations += answer_question + "\n\n"
+
+
+     followup_question_mode = params['followup_question_mode']
+     followup_question_prompt_const = followup_question_mode == 'epistemology' ?
+      'Provide the top 4 related follow-up questions based on the previous question using the four causes idea without mentioning the type of causes. Attach ; after each question.'
+      :
+      'Provide the top 4 related follow-up questions based on the previous question. Attach ; after each question.'
+     followup_question_prompt = $past_conversations_array.join("\n") + @this_conversations + followup_question_prompt_const
+
+     @this_conversations += followup_question_prompt_const + "\n\n"
+
+    #  logger.debug "\n--- prompt to ask fu questions ---\n"
+    #  logger.debug followup_question_prompt
+
      followup_questions = getResponseByLLM(followup_question_prompt, user_input_prompt)
+     @this_conversations += followup_questions + "\n\n"
+
      followup_questions_array = followup_questions.split(';')
 
      output = {
       answer_question: answer_question,
       followup_questions: followup_questions_array
      }
+
+     @this_conversations += "= end of a conversation = \n"
+    #  logger.debug "=================="
+    #  logger.debug @this_conversations
+
+     $past_conversations_array.push(@this_conversations) unless $past_conversations_array.include?($this_conversations)
+     logger.debug("=====  conversations ======")
+     logger.debug($past_conversations_array.join("\n"))
+
      render json: output
   end
 
@@ -34,21 +57,34 @@ class ApiController < ApplicationController
      output = {
       answer_question: answer_question,
      }
+    
+     $past_conversations_array.push(user_input_prompt)
+     $past_conversations_array.push(answer_question)
      render json:output
 
   end
 
   def getResponseByLLM(input_prompt, question = nil)
-    input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
+    # logger.debug "===== API_ENDPOINT ====="
+    # logger.debug ENV['CHATGPT_API_ENDPOINT2']
+    # logger.debug "===== getResponseByLLM ====="
+    # logger.debug input_prompt
 
-     uri = URI(ENV['CHATGPT_API_ENDPOINT'])
+    # input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
+
+     uri = URI(ENV['CHATGPT_API_ENDPOINT3'])
+     # header = {
+     #   'Content-Type': 'application/json',
+     #   'api-key': ENV['CHATGPT_API_KEY']
+     # }
      header = {
        'Content-Type': 'application/json',
-       'api-key': ENV['CHATGPT_API_KEY']
+       'Authorization': "Bearer #{ENV['CHATGPT_API_KEY3']}"
      }
      body = {
-        "messages": [{"role": "user", "content": input_prompt}],
-        "temperature": 0.7
+       "model": ENV['CHATGPT_MODEL3'],
+       "messages": [{"role": "user", "content": input_prompt}],
+       "temperature": 0.7
       }
 
     # Create the HTTP objects
@@ -65,6 +101,7 @@ class ApiController < ApplicationController
     when Net::HTTPSuccess, Net::HTTPRedirection
       # Success logic here
       answer = JSON.parse(response.body)
+
       answer_content = answer["choices"][0]["message"]["content"]
       return answer_content
     else
@@ -76,18 +113,20 @@ class ApiController < ApplicationController
 
   def ask_read_content
     embedded_content_type = params['embedded_content_type']
-    mode = params['mode']
-    # contolled | epistemology
+    mode = params['mode'] # contolled | epistemology
+
+    # initialize the global var since this starts the user task
+    $past_conversations_array = []
 
     input_prompt = mode == 'epistemology' ?
-     'Please read an article on ### below to'  \
-     'Play a role as a tutor helping your novice students learn the material of ### from the next prompt. Just output Yes if you understand' \
-     '\n' \
-     '???'
+     "Please read an article on ### below to"  \
+     "Play a role as a tutor helping your novice students learn the material of ### by answering the following questions from next prompts." \
+     "\n" \
+     "???"
      :
-     'Please read an article on ### below. Then asnwer my questions from the next prompt' \
-     '\n' \
-     '???'
+     "Please read an article on ### below. Then asnwer my questions from the next prompt" \
+     "\n" \
+     "???"
     input_prompt = input_prompt.gsub("###", embedded_content_type) # nft or semiotics
 
     embedded_content = ''
@@ -100,10 +139,11 @@ class ApiController < ApplicationController
     end
     # insert embedded content text
     input_prompt = input_prompt.gsub("???", embedded_content)
-
-    # logger.debug input_prompt
-
     output_prompt = getResponseByLLM(input_prompt) # "API_ERROR" when failed
+
+    $past_conversations_array.push(input_prompt)
+    $past_conversations_array.push(output_prompt)
+    logger.debug $past_conversations_array.join("\n")
 
     render json: {output_prompt: output_prompt }
   end
