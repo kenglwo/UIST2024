@@ -34,22 +34,24 @@ class ApiController < ApplicationController
   end
 
   def getResponseByLLM(input_prompt, question = nil)
+    logger.debug "===== API_ENDPOINT ====="
+    logger.debug ENV['CHATGPT_API_ENDPOINT3']
     logger.debug "===== getResponseByLLM ====="
     logger.debug input_prompt
 
     input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
 
-     uri = URI(ENV['CHATGPT_API_ENDPOINT2'])
+     uri = URI(ENV['CHATGPT_API_ENDPOINT3'])
      # header = {
      #   'Content-Type': 'application/json',
      #   'api-key': ENV['CHATGPT_API_KEY']
      # }
      header = {
        'Content-Type': 'application/json',
-       'Authorization': "Bearer #{ENV['CHATGPT_API_KEY2']}"
+       'Authorization': "Bearer #{ENV['CHATGPT_API_KEY3']}"
      }
      body = {
-       "model": ENV['CHATGPT_MODEL2'],
+       "model": ENV['CHATGPT_MODEL3'],
        "messages": [{"role": "user", "content": input_prompt}],
        "temperature": 0.7
       }
