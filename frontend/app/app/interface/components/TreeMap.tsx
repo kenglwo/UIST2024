@@ -476,7 +476,7 @@ export default function TreeMap(props: Props) {
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const svgElement = document.querySelector("svg");
+    // const svgElement = document.querySelector("svg");
 
     const viewBoxArray: number[] = viewBoxRect.current.width === 0 && viewBoxRect.current.height === 0 ?
      [- ( width / 2 ), - (height / 2), width, height] 
@@ -492,7 +492,7 @@ export default function TreeMap(props: Props) {
       );
 
     // event listener for pan and scrool
-    svgElement.addEventListener("mouseover", (event) => {
+    svgRef.current.addEventListener("mouseover", (event) => {
       if (isMouseHoveringSVG.current === false) {
         isMouseHoveringSVG.current = true;
         document.addEventListener("wheel", handleScrollMove, {
@@ -500,7 +500,7 @@ export default function TreeMap(props: Props) {
         });
       }
     });
-    svgElement.addEventListener("mouseleave", (event) => {
+    svgRef.current.addEventListener("mouseleave", (event) => {
       if (isMouseHoveringSVG.current === true) {
         isMouseHoveringSVG.current = false;
         document.removeEventListener("wheel", handleScrollMove);
@@ -952,8 +952,6 @@ export default function TreeMap(props: Props) {
       );
     },
   );
-
-  const svgElement = document.querySelector("svg");
 
   return (
     <Box ref={parentRef} className={styles.interface_component2}>
