@@ -4,22 +4,51 @@ require 'json'
 require_relative 'embedded_content_text'
 
 class ApiController < ApplicationController
+  $past_conversations = ""
+  $past_conversations_array = []
+
   def get_chatgpt_answer
-     user_input_prompt = params['user_input_prompt']
+     @this_conversations = "" 
+     @this_conversations +=  params['user_input_prompt'] + "\n Please answer the last question" + "\n\n"
+     user_input_prompt =  $past_conversations_array.join("\n") + params['user_input_prompt'] + "\n Please answer the last question"
+
+    #  logger.debug "\n--- propt to ask a question ---\n"
+    #  logger.debug user_input_prompt
+
+     answer_question = getResponseByLLM(user_input_prompt)
+     @this_conversations += answer_question + "\n\n"
+
+
      followup_question_mode = params['followup_question_mode']
-     followup_question_prompt = followup_question_mode == 'epistemology' ?
+     followup_question_prompt_const = followup_question_mode == 'epistemology' ?
       'Provide the top 4 related follow-up questions based on the previous question using the four causes idea. Attach ; after each question.'
       :
       'Provide the top 4 related follow-up questions based on the previous question. Attach ; after each question.'
+     followup_question_prompt = $past_conversations_array.join("\n") + @this_conversations + followup_question_prompt_const
 
-     answer_question = getResponseByLLM(user_input_prompt)
+     @this_conversations += followup_question_prompt_const + "\n\n"
+
+    #  logger.debug "\n--- prompt to ask fu questions ---\n"
+    #  logger.debug followup_question_prompt
+
      followup_questions = getResponseByLLM(followup_question_prompt, user_input_prompt)
+     @this_conversations += followup_questions + "\n\n"
+
      followup_questions_array = followup_questions.split(';')
 
      output = {
       answer_question: answer_question,
       followup_questions: followup_questions_array
      }
+
+     @this_conversations += "= end of a conversation = \n"
+    #  logger.debug "=================="
+    #  logger.debug @this_conversations
+
+     $past_conversations_array.push(@this_conversations) unless $past_conversations_array.include?($this_conversations)
+     logger.debug("=====  conversations ======")
+     logger.debug($past_conversations_array.join("\n"))
+
      render json: output
   end
 
@@ -34,12 +63,12 @@ class ApiController < ApplicationController
   end
 
   def getResponseByLLM(input_prompt, question = nil)
-    logger.debug "===== API_ENDPOINT ====="
-    logger.debug ENV['CHATGPT_API_ENDPOINT3']
-    logger.debug "===== getResponseByLLM ====="
-    logger.debug input_prompt
+    # logger.debug "===== API_ENDPOINT ====="
+    # logger.debug ENV['CHATGPT_API_ENDPOINT2']
+    # logger.debug "===== getResponseByLLM ====="
+    # logger.debug input_prompt
 
-    input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
+    # input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
 
      uri = URI(ENV['CHATGPT_API_ENDPOINT3'])
      # header = {
@@ -70,6 +99,7 @@ class ApiController < ApplicationController
     when Net::HTTPSuccess, Net::HTTPRedirection
       # Success logic here
       answer = JSON.parse(response.body)
+
       answer_content = answer["choices"][0]["message"]["content"]
       return answer_content
     else
