@@ -517,7 +517,7 @@ export default function ChatRecord(props: Props) {
         </Stack>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
-      <Box sx={{ height: childHeight, overflowY: "auto" }}>
+      <Box sx={{ height: "40vh", overflowY: "auto" }}>
         <Box>
           {conversationData.map((conversation, i) => {
             return conversationBox(conversation, followupQuestions, i);

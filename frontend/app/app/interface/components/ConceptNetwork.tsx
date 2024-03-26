@@ -19,8 +19,18 @@ interface Props {
 export default function ConceptNetwork(props: Props) {
   const [open, setOpen] = React.useState(false);
   const [embeddedContentType, setEmbeddedContentType] = useState<string>("");
+  const parentRef = useRef(null); // Reference to the parent box
+  const [childHeight, setChildHeight] = useState("0px");
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  useEffect(() => {
+    if (parentRef.current) {
+      const parentHeight = parentRef.current.offsetHeight; // Get the rendered height of the parent
+      setChildHeight(`${parentHeight * 0.8}px`); // Set the child's height to half of the parent's height
+      console.log(`${parentHeight * 0.8}px`);
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     setEmbeddedContentType(props.embeddedContentType);
@@ -166,7 +176,7 @@ export default function ConceptNetwork(props: Props) {
   };
 
   return (
-    <Box className={styles.interface_component_right}>
+    <Box ref={parentRef} className={styles.interface_component_right}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Concept Graph"
@@ -183,7 +193,7 @@ export default function ConceptNetwork(props: Props) {
       <Box
         component="img"
         sx={{
-          height: "100%", // You can specify the size
+          height: "40vh", // You can specify the size
           width: "100%",
         }}
         alt="Concept map of NFT"

@@ -1000,8 +1000,10 @@ export default function TreeMap(props: Props) {
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
       <Box
         sx={{
-          height: `${childHeight}px`,
-          width: `${childWidth}px`,
+          // height: `${childHeight}px`,
+          // width: `${childWidth}px`,
+          height: "40vh",
+          width: "100%",
           // overflowX: "auto",
           // overflowY: "auto",
         }}

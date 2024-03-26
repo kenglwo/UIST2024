@@ -80,7 +80,8 @@ export default function EmbeddedContent(props: Props) {
             flexDirection: "column",
             alignItems: "center",
             overflowY: "auto",
-            height: childHeight,
+            // height: childHeight,
+            height: "40vh",
             overflowX: "visible",
             padding: "10px",
           }}
@@ -114,6 +115,7 @@ export default function EmbeddedContent(props: Props) {
           sx={{
             width: "10px",
             height: childHeight,
+            // height: "100%",
             marginLeft: "10px",
             backgroundColor: "darkgray",
             display: "flex",
