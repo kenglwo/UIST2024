@@ -522,7 +522,20 @@ export default function ChatRecord(props: Props) {
           {conversationData.map((conversation, i) => {
             return conversationBox(conversation, followupQuestions, i);
           })}
-          {/* {conversationData[conversationData.length-1]["role"] === "system" && } */}
+          {!llmAlreadyReadEmbeddedContent && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <CircularProgress />
+              <Typography variant="h6" sx={{marginLeft: "20px"}}>
+                LLM is reading the embedded content
+              </Typography>
+            </Box>
+          )}
           {isLoadingLLMResponse && <CircularProgress />}
         </Box>
         <Box
