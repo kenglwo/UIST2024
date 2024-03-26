@@ -12,11 +12,12 @@ export default function Header() {
         m: 0,
         p: 1,
         pl: 2,
+        height: "40px",
         backgroundColor: "#565656",
       }}
     >
       <Typography variant="h4" gutterBottom sx={{ color: "white" }}>
-        System Name
+        CausaDisco
       </Typography>
     </Box>
   );
