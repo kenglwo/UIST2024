@@ -15,28 +15,28 @@ interface Props {
 }
 
 const navigationItemsNFT = [
-    "Title",
-    "What does NFT stand for?",
-    "What is an NFT?",
-    "Why are NFTs so expensive?",
-    "Why do people buy NFTs?",
-    "Key takeaways",
-]
+  "Title",
+  "What does NFT stand for?",
+  "What is an NFT?",
+  "Why are NFTs so expensive?",
+  "Why do people buy NFTs?",
+  "Key takeaways",
+];
 
 const navigationItemsSemiotics = [
-    "Title",
-    "Semiotics: definition",
-    "Signs in semiotics",
-    "Semiotic theory",
-    "Semiotic analysis",
-    "Semiotics examples",
-    "Semiotics and language teaching",
-    "Semiotics - Key Takeaways"
-]
+  "Title",
+  "Semiotics: definition",
+  "Signs in semiotics",
+  "Semiotic theory",
+  "Semiotic analysis",
+  "Semiotics examples",
+  "Semiotics and language teaching",
+  "Semiotics - Key Takeaways",
+];
 
 export default function EmbeddedContent(props: Props) {
-  const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
-  const [navigationItems, setNavigationItems] = useState<string[]>([])
+  const [embeddedContentType, setEmbeddedContentType] = useState<string>("");
+  const [navigationItems, setNavigationItems] = useState<string[]>([]);
   const [navigationDisplayValue, setNavigationDisplayValue] = useState<
     "flex" | "none"
   >("flex");
@@ -53,11 +53,11 @@ export default function EmbeddedContent(props: Props) {
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    setEmbeddedContentType(props.embeddedContentType)
-    if (props.embeddedContentType === 'nft') {
-      setNavigationItems(navigationItemsNFT)
-    } else if (props.embeddedContentType === 'semiotics') {
-      setNavigationItems(navigationItemsSemiotics)
+    setEmbeddedContentType(props.embeddedContentType);
+    if (props.embeddedContentType === "nft") {
+      setNavigationItems(navigationItemsNFT);
+    } else if (props.embeddedContentType === "semiotics") {
+      setNavigationItems(navigationItemsSemiotics);
     }
   }, [props]);
 
@@ -81,7 +81,7 @@ export default function EmbeddedContent(props: Props) {
             alignItems: "center",
             overflowY: "auto",
             height: childHeight,
-            overflowX: 'visible',
+            overflowX: "visible",
             padding: "10px",
           }}
         >
@@ -97,7 +97,10 @@ export default function EmbeddedContent(props: Props) {
                 onClick={() => {
                   const element = document.getElementById(`content_sec${i}`);
                   if (element) {
-                    element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    element.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                    });
                   }
                   setClickedNavigationButtonIndex(i);
                 }}
@@ -136,8 +139,8 @@ export default function EmbeddedContent(props: Props) {
           </Box>
         </Box>
         <Box sx={{ ml: 3, overflowY: "auto", height: childHeight }}>
-          {embeddedContentType === "nft" &&  <TextNFT2 />}
-          {embeddedContentType === "semiotics" &&  <TextSemiotics />}
+          {embeddedContentType === "nft" && <TextNFT2 />}
+          {embeddedContentType === "semiotics" && <TextSemiotics />}
         </Box>
       </Stack>
     </Box>

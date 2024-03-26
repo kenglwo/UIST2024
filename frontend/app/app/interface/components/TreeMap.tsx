@@ -22,7 +22,7 @@ interface Props {
   clickedFollowupQuestionIndex: string;
 }
 
-interface ViewboxRect  {
+interface ViewboxRect {
   minX: number;
   minY: number;
   width: number;
@@ -43,8 +43,13 @@ export default function TreeMap(props: Props) {
   const [childHeight, setChildHeight] = useState<number>(0); // State to hold the child's height
   const [childWidth, setChildWidth] = useState<number>(0); // State to hold the child's height
   // const [clickedFollowupQuestionIndexArray, setClickedFollowupQuestionIndexArray] = useState<string[]>([])
-  const clickedFollowupQuestionIndexArray = useRef([])
-  const viewBoxRect = useRef<ViewboxRect>({ width: 0, height: 0, minX: 0, minY: 0 });
+  const clickedFollowupQuestionIndexArray = useRef([]);
+  const viewBoxRect = useRef<ViewboxRect>({
+    width: 0,
+    height: 0,
+    minX: 0,
+    minY: 0,
+  });
   const isMouseHoveringSVG = useRef<boolean>(false);
   const isMiddleButtonPressed = useRef<boolean>(false);
   const mouseClientX = useRef<number>(0);
@@ -79,7 +84,9 @@ export default function TreeMap(props: Props) {
   useEffect(() => {
     if (props.clickedFollowupQuestionIndex !== "") {
       // setClickedFollowupQuestionIndexArray([...clickedFollowupQuestionIndexArray, props.clickedFollowupQuestionIndex])
-      clickedFollowupQuestionIndexArray.current.push(props.clickedFollowupQuestionIndex)
+      clickedFollowupQuestionIndexArray.current.push(
+        props.clickedFollowupQuestionIndex,
+      );
       // console.log(`@@@@  clickedFollowupQuesitonIndex at tree map  @@@@@@`)
       // console.log(clickedFollowupQuestionIndexArray)
       // console.log(clickedFollowupQuestionIndexArray)
@@ -319,8 +326,8 @@ export default function TreeMap(props: Props) {
             // update node opacity
             allNodes.forEach((e) => {
               // check if traversed element of g
-              const GElementId = e.getAttribute('id')
-              if (GElementId?.includes("question")){
+              const GElementId = e.getAttribute("id");
+              if (GElementId?.includes("question")) {
                 // keep question root node visible
                 e.setAttribute("opacity", "1");
               } else {
@@ -407,10 +414,10 @@ export default function TreeMap(props: Props) {
       newHeight,
     ]);
 
-    viewBoxRect.current.minX =Number(currentViewBox[0]);
+    viewBoxRect.current.minX = Number(currentViewBox[0]);
     viewBoxRect.current.minY = Number(currentViewBox[1]);
     viewBoxRect.current.width = newWidth;
-    viewBoxRect.current.height =newHeight 
+    viewBoxRect.current.height = newHeight;
   };
 
   // function calculateSvgContentSize(svgElement) {
@@ -465,7 +472,7 @@ export default function TreeMap(props: Props) {
         //   const followupQuestionG = document.querySelector(`#${d.data.followupQuestionIndex}`)
         //   console.log(followupQuestionG)
         // }
-       return d.y 
+        return d.y;
       })
       .y((d) => d.x);
 
@@ -478,10 +485,15 @@ export default function TreeMap(props: Props) {
 
     // const svgElement = document.querySelector("svg");
 
-    const viewBoxArray: number[] = viewBoxRect.current.width === 0 && viewBoxRect.current.height === 0 ?
-     [- ( width / 2 ), - (height / 2), width, height] 
-     :
-     [viewBoxRect.current.minX, viewBoxRect.current.minY, viewBoxRect.current.width, viewBoxRect.current.height]
+    const viewBoxArray: number[] =
+      viewBoxRect.current.width === 0 && viewBoxRect.current.height === 0
+        ? [-(width / 2), -(height / 2), width, height]
+        : [
+            viewBoxRect.current.minX,
+            viewBoxRect.current.minY,
+            viewBoxRect.current.width,
+            viewBoxRect.current.height,
+          ];
     svg
       .attr("width", width)
       .attr("height", height)
@@ -584,16 +596,20 @@ export default function TreeMap(props: Props) {
         .attr("stroke-opacity", 0)
         .style("display", (d) => {
           if (d.data.name === "root") {
-            return "none"
-          } else if (d.data.category === 'question') {
+            return "none";
+          } else if (d.data.category === "question") {
             // show original quesiotn (root of the tree map)
-            return "block"
-          } else if (clickedFollowupQuestionIndexArray.current.includes(d.data.followupQuestionIndex)) {
+            return "block";
+          } else if (
+            clickedFollowupQuestionIndexArray.current.includes(
+              d.data.followupQuestionIndex,
+            )
+          ) {
             // show clicked follow up questions
-            return "block"
+            return "block";
           } else {
             // hide unclicked follow up quesions
-            return "none"
+            return "none";
           }
         })
         .on("click", (event, d) => {
@@ -628,7 +644,7 @@ export default function TreeMap(props: Props) {
         //   console.log(d)
         //   return d.data.category === 'question' ? "end" : "start"
         //   // return (d._children ? "start" : "start")
-        // })        
+        // })
         .text((d, i) =>
           d.category === "question" ? `Q${i + 1}: ${d.data.name}` : d.data.name,
         )
@@ -713,18 +729,22 @@ export default function TreeMap(props: Props) {
         .style("display", (d) => {
           if (d.source.data.name === "root") {
             // if root, hide the link
-            return "none"
+            return "none";
           } else {
-            if(d.target.data && d.target.data.followupQuestionIndex) {
+            if (d.target.data && d.target.data.followupQuestionIndex) {
               // console.log(d.target.data.followupQuestionIndex)
               // follow up questions
-              if (clickedFollowupQuestionIndexArray.current.includes(d.target.data.followupQuestionIndex)) {
-                console.log('=============: block')
-                return "block"
+              if (
+                clickedFollowupQuestionIndexArray.current.includes(
+                  d.target.data.followupQuestionIndex,
+                )
+              ) {
+                console.log("=============: block");
+                return "block";
               } else {
-                return "none"
+                return "none";
               }
-            } 
+            }
           }
         });
       // Enter any new links
@@ -752,21 +772,23 @@ export default function TreeMap(props: Props) {
         .style("display", (d) => {
           if (d.source.data.name === "root") {
             // if root, hide the link
-            return "none"
+            return "none";
           } else {
-            if(d.target.data) {
+            if (d.target.data) {
               // console.log(d.target.data.followupQuestionIndex)
               // follow up questions
-              if (clickedFollowupQuestionIndexArray.current.includes(d.target.data.followupQuestionIndex)) {
-                return "block"
+              if (
+                clickedFollowupQuestionIndexArray.current.includes(
+                  d.target.data.followupQuestionIndex,
+                )
+              ) {
+                return "block";
               } else {
-                return "none"
+                return "none";
               }
-            } 
+            }
           }
-        }
-          
-        );
+        });
 
       // Transition exiting links to the parent's new position.
       link
@@ -780,20 +802,24 @@ export default function TreeMap(props: Props) {
         .style("display", (d) => {
           if (d.source.data.name === "root") {
             // if root, hide the link
-            return "none"
+            return "none";
           } else {
-            if(d.target.data) {
-              if (clickedFollowupQuestionIndexArray.current.includes(d.target.data.followupQuestionIndex)) {
-                return "block"
+            if (d.target.data) {
+              if (
+                clickedFollowupQuestionIndexArray.current.includes(
+                  d.target.data.followupQuestionIndex,
+                )
+              ) {
+                return "block";
               } else {
-                return "none"
+                return "none";
               }
-            } 
+            }
           }
         });
-        // .style("display", (d) =>
-        //   d.source.data.name === "root" ? "none" : "block",
-        // );
+      // .style("display", (d) =>
+      //   d.source.data.name === "root" ? "none" : "block",
+      // );
 
       // Stash the old positions for transition.
       nodes.forEach((d) => {
@@ -892,8 +918,8 @@ export default function TreeMap(props: Props) {
             // update node opacity
             allNodes.forEach((e) => {
               // check if traversed element of g
-              const GElementId = e.getAttribute('id')
-              if (GElementId?.includes("question")){
+              const GElementId = e.getAttribute("id");
+              if (GElementId?.includes("question")) {
                 // keep question root node visible
                 e.setAttribute("opacity", "1");
               } else {

@@ -18,13 +18,13 @@ interface Props {
 
 export default function ConceptNetwork(props: Props) {
   const [open, setOpen] = React.useState(false);
-  const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
+  const [embeddedContentType, setEmbeddedContentType] = useState<string>("");
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   useEffect(() => {
-    setEmbeddedContentType(props.embeddedContentType)
-  }, [props.embeddedContentType])
+    setEmbeddedContentType(props.embeddedContentType);
+  }, [props.embeddedContentType]);
 
   // const svgRef = useRef();
   // const margin = { top: 20, right: 30, bottom: 30, left: 40 };
@@ -187,7 +187,11 @@ export default function ConceptNetwork(props: Props) {
           width: "100%",
         }}
         alt="Concept map of NFT"
-        src={embeddedContentType === "nft" ? "/images/concept_map.png" : "/images/concept_graph_semiotics.png"}
+        src={
+          embeddedContentType === "nft"
+            ? "/images/concept_map.png"
+            : "/images/concept_graph_semiotics.png"
+        }
         onClick={handleOpen}
       />
       <Modal
@@ -211,7 +215,11 @@ export default function ConceptNetwork(props: Props) {
             padding: "10px",
           }}
           alt="Concept map of NFT"
-          src={embeddedContentType === "nft" ? "/images/concept_map.png" : "/images/concept_graph_semiotics.png"}
+          src={
+            embeddedContentType === "nft"
+              ? "/images/concept_map.png"
+              : "/images/concept_graph_semiotics.png"
+          }
           onClick={handleOpen}
         />
       </Modal>

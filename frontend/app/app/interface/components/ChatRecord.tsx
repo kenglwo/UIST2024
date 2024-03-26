@@ -531,7 +531,7 @@ export default function ChatRecord(props: Props) {
               }}
             >
               <CircularProgress />
-              <Typography variant="h6" sx={{marginLeft: "20px"}}>
+              <Typography variant="h6" sx={{ marginLeft: "20px" }}>
                 LLM is reading the embedded content
               </Typography>
             </Box>
