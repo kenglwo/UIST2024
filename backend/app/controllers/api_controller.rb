@@ -154,10 +154,12 @@ class ApiController < ApplicationController
 
   def save_user_info
     user_info = params['user_info']
-    api_status = ""
+    api_status = "success"
 
-    new_user_data = UserDatum.new(user_id: user_info[:userId])
-    api_status = new_user_data.save ? "success" : "failed"
+    unless UserDatum.exists?(user_id: user_info[:userId])
+      new_user_data = UserDatum.new(user_id: user_info[:userId])
+      api_status = new_user_data.save ? "success" : "failed"
+    end
 
     # add new PastConversation entry if no
     unless PastConversation.exists?(user_id: user_info[:userId])

@@ -45,7 +45,8 @@ export default function BasicGrid() {
       .then(
         (result) => {
           // Go to self-learning page
-          const url: string = `/interface?user_id=${userId}`;
+          // const url: string = `/interface?user_id=${userId}`;
+          const url: string = `/interface?user_id=${userId}&embedded_content=nft`;
           router.push(url);
         },
         (error) => {
@@ -62,6 +63,41 @@ export default function BasicGrid() {
     const userInfoTest: UserInfo = { userId: "test_user", userName: "user1" };
     setUserInfo(userInfoTest);
   }, [userInfo]);
+
+  const onClickSemiotics = () => {
+    const newUserInfo: UserInfo = {
+      userId: userId,
+      userName: "",
+    };
+
+    // POST userInfo
+    const url: string = `${process.env.NEXT_PUBLIC_API_URL}/save_user_info`;
+    const data = {
+      user_info: newUserInfo,
+    };
+    const header = {
+      method: "POST",
+      "Access-Control-Allow-Origin": "*",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+
+    fetch(url, header)
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          // Go to self-learning page
+          // const url: string = `/interface?user_id=${userId}`;
+          const url: string = `/interface?user_id=${userId}&embedded_content=semiotics`;
+          router.push(url);
+        },
+        (error) => {
+          console.log("========== API error ==========");
+          console.log(error);
+        },
+      );
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
@@ -92,7 +128,14 @@ export default function BasicGrid() {
               sx={{ maxWidth: "100px", marginTop: "20px" }}
               onClick={onClickSubmitButton}
             >
-              Submit
+              NFT
+            </Button>
+            <Button
+              variant="contained"
+              sx={{ maxWidth: "100px", marginTop: "20px" }}
+              onClick={onClickSemiotics}
+            >
+              Semiotics
             </Button>
           </Stack>
         </Grid>
