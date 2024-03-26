@@ -12,16 +12,22 @@ import Tooltip from "@mui/material/Tooltip";
 import { UserInfo, ConversationData, FollowupQuestion } from "../../types";
 import { askChatGptToReadEmbeddedContent } from "./chatgpt_api";
 import styles from "../styles.module.css";
+import JSZip from "jszip";
 
 interface Props {
   userInfo: UserInfo | null;
   embeddedContentType: string;
-  passConversationData: (ConversationData: ConversationData[], clickedFollowupQuestionIndedx?: string) => void;
+  passConversationData: (
+    ConversationData: ConversationData[],
+    clickedFollowupQuestionIndedx?: string,
+  ) => void;
   passFollowupQuestions: (followupQuestions: FollowupQuestion[]) => void;
   passHoveredFollowupQuestionData: (
     hoveredFollowupQuestion: FollowupQuestion,
   ) => void;
-  passClickedFollowupQuestionIndex: (clickedFollowupQuestionIndex: string) => void;
+  passClickedFollowupQuestionIndex: (
+    clickedFollowupQuestionIndex: string,
+  ) => void;
 }
 
 export default function ChatRecord(props: Props) {
@@ -44,7 +50,7 @@ export default function ChatRecord(props: Props) {
   const [llmAlreadyReadEmbeddedContent, setllmAlreadyReadEmbeddedContent] =
     useState<boolean>(false);
   // const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
-  const clickedFollowupQuestionIndexArray = useRef<string[]>([])
+  const clickedFollowupQuestionIndexArray = useRef([]);
 
   useEffect(() => {
     // scroll to the question
@@ -96,15 +102,14 @@ export default function ChatRecord(props: Props) {
     const now = new Date();
     const year = now.getFullYear();
     // getMonth() returns month from 0 (January) to 11 (December) so we add 1
-    const month = ('0' + (now.getMonth() + 1)).slice(-2); // Ensure two digits
-    const day = ('0' + now.getDate()).slice(-2); // Ensure two digits
-    const hours = ('0' + now.getHours()).slice(-2);
-    const minutes = ('0' + now.getMinutes()).slice(-2);
-    const seconds = ('0' + now.getSeconds()).slice(-2);
+    const month = ("0" + (now.getMonth() + 1)).slice(-2); // Ensure two digits
+    const day = ("0" + now.getDate()).slice(-2); // Ensure two digits
+    const hours = ("0" + now.getHours()).slice(-2);
+    const minutes = ("0" + now.getMinutes()).slice(-2);
+    const seconds = ("0" + now.getSeconds()).slice(-2);
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
-    
 
   const onChangeTextField = (inputText: string) => {
     setUserInputPrompt(inputText);
@@ -123,7 +128,7 @@ export default function ChatRecord(props: Props) {
       content: userInputPrompt,
       conversationId: conversationId,
       mode: followupQuestionMode,
-      timestamp: getTimestamp()
+      timestamp: getTimestamp(),
     };
     const conversationDataPrev: ConversationData[] = [
       ...conversationData,
@@ -159,7 +164,7 @@ export default function ChatRecord(props: Props) {
             content: result["answer_question"],
             conversationId: conversationId,
             mode: followupQuestionMode,
-            timestamp: getTimestamp()
+            timestamp: getTimestamp(),
           };
 
           setConversationData([
@@ -235,8 +240,11 @@ export default function ChatRecord(props: Props) {
   const onClickFollowupQuestion = (followupQuestion: FollowupQuestion) => {
     const followupQuestionContent: string = followupQuestion.content;
     const clickedFollowupQuestionIndex = followupQuestion.followupQuestionIndex;
-    props.passClickedFollowupQuestionIndex(clickedFollowupQuestionIndex)
-    clickedFollowupQuestionIndexArray.current.push(clickedFollowupQuestionIndex)
+    props.passClickedFollowupQuestionIndex(clickedFollowupQuestionIndex);
+    clickedFollowupQuestionIndexArray.current.push({
+      followupQuestionIndex: clickedFollowupQuestionIndex,
+      timestamp: getTimestamp(),
+    });
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
@@ -265,7 +273,7 @@ export default function ChatRecord(props: Props) {
             content: result["answer_question"],
             conversationId: conversationId,
             mode: followupQuestionMode,
-            timestamp: getTimestamp()
+            timestamp: getTimestamp(),
           };
 
           // console.log('-- new conversation data --')
@@ -347,14 +355,11 @@ export default function ChatRecord(props: Props) {
               onClickFollowupQuestion(d);
             }}
           >
-            <Typography variant="body1">
-              {d.content}
-            </Typography>
+            <Typography variant="body1">{d.content}</Typography>
           </Box>
         </Box>
       ),
     );
-
 
     return (
       <Box
@@ -411,7 +416,7 @@ export default function ChatRecord(props: Props) {
   // @ts-ignore
   function objectArrayToTsv(data) {
     if (data.length === 0) {
-      return '';
+      return "";
     }
 
     // Extract headers
@@ -419,43 +424,59 @@ export default function ChatRecord(props: Props) {
     const csvRows = [];
 
     // Add header row
-    csvRows.push(headers.join('\t'));
+    csvRows.push(headers.join("\t"));
 
     // Convert each object to a CSV row
     for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '""'); // Convert to string and escape double quotes
-        const escapedLine = escaped.replaceAll("\n", "")
+      const values = headers.map((header) => {
+        const escaped = ("" + row[header]).replace(/"/g, '""'); // Convert to string and escape double quotes
+        const escapedLine = escaped.replaceAll("\n", "");
         return `"${escaped}"`; // Enclose each value in double quotes
       });
-      csvRows.push(values.join('\t'));
+      csvRows.push(values.join("\t"));
     }
 
-    return csvRows.join('\n');
+    return csvRows.join("\n");
   }
 
-  function downloadTsv(csvString: string, filename = 'data.csv') {
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  function downloadZip(tsvDataObjects, zipFilename = "data.zip") {
+    const zip = new JSZip();
+
+    // Add each TSV file to the zip
+    tsvDataObjects.forEach(({ data, filename }) => {
+      const tsvString = objectArrayToTsv(data);
+      zip.file(filename, tsvString, { binary: false });
+    });
+
+    // Generate the ZIP file and trigger the download
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(content);
+      link.download = zipFilename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   }
 
   const onClickDownload = () => {
-    // conversationData, followupQuestions, clickedFollowupQuestionIndexArray
-    // TODO: add mode and timestamp!!
-    const conversationDataCsvRows = objectArrayToTsv(conversationData)
-    downloadTsv(conversationDataCsvRows, "conversation_data.tsv")
+    const dataSets = [
+      {
+        data: conversationData,
+        filename: "conversation_data.tsv",
+      },
+      {
+        data: followupQuestions,
+        filename: "followup_questions.tsv",
+      },
+      {
+        data: clickedFollowupQuestionIndexArray.current,
+        filename: "clicked_followup_questions.tsv",
+      },
+    ];
 
-    const followupQuestionsTsvRows = objectArrayToTsv(followupQuestions)
-    downloadTsv(followupQuestionsTsvRows, "followup_question.tsv")
-
-    const clickedFollowupQuesitonIndexArrayString = clickedFollowupQuestionIndexArray.current.join("\n")
-    downloadTsv(clickedFollowupQuesitonIndexArrayString, "clicked_followup_question_index.tsv")
-  }
+    downloadZip(dataSets, "data.zip");
+  };
 
   return (
     <Box ref={parentRef} className={styles.interface_component2}>
