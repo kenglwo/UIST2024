@@ -1,0 +1,2 @@
+class PastConversation < ApplicationRecord
+end
