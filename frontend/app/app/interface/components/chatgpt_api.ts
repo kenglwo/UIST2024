@@ -6,7 +6,8 @@ import { Message } from "../../types";
 // const apiKey: string = process.env.NEXT_PUBLIC_CHATGPT_API_KEY;
 // const apiModel: string = process.env.NEXT_PUBLIC_CHATGPT_MODEL;
 
-const apiUrl: string | undefined = process.env.NEXT_PUBLIC_CHATGPT_API_ENDPOINT2;
+const apiUrl: string | undefined =
+  process.env.NEXT_PUBLIC_CHATGPT_API_ENDPOINT2;
 const apiKey: string | undefined = process.env.NEXT_PUBLIC_CHATGPT_API_KEY2;
 const apiModel: string | undefined = process.env.NEXT_PUBLIC_CHATGPT_MODEL2;
 
@@ -35,7 +36,7 @@ export async function generateResponse(message: Message[]) {
   };
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${apiKey}`,
+    Authorization: `Bearer ${apiKey}`,
     "Access-Control-Allow-Origin": "*",
   };
   try {
@@ -48,11 +49,16 @@ export async function generateResponse(message: Message[]) {
   }
 }
 
-export async function askChatGptToReadEmbeddedContent(content: string, mode: string) {
+export async function askChatGptToReadEmbeddedContent(
+  userId: string,
+  content: string,
+  mode: string,
+) {
   const url: string = `${process.env.NEXT_PUBLIC_API_URL}/ask_read_content`;
   const data = {
+    user_id: userId,
     embedded_content_type: content,
-    mode
+    mode,
   };
   const header = {
     method: "POST",
@@ -67,7 +73,7 @@ export async function askChatGptToReadEmbeddedContent(content: string, mode: str
     const response = await fetch(url, header);
     const result = await response.json();
 
-    if (result.output_prompt === 'API_ERROR') {
+    if (result.output_prompt === "API_ERROR") {
       window.alert("ChatGPT Could not read the embedded content");
       // Assuming false means ChatGPT could not read the content
       return false;
@@ -84,4 +90,4 @@ export async function askChatGptToReadEmbeddedContent(content: string, mode: str
     // If there's an error, assuming false since it couldn't read the content
     return false;
   }
-};
+}

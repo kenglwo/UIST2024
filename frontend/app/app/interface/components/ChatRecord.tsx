@@ -83,9 +83,10 @@ export default function ChatRecord(props: Props) {
       // ask ChatGPT to read the embedded content
       const checkAndReadContent = async () => {
         if (!llmAlreadyReadEmbeddedContent) {
-          console.log("===== ask chatgpt to read content ===");
-          console.log(props.embeddedContentType);
+          // console.log("===== ask chatgpt to read content ===");
+          // console.log(props.embeddedContentType);
           const hasRead = await askChatGptToReadEmbeddedContent(
+            props.userInfo.userId,
             props.embeddedContentType,
             followupQuestionMode,
           );
@@ -123,7 +124,7 @@ export default function ChatRecord(props: Props) {
     setTextFieldValue("");
 
     const newConversationDataUser: ConversationData = {
-      userId: props.userInfo.userId,
+      user_id: props.userInfo.userId,
       role: "user",
       content: userInputPrompt,
       conversationId: conversationId,
@@ -139,6 +140,7 @@ export default function ChatRecord(props: Props) {
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
+      user_id: props.userInfo.userId,
       user_input_prompt: userInputPrompt,
       followup_question_mode: followupQuestionMode,
     };
@@ -159,7 +161,7 @@ export default function ChatRecord(props: Props) {
         (result) => {
           // add LLM response to conversation data
           const newConversationDataLLM: ConversationData = {
-            userId: props.userInfo!.userId,
+            user_id: props.userInfo!.userId,
             role: "system",
             content: result["answer_question"],
             conversationId: conversationId,
@@ -212,7 +214,7 @@ export default function ChatRecord(props: Props) {
         : `Forget about your role. Learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType} (control version), without further comments`;
 
     const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
-    const data = { user_input_prompt: prompt };
+    const data = { user_id: props.userInfo.userId, user_input_prompt: prompt };
     const headers = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -248,6 +250,7 @@ export default function ChatRecord(props: Props) {
 
     const url: string = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer`;
     const data = {
+      user_id: props.userInfo.userId,
       user_input_prompt: followupQuestionContent,
       followup_question_mode: followupQuestionMode,
     };
@@ -268,7 +271,7 @@ export default function ChatRecord(props: Props) {
         (result) => {
           // add LLM response to conversation data as children of the selected follow-up question
           const newConversationDataLLM: ConversationData = {
-            userId: props.userInfo!.userId,
+            user_id: props.userInfo!.userId,
             role: "system",
             content: result["answer_question"],
             conversationId: conversationId,
