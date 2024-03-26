@@ -954,7 +954,7 @@ export default function TreeMap(props: Props) {
   );
 
   return (
-    <Box ref={parentRef} className={styles.interface_component2}>
+    <Box ref={parentRef} className={styles.interface_component_right}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Embedded Content Sharp"

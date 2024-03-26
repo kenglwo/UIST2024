@@ -166,7 +166,7 @@ export default function ConceptNetwork(props: Props) {
   };
 
   return (
-    <Box className={styles.interface_component}>
+    <Box className={styles.interface_component_right}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Concept Graph"

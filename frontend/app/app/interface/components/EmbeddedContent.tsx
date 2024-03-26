@@ -62,7 +62,7 @@ export default function EmbeddedContent(props: Props) {
   }, [props]);
 
   return (
-    <Box ref={parentRef} className={styles.interface_component2}>
+    <Box ref={parentRef} className={styles.interface_component_left}>
       <Stack direction="row" sx={{ display: "flex", alignItems: "center" }}>
         <Avatar
           alt="Embedded Content Sharp"
