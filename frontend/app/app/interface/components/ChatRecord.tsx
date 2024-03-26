@@ -482,7 +482,7 @@ export default function ChatRecord(props: Props) {
   };
 
   return (
-    <Box ref={parentRef} className={styles.interface_component2}>
+    <Box ref={parentRef} className={styles.interface_component_left}>
       <Stack
         direction="row"
         sx={{ display: "flex", justifyContent: "space-between" }}
@@ -517,7 +517,7 @@ export default function ChatRecord(props: Props) {
         </Stack>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
-      <Box sx={{ height: childHeight, overflowY: "auto" }}>
+      <Box sx={{ height: "40vh", overflowY: "auto" }}>
         <Box>
           {conversationData.map((conversation, i) => {
             return conversationBox(conversation, followupQuestions, i);
@@ -531,7 +531,7 @@ export default function ChatRecord(props: Props) {
               }}
             >
               <CircularProgress />
-              <Typography variant="h6" sx={{marginLeft: "20px"}}>
+              <Typography variant="h6" sx={{ marginLeft: "20px" }}>
                 LLM is reading the embedded content
               </Typography>
             </Box>

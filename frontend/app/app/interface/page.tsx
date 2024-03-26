@@ -10,6 +10,7 @@ import TreeMap from "./components/TreeMap";
 import ConceptNetwork from "./components/ConceptNetwork";
 import EmbeddedContent from "./components/EmbeddedContent";
 import { UserInfo, ConversationData, FollowupQuestion } from "../types";
+import styles from "./styles.module.css";
 
 export default function BasicGrid() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -19,19 +20,26 @@ export default function BasicGrid() {
   const [followupQuestions, setFollowupQuestions] = useState<
     FollowupQuestion[]
   >([]);
-  const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<FollowupQuestion | undefined>()
-  const [embeddedContentType, setEmbeddedContentType] = useState<string>("")
-  const [clickedFollowupQuestionIndex, setClickedFollowupQuestionIndex] = useState<string>("")
+  const [hoveredFollowupQuestion, setHoveredFollowupQuestion] = useState<
+    FollowupQuestion | undefined
+  >();
+  const [embeddedContentType, setEmbeddedContentType] = useState<string>("");
+  const [clickedFollowupQuestionIndex, setClickedFollowupQuestionIndex] =
+    useState<string>("");
 
   const searchParams = useSearchParams();
 
-  const passClickedFollowupQuestionIndex = (clickedFollowupQuestionIndex: string) => {
-    setClickedFollowupQuestionIndex(clickedFollowupQuestionIndex)
-    console.log(`@@ clickedFollowupQuestionIndex at page: ${clickedFollowupQuestionIndex}`)
-  }
+  const passClickedFollowupQuestionIndex = (
+    clickedFollowupQuestionIndex: string,
+  ) => {
+    setClickedFollowupQuestionIndex(clickedFollowupQuestionIndex);
+    console.log(
+      `@@ clickedFollowupQuestionIndex at page: ${clickedFollowupQuestionIndex}`,
+    );
+  };
 
   const passConversationData = (
-    conversationDataInChildComponent: ConversationData[]
+    conversationDataInChildComponent: ConversationData[],
   ) => {
     setConversationData(conversationDataInChildComponent);
   };
@@ -42,9 +50,11 @@ export default function BasicGrid() {
     setFollowupQuestions(followupQuestionsInChildComponent);
   };
 
-  const passHoveredFollowupQuestionData = (hoveredFollowupQuestion: FollowupQuestion) => {
-    setHoveredFollowupQuestion(hoveredFollowupQuestion)
-  }
+  const passHoveredFollowupQuestionData = (
+    hoveredFollowupQuestion: FollowupQuestion,
+  ) => {
+    setHoveredFollowupQuestion(hoveredFollowupQuestion);
+  };
 
   useEffect(() => {
     if (userInfo !== null) return;
@@ -58,37 +68,42 @@ export default function BasicGrid() {
     setUserInfo(userInfoTest);
 
     // get embedded content type
-    const embeddedContentParameter = searchParams.get("embedded_content")
+    const embeddedContentParameter = searchParams.get("embedded_content");
     if (embeddedContentParameter === "nft") {
-      setEmbeddedContentType("nft")
+      setEmbeddedContentType("nft");
     } else if (embeddedContentParameter === "semiotics") {
-      setEmbeddedContentType("semiotics")
+      setEmbeddedContentType("semiotics");
     } else {
-      setEmbeddedContentType("nft")
+      setEmbeddedContentType("nft");
     }
   }, []);
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={2}>
+      <Grid container className={styles.layout_grid}>
         <Grid item xs={12}>
           <Header />
         </Grid>
         <Grid item xs={6}>
           <Stack>
-            <EmbeddedContent embeddedContentType={embeddedContentType}/>
+            <EmbeddedContent embeddedContentType={embeddedContentType} />
             <ChatRecord
               userInfo={userInfo}
               embeddedContentType={embeddedContentType}
               passConversationData={passConversationData}
               passFollowupQuestions={passFollowupQuestions}
               passHoveredFollowupQuestionData={passHoveredFollowupQuestionData}
-              passClickedFollowupQuestionIndex={passClickedFollowupQuestionIndex}
+              passClickedFollowupQuestionIndex={
+                passClickedFollowupQuestionIndex
+              }
             />
           </Stack>
         </Grid>
         <Grid item xs={6}>
-          <div>
-            <ConceptNetwork userInfo={userInfo} embeddedContentType={embeddedContentType} />
+          <Stack>
+            <ConceptNetwork
+              userInfo={userInfo}
+              embeddedContentType={embeddedContentType}
+            />
             <TreeMap
               userInfo={userInfo}
               conversationData={conversationData}
@@ -96,7 +111,7 @@ export default function BasicGrid() {
               hoveredFollowupQuestion={hoveredFollowupQuestion}
               clickedFollowupQuestionIndex={clickedFollowupQuestionIndex}
             />
-          </div>
+          </Stack>
         </Grid>
       </Grid>
     </Box>
