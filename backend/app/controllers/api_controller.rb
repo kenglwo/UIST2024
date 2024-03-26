@@ -4,15 +4,17 @@ require 'json'
 require_relative 'embedded_content_text'
 
 class ApiController < ApplicationController
-  $past_conversations_array = []
 
   def get_chatgpt_answer
-     @this_conversations = "" 
-     @this_conversations +=  params['user_input_prompt'] + "\n Please answer the last question" + "\n\n"
-     user_input_prompt =  $past_conversations_array.join("\n") + params['user_input_prompt'] + "\n Please answer the last question"
+     user_id = params['user_id']
+     past_conversations = PastConversation.where(user_id: user_id)
+     contents = past_conversations.map(&:content)
+     conversation_history = contents.join("\n")
 
-    #  logger.debug "\n--- propt to ask a question ---\n"
-    #  logger.debug user_input_prompt
+     @this_conversations = ""
+     @this_conversations +=  params['user_input_prompt'] + "\n Please answer the last question" + "\n\n"
+     user_input_prompt =  conversation_history + params['user_input_prompt'] + "\n Please answer the last question"
+
 
      answer_question = getResponseByLLM(user_input_prompt)
      @this_conversations += answer_question + "\n\n"
@@ -23,12 +25,9 @@ class ApiController < ApplicationController
       'Provide the top 4 related follow-up questions based on the previous question using the four causes idea without mentioning the type of causes. Attach ; after each question.'
       :
       'Provide the top 4 related follow-up questions based on the previous question. Attach ; after each question.'
-     followup_question_prompt = $past_conversations_array.join("\n") + @this_conversations + followup_question_prompt_const
+     followup_question_prompt = conversation_history + @this_conversations + followup_question_prompt_const
 
      @this_conversations += followup_question_prompt_const + "\n\n"
-
-    #  logger.debug "\n--- prompt to ask fu questions ---\n"
-    #  logger.debug followup_question_prompt
 
      followup_questions = getResponseByLLM(followup_question_prompt, user_input_prompt)
      @this_conversations += followup_questions + "\n\n"
@@ -41,36 +40,35 @@ class ApiController < ApplicationController
      }
 
      @this_conversations += "= end of a conversation = \n"
-    #  logger.debug "=================="
-    #  logger.debug @this_conversations
 
-     $past_conversations_array.push(@this_conversations) unless $past_conversations_array.include?($this_conversations)
+     conversation_history_new = conversation_history + @this_conversations
+     PastConversation.where(user_id: user_id).update_all(content: conversation_history_new)
+
      logger.debug("=====  conversations ======")
-     logger.debug($past_conversations_array.join("\n"))
+     logger.debug(conversation_history_new)
 
      render json: output
   end
 
   def get_chatgpt_answer_without_followup_questions
+     user_id = params['user_id']
      user_input_prompt = params['user_input_prompt']
      answer_question = getResponseByLLM(user_input_prompt)
      output = {
       answer_question: answer_question,
      }
-    
-     $past_conversations_array.push(user_input_prompt)
-     $past_conversations_array.push(answer_question)
+
+     user_id = params['user_id']
+     past_conversations = PastConversation.where(user_id: user_id)
+     contents = past_conversations.map(&:content)
+     conversation_history = contents.join("\n")
+     conversation_history_new = [conversation_history, user_input_prompt, answer_question].join("\n\n")
+     PastConversation.where(user_id: user_id).update_all(content: conversation_history_new)
      render json:output
 
   end
 
   def getResponseByLLM(input_prompt, question = nil)
-    # logger.debug "===== API_ENDPOINT ====="
-    # logger.debug ENV['CHATGPT_API_ENDPOINT2']
-    # logger.debug "===== getResponseByLLM ====="
-    # logger.debug input_prompt
-
-    # input_prompt = question.nil? ? input_prompt : input_prompt.gsub("###", question)
 
      uri = URI(ENV['CHATGPT_API_ENDPOINT3'])
      # header = {
@@ -112,11 +110,12 @@ class ApiController < ApplicationController
   end
 
   def ask_read_content
+    user_id = params['user_id']
     embedded_content_type = params['embedded_content_type']
     mode = params['mode'] # contolled | epistemology
 
     # initialize the global var since this starts the user task
-    $past_conversations_array = []
+    PastConversation.where(user_id: user_id).update_all(content: '')
 
     input_prompt = mode == 'epistemology' ?
      "Please read an article on ### below to"  \
@@ -141,9 +140,13 @@ class ApiController < ApplicationController
     input_prompt = input_prompt.gsub("???", embedded_content)
     output_prompt = getResponseByLLM(input_prompt) # "API_ERROR" when failed
 
-    $past_conversations_array.push(input_prompt)
-    $past_conversations_array.push(output_prompt)
-    logger.debug $past_conversations_array.join("\n")
+
+    # just in case
+    unless PastConversation.exists?(user_id: user_id)
+      PastConversation.create(user_id: user_id, content: '')
+    end
+    conversation_history_new = [input_prompt, output_prompt].join("\n\n")
+    PastConversation.where(user_id: user_id).update_all(content: conversation_history_new)
 
     render json: {output_prompt: output_prompt }
   end
@@ -153,8 +156,14 @@ class ApiController < ApplicationController
     user_info = params['user_info']
     api_status = ""
 
-    new_user_data = UserDatum.new(user_id: user_info[:userId], user_name: user_info[:userName])
+    new_user_data = UserDatum.new(user_id: user_info[:userId])
     api_status = new_user_data.save ? "success" : "failed"
+
+    # add new PastConversation entry if no
+    unless PastConversation.exists?(user_id: user_info[:userId])
+      PastConversation.create(user_id: user_info[:userId], content: '')
+    end
+
 
     render json: {"status": api_status}
   end
