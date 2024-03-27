@@ -214,7 +214,7 @@ export default function ChatRecord(props: Props) {
         : `Forget about your role. Learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType} (control version), without further comments`;
 
     const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
-    const data = { user_id: props.userInfo.userId, user_input_prompt: prompt };
+    const data = { user_id: props.userInfo.userId, user_input_prompt: prompt, embedded_content_type: props.embeddedContentType};
     const headers = {
       method: "POST",
       headers: { "Content-Type": "application/json" },

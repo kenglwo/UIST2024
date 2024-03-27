@@ -52,7 +52,26 @@ class ApiController < ApplicationController
 
   def get_chatgpt_answer_without_followup_questions
      user_id = params['user_id']
+     embedded_content_type = params['embedded_content_type']
+
+    # clear conversaion history
+    PastConversation.where(user_id: user_id).update_all(content: '')
+
      user_input_prompt = params['user_input_prompt']
+    # add emebdded content
+     user_input_prompt += "The material is the following: ???"
+
+     embedded_content = ""
+     if embedded_content_type == 'nft'
+       # embedded_content = EmbeddedContent:NFT
+       embedded_content = EmbeddedContent::NFT_SHORT
+     elsif embedded_content_type == 'semiotics'
+       # embedded_content = EmbeddedContent:SEMIOTICS
+       embedded_content = EmbeddedContent::SEMIOTICS_SHORT
+     end
+     # insert embedded content text
+     user_input_prompt = user_input_prompt.gsub("???", embedded_content)
+
      answer_question = getResponseByLLM(user_input_prompt)
      output = {
       answer_question: answer_question,
