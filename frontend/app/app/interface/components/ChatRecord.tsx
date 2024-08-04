@@ -204,33 +204,6 @@ export default function ChatRecord(props: Props) {
       );
   };
 
-  const onChangeSwitch = async (isSwitchOn: boolean) => {
-    const newFollowupQuestionMode = isSwitchOn ? "epistemology" : "controlled";
-    setFollowupQuestionMode(newFollowupQuestionMode);
-
-    const prompt =
-      newFollowupQuestionMode === "epistemology"
-        ? `From now play a role as a tutor helping your novice students learn the material of ${props.embeddedContentType} from the next prompt. If OK just say ChatGPT plays a role as a tutor about ${props.embeddedContentType}.`
-        : `Forget about your role. Learn the material of ${props.embeddedContentType}. If OK just say ChatGPT is ready on ${props.embeddedContentType} (control version), without further comments`;
-
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/get_chatgpt_answer_without_followup_questions`;
-    const data = { user_id: props.userInfo.userId, user_input_prompt: prompt, embedded_content_type: props.embeddedContentType};
-    const headers = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    };
-
-    try {
-      const res = await fetch(url, headers);
-      const result = await res.json();
-      window.alert(result.answer_question);
-    } catch (error) {
-      console.log("========== API error ==========");
-      console.log(error);
-    }
-  };
-
   const onHoverFollowupQuestion = (d: FollowupQuestion) => {
     props.passHoveredFollowupQuestionData(d);
   };
@@ -504,16 +477,6 @@ export default function ChatRecord(props: Props) {
             mr: 4,
           }}
         >
-          <Tooltip title="Controlled Version" arrow placement="top">
-            <Typography variant="button">C</Typography>
-          </Tooltip>
-          <Switch
-            defaultChecked
-            onChange={(e) => onChangeSwitch(e.target.checked)}
-          />
-          <Tooltip title="Epistemology Version" arrow placement="top">
-            <Typography variant="button">E</Typography>
-          </Tooltip>
         </Stack>
       </Stack>
       <Divider sx={{ mt: 1, mb: 2, borderColor: "black", borderWidth: 1 }} />
