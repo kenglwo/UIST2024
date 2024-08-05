@@ -63,11 +63,11 @@ class ApiController < ApplicationController
 
      embedded_content = ""
      if embedded_content_type == 'nft'
-       # embedded_content = EmbeddedContent:NFT
-       embedded_content = EmbeddedContent::NFT_SHORT
+       embedded_content = EmbeddedContent:NFT
+      #  embedded_content = EmbeddedContent::NFT_SHORT
      elsif embedded_content_type == 'semiotics'
-       # embedded_content = EmbeddedContent:SEMIOTICS
-       embedded_content = EmbeddedContent::SEMIOTICS_SHORT
+       embedded_content = EmbeddedContent:SEMIOTICS
+      #  embedded_content = EmbeddedContent::SEMIOTICS_SHORT
      end
      # insert embedded content text
      user_input_prompt = user_input_prompt.gsub("???", embedded_content)
@@ -152,10 +152,10 @@ class ApiController < ApplicationController
 
     embedded_content = ''
     if embedded_content_type == 'nft'
-      # embedded_content = EmbeddedContent:NFT
-      embedded_content = EmbeddedContent::NFT_SHORT
+      embedded_content = EmbeddedContent::NFT
+      # embedded_content = EmbeddedContent::NFT_SHORT
     elsif embedded_content_type == 'semiotics'
-      # embedded_content = EmbeddedContent:SEMIOTICS
+      # embedded_content = EmbeddedContent::SEMIOTICS
       embedded_content = EmbeddedContent::SEMIOTICS_SHORT
     end
     # insert embedded content text
