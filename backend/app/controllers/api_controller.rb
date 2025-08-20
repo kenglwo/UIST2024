@@ -123,7 +123,7 @@ class ApiController < ApplicationController
       return answer_content
     else
       # Error handling logic here
-      puts "Something went wrong: #{response.value}"
+      # logger.debug "Something went wrong: #{response.value}"
       return "API_ERROR"
     end
   end

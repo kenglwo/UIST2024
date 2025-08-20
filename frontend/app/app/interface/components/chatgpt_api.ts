@@ -55,6 +55,7 @@ export async function askChatGptToReadEmbeddedContent(
   mode: string,
 ) {
   const url: string = `${process.env.NEXT_PUBLIC_API_URL}/ask_read_content`;
+  console.log(url)
   const data = {
     user_id: userId,
     embedded_content_type: content,
