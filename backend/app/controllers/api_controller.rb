@@ -22,7 +22,7 @@ class ApiController < ApplicationController
 
      followup_question_mode = params['followup_question_mode']
      followup_question_prompt_const = followup_question_mode == 'epistemology' ?
-      'Provide the top 4 related follow-up questions based on the previous question using the four causes idea without mentioning the type of causes. Attach ; after each question.'
+      'Provide the top 4 related follow-up questions based on the previous question using the four causes idea without mentioning the type of causes. Attach ; after each follow-up question and make it in one line.'
       :
       'Provide the top 4 related follow-up questions based on the previous question. Attach ; after each question.'
      followup_question_prompt = conversation_history + @this_conversations + followup_question_prompt_const
@@ -63,11 +63,11 @@ class ApiController < ApplicationController
 
      embedded_content = ""
      if embedded_content_type == 'nft'
-       # embedded_content = EmbeddedContent:NFT
-       embedded_content = EmbeddedContent::NFT_SHORT
+       embedded_content = EmbeddedContent:NFT
+      #  embedded_content = EmbeddedContent::NFT_SHORT
      elsif embedded_content_type == 'semiotics'
-       # embedded_content = EmbeddedContent:SEMIOTICS
-       embedded_content = EmbeddedContent::SEMIOTICS_SHORT
+       embedded_content = EmbeddedContent:SEMIOTICS
+      #  embedded_content = EmbeddedContent::SEMIOTICS_SHORT
      end
      # insert embedded content text
      user_input_prompt = user_input_prompt.gsub("???", embedded_content)
@@ -89,17 +89,19 @@ class ApiController < ApplicationController
 
   def getResponseByLLM(input_prompt, question = nil)
 
-     uri = URI(ENV['CHATGPT_API_ENDPOINT3'])
-     # header = {
-     #   'Content-Type': 'application/json',
-     #   'api-key': ENV['CHATGPT_API_KEY']
-     # }
+     uri = URI(ENV['CHATGPT_API_ENDPOINT'])
+     # For UST's ChatGPT API
      header = {
        'Content-Type': 'application/json',
-       'Authorization': "Bearer #{ENV['CHATGPT_API_KEY3']}"
+       'api-key': ENV['CHATGPT_API_KEY']
      }
+     # For OpenAI's ChatGPT API
+    #  header = {
+    #    'Content-Type': 'application/json',
+    #    'Authorization': "Bearer #{ENV['CHATGPT_API_KEY']}"
+    #  }
      body = {
-       "model": ENV['CHATGPT_MODEL3'],
+       "model": ENV['CHATGPT_MODEL'],
        "messages": [{"role": "user", "content": input_prompt}],
        "temperature": 0.7
       }
@@ -123,7 +125,8 @@ class ApiController < ApplicationController
       return answer_content
     else
       # Error handling logic here
-      # logger.debug "Something went wrong: #{response.value}"
+      # puts "Something went wrong: #{response.value}"
+      logger.debug response.value
       return "API_ERROR"
     end
   end
@@ -149,10 +152,10 @@ class ApiController < ApplicationController
 
     embedded_content = ''
     if embedded_content_type == 'nft'
-      # embedded_content = EmbeddedContent:NFT
-      embedded_content = EmbeddedContent::NFT_SHORT
+      embedded_content = EmbeddedContent::NFT
+      # embedded_content = EmbeddedContent::NFT_SHORT
     elsif embedded_content_type == 'semiotics'
-      # embedded_content = EmbeddedContent:SEMIOTICS
+      # embedded_content = EmbeddedContent::SEMIOTICS
       embedded_content = EmbeddedContent::SEMIOTICS_SHORT
     end
     # insert embedded content text
