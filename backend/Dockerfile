@@ -1,5 +1,5 @@
 FROM ruby:3.0.0
-EXPOSE 3003
+EXPOSE 3004
 
 # RUN apt-get update -qq && apt-get install -y curl apt-transport-https wget && \
 # 	curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs \

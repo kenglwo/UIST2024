@@ -6,7 +6,7 @@ volumes:
 
 services:
   frontend:
-    container_name: frontend
+    container_name: UIST_frontend
     build:
       context: ./frontend
       dockerfile: ./Dockerfile
@@ -25,7 +25,7 @@ services:
     #     yarn build"
     # command: bash -c "yarn start"
   backend:
-    container_name: backend
+    container_name: UIST_backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -43,7 +43,7 @@ services:
     #     rm -f tmp/pids/server.pid &&
     #     rails s -p 3003 -b '0.0.0.0'"
   db:
-    container_name: db
+    container_name: UIST_db
     build: ./db
     volumes:
       - uist_db:/var/lib/postgresql/data

@@ -18,6 +18,8 @@ export interface ConversationData {
   conversationId: number;
   isAnswerToFolloupQuestion?: boolean;
   followupQuestionId?: string;
+  mode?: string;
+  timestamp?: string;
 }
 
 export interface FollowupQuestion {
